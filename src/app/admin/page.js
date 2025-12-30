@@ -1,0 +1,92 @@
+"use client";
+import { useState } from "react";
+import { CARS } from "@/data"; // We mock this for now, later this comes from DB
+
+export default function AdminDashboard() {
+  const [cars, setCars] = useState(CARS);
+
+  // Stats Calculation
+  const totalValue = cars.reduce((acc, car) => acc + parseInt(car.price.replace(/[^\d]/g, "")), 0);
+  const featuredCount = cars.filter(c => c.size === 'large').length;
+
+  return (
+    <div className="p-12">
+      {/* Header */}
+      <div className="flex justify-between items-end mb-12">
+        <div>
+           <h2 className="text-3xl font-black uppercase italic tracking-tighter mb-2">Dashboard</h2>
+           <p className="text-xs font-mono text-gray-500">System Status: <span className="text-green-500">ONLINE</span></p>
+        </div>
+        <button className="bg-white text-black px-6 py-3 font-black text-xs uppercase tracking-widest hover:bg-gray-200 transition-colors">
+          + Upload Exhibit
+        </button>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-4 gap-6 mb-12">
+         <StatCard label="Total_Valuation" value={`₹${totalValue.toLocaleString()}`} />
+         <StatCard label="Total_Exhibits" value={cars.length} />
+         <StatCard label="Featured_Items" value={featuredCount} />
+         <StatCard label="Pending_Orders" value="3" highlight />
+      </div>
+
+      {/* Quick Inventory Table */}
+      <div className="bg-[#111] border border-white/5 rounded-lg overflow-hidden">
+        <div className="px-6 py-4 border-b border-white/5 flex justify-between items-center">
+           <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">Recent Inventory</h3>
+           <span className="text-[9px] font-mono text-gray-600">VIEW_ALL</span>
+        </div>
+        <table className="w-full text-left">
+          <thead className="bg-white/5 text-[9px] font-mono uppercase text-gray-500">
+             <tr>
+               <th className="px-6 py-3 font-normal">ID</th>
+               <th className="px-6 py-3 font-normal">Exhibit Name</th>
+               <th className="px-6 py-3 font-normal">Scale</th>
+               <th className="px-6 py-3 font-normal">Status</th>
+               <th className="px-6 py-3 font-normal text-right">Action</th>
+             </tr>
+          </thead>
+          <tbody className="divide-y divide-white/5">
+             {cars.slice(0, 5).map(car => (
+               <tr key={car.id} className="hover:bg-white/5 transition-colors">
+                 <td className="px-6 py-4 text-xs font-mono text-gray-500">#{car.id}</td>
+                 <td className="px-6 py-4">
+                   <div className="flex items-center gap-3">
+                     <img src={car.image} className="w-8 h-8 object-contain bg-white/5 rounded-sm" />
+                     <span className="text-xs font-bold uppercase tracking-tight">{car.name}</span>
+                   </div>
+                 </td>
+                 <td className="px-6 py-4 text-xs font-mono">{car.scale}</td>
+                 <td className="px-6 py-4">
+                    {car.size === 'large' ? (
+                      <span className="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+                        Featured
+                      </span>
+                    ) : (
+                      <span className="bg-gray-800 text-gray-400 border border-white/10 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+                        Archive
+                      </span>
+                    )}
+                 </td>
+                 <td className="px-6 py-4 text-right">
+                   <button className="text-[10px] font-bold uppercase hover:text-white text-gray-500 mr-4">Edit</button>
+                   <button className="text-[10px] font-bold uppercase hover:text-red-500 text-gray-500">Delete</button>
+                 </td>
+               </tr>
+             ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// Simple KPI Component
+function StatCard({ label, value, highlight }) {
+  return (
+    <div className={`p-6 border rounded-lg ${highlight ? 'bg-white text-black border-white' : 'bg-[#111] border-white/5 text-white'}`}>
+       <p className={`text-[9px] font-mono uppercase tracking-widest mb-2 ${highlight ? 'text-gray-500' : 'text-gray-500'}`}>{label}</p>
+       <p className="text-3xl font-black italic tracking-tighter">{value}</p>
+    </div>
+  )
+}

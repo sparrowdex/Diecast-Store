@@ -1,7 +1,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-// 1. Import the Cart Provider (Make sure you created the file in src/context/)
-import { CartProvider } from "@/context/CartContext"; 
+import { CartProvider } from "@/context/CartContext";
+// 1. NEW IMPORT: Import Clerk
+import { ClerkProvider } from '@clerk/nextjs';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,21 +15,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Gallery_01", // I updated this to match your branding
+  title: "The Diecast Store", 
   description: "Curated Diecast Exhibition",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {/* 2. Wrap the entire app so the Cart is accessible everywhere */}
-        <CartProvider>
-          {children}
-        </CartProvider>
-      </body>
-    </html>
+    // 2. Wrap the entire HTML structure with ClerkProvider
+    <ClerkProvider>
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <CartProvider>
+            {children}
+          </CartProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

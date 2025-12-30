@@ -2,6 +2,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation"; // NEW
+import Link from 'next/link'; // NEW
 import { CARS } from "../data";
 import { useCart } from "@/context/CartContext";
 import CartDrawer from "@/components/CartDrawer";
@@ -30,8 +31,8 @@ export default function GalleryPage() {
           <p className="text-gray-400 text-[10px] tracking-[0.4em] font-mono uppercase mt-3 ml-1">Curated_Diecast_Exhibition</p>
         </div>
         <nav className="hidden md:flex gap-12 text-[10px] font-bold tracking-widest uppercase items-center">
-          <span className="cursor-pointer hover:underline underline-offset-4">Catalog</span>
-          <span className="cursor-pointer hover:underline underline-offset-4">Journal</span>
+          <Link href="/catalog" className="cursor-pointer hover:underline underline-offset-4">Catalog</Link>
+          <Link href="/journal" className="cursor-pointer hover:underline underline-offset-4">Journal</Link>
           <button onClick={() => setIsCartOpen(true)} className="group flex items-center gap-2 px-4 py-2 bg-black text-white rounded-sm hover:bg-red-600 transition-colors">
             <span>VAULT</span>
             <span className="bg-white/20 px-1.5 py-0.5 rounded text-[9px]">{cart.length}</span>
