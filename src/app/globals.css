@@ -19,6 +19,12 @@
   }
 }
 
+@layer utilities {
+  .animate-shine {
+    animation: shine 1.5s ease-in-out infinite;
+  }
+}
+
 /* Base Styles */
 body {
   background: var(--background);
