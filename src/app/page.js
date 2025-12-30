@@ -1,233 +1,237 @@
-"use client"; // Required for Framer Motion and State
+"use client";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
-import { CARS } from "../data"; // Path to your data.js in 'src/'
+import { useState, useEffect } from "react";
+import { CARS } from "../data";
 
-// 1. THE MAIN PAGE (Must be the default export)
+// --- MAIN PAGE COMPONENT ---
 export default function GalleryPage() {
-  // --- STATE FOR THE FILTER ---
   const [selectedScale, setSelectedScale] = useState(null);
+  const [hoverState, setHoverState] = useState(false);
+  const [isCursorBlocked, setCursorBlocked] = useState(false);
 
-  // --- DATA DERIVATION ---
+  // Separate data
   const featuredCars = CARS.filter(car => car.size === 'large');
   const archiveCars = CARS.filter(car => car.size === 'small');
   
-  // Dynamically get all unique scales from the archive collection
+  // Get unique scales for filter buttons
   const uniqueScales = [...new Set(archiveCars.map(car => car.scale))].sort();
 
-  // Apply the filter to the archive cars
-  const filteredArchiveCars = selectedScale
+  // Filter logic
+  const filteredArchive = selectedScale
     ? archiveCars.filter(car => car.scale === selectedScale)
     : archiveCars;
 
   return (
-    <main className="min-h-screen bg-[#fafafa] text-black p-4 md:p-12 font-sans">
-      {/* Premium Header */}
-      <header className="mb-16 flex justify-between items-baseline border-b border-black/10 pb-8">
+    <main className="min-h-screen bg-[#fafafa] text-black p-4 md:p-12 font-sans relative selection:bg-black selection:text-white">
+      
+      {/* 1. HEADER */}
+      <header className="mb-20 flex justify-between items-baseline border-b border-black/10 pb-8">
         <div>
-          <h1 className="text-5xl font-black tracking-tighter italic">GALLERY_01</h1>
-          <p className="text-gray-400 text-xs tracking-[0.3em] font-mono uppercase mt-2">
-            Curated_Collector_Exhibition_2025
+          <h1 className="text-6xl font-black tracking-tighter italic">GALLERY_01</h1>
+          <p className="text-gray-400 text-[10px] tracking-[0.4em] font-mono uppercase mt-3 ml-1">
+            Curated_Diecast_Exhibition
           </p>
         </div>
-        <nav className="hidden md:flex gap-8 text-[10px] font-bold tracking-widest uppercase">
-          <span className="cursor-pointer hover:line-through">Catalog</span>
-          <span className="cursor-pointer hover:line-through">Archive</span>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-            <span>Live Inventory</span>
+        <nav className="hidden md:flex gap-12 text-[10px] font-bold tracking-widest uppercase">
+          <span className="cursor-pointer hover:underline underline-offset-4">Catalog</span>
+          <span className="cursor-pointer hover:underline underline-offset-4">Journal</span>
+          <div className="flex items-center gap-2 px-3 py-1 border border-black/10 rounded-full">
+            <div className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse" />
+            <span>Live Vault</span>
           </div>
         </nav>
       </header>
 
-      {/* SECTION 1: THE EXHIBIT (BENTO) */}
-      <section className="mb-24">
-        <div className="flex items-center gap-4 mb-8">
-          <h2 className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.4em]">Featured_Exhibits</h2>
-          <div className="h-[1px] flex-1 bg-black/5" />
+      {/* 2. FEATURED EXHIBITS (BENTO GRID) */}
+      <section className="mb-32">
+        <div className="flex items-center gap-6 mb-10">
+          <h2 className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.3em]">Featured_Exhibits</h2>
+          <div className="h-[1px] flex-1 bg-gradient-to-r from-black/10 to-transparent" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[350px] grid-flow-dense">
+        
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 auto-rows-[400px]">
           {featuredCars.map((car) => (
-            <GalleryCard key={car.id} car={car} />
+            <BentoCard 
+              key={car.id} 
+              car={car} 
+              setHoverState={setHoverState} 
+              setCursorBlocked={setCursorBlocked} 
+            />
           ))}
         </div>
       </section>
 
-      {/* SECTION 2: THE ARCHIVE (STANDARD GRID) */}
-      <section>
-        <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
-            <div className="flex items-center gap-4">
-                <h2 className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.4em]">Archive_Collection</h2>
-                <div className="h-[1px] flex-1 bg-black/5 min-w-[50px]" />
-            </div>
-            {/* --- SCALE FILTER UI --- */}
-            <div className="flex items-center gap-2 text-[10px] font-mono uppercase">
+      {/* 3. ARCHIVE COLLECTION (STANDARD GRID) */}
+      <section className="mb-20">
+        <div className="flex flex-wrap justify-between items-end gap-6 mb-12">
+           <div>
+              <h2 className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.3em] mb-2">Archive_Collection</h2>
+              <h3 className="text-2xl font-bold tracking-tight">Full Inventory</h3>
+           </div>
+
+           {/* Scale Filters */}
+           <div className="flex gap-2">
+              <button 
+                onClick={() => setSelectedScale(null)}
+                className={`px-4 py-1.5 text-[10px] font-mono rounded-full border transition-all uppercase tracking-widest
+                  ${!selectedScale ? 'bg-black text-white border-black' : 'bg-transparent text-gray-400 border-gray-200 hover:border-black'}`}
+              >
+                All
+              </button>
+              {uniqueScales.map(scale => (
                 <button 
-                    onClick={() => setSelectedScale(null)}
-                    className={`px-3 py-1 rounded-full transition-colors ${!selectedScale ? 'bg-black text-white' : 'bg-gray-200 text-gray-500 hover:bg-gray-300'}`}
+                  key={scale}
+                  onClick={() => setSelectedScale(scale)}
+                  className={`px-4 py-1.5 text-[10px] font-mono rounded-full border transition-all uppercase tracking-widest
+                    ${selectedScale === scale ? 'bg-black text-white border-black' : 'bg-transparent text-gray-400 border-gray-200 hover:border-black'}`}
                 >
-                    All
+                  {scale}
                 </button>
-                {uniqueScales.map(scale => (
-                    <button 
-                        key={scale}
-                        onClick={() => setSelectedScale(scale)}
-                        className={`px-3 py-1 rounded-full transition-colors ${selectedScale === scale ? 'bg-black text-white' : 'bg-gray-200 text-gray-500 hover:bg-gray-300'}`}
-                    >
-                        {scale}
-                    </button>
-                ))}
-            </div>
+              ))}
+           </div>
         </div>
         
-        {/* Tighter 6-column grid for the archive */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-10">
-          <AnimatePresence>
-            {filteredArchiveCars.map((car) => (
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-12">
+          <AnimatePresence mode="popLayout">
+            {filteredArchive.map((car) => (
               <StandardCard key={car.id} car={car} />
             ))}
           </AnimatePresence>
         </div>
       </section>
+
+      {/* 4. GLOBAL COMPONENTS */}
+      <CustomCursor active={hoverState && !isCursorBlocked} />
+      
     </main>
   );
 }
 
-// 2. THE BENTO CARD COMPONENT
-function GalleryCard({ car }) {
+// --- SUB-COMPONENT: BENTO CARD (Featured) ---
+function BentoCard({ car, setHoverState, setCursorBlocked }) {
   const [isHovered, setIsHovered] = useState(false);
-  const isLarge = car.size === 'large';
 
   return (
     <motion.div
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-      className={`relative rounded-xl overflow-hidden bg-white border border-black/5 shadow-sm transition-all duration-500
-        ${isLarge ? 'md:col-span-2 md:row-span-2' : 'md:col-span-1 md:row-span-1'}
-        ${isHovered ? 'shadow-2xl' : ''}
-      `}
+      onMouseEnter={() => { setIsHovered(true); setHoverState(true); }}
+      onMouseLeave={() => { setIsHovered(false); setHoverState(false); }}
+      className="relative md:col-span-2 md:row-span-1 rounded-sm overflow-hidden bg-white border border-gray-100 group shadow-sm hover:shadow-2xl transition-all duration-700"
     >
-      {/* Media Layer */}
-      <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-[#fdfdfd]">
+      {/* Image Layer */}
+      <div className="absolute inset-0 flex items-center justify-center bg-[#fdfdfd] p-12">
         <AnimatePresence mode="wait">
-          {!isHovered ? (
-            <motion.img
-              key="image"
-              src={car.image} 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className={`w-full h-full object-contain ${isLarge ? 'p-16' : 'p-8'}`}
-            />
-          ) : (
-            <motion.div 
-              key="video-container"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute inset-0 w-full h-full bg-gray-200"
-            >
-              <video
-                src={car.video}
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="w-full h-full object-cover"
-              />
-            </motion.div>
-          )}
+           {!isHovered ? (
+             <motion.img 
+               key="img"
+               src={car.image} 
+               className="w-full h-full object-contain drop-shadow-xl"
+               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+             />
+           ) : (
+             <motion.div 
+               key="vid"
+               initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+               className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-300 font-mono text-xs"
+             >
+               {/* Video Placeholder if file is missing */}
+               {car.video ? (
+                 <video src={car.video} autoPlay muted loop playsInline className="w-full h-full object-cover opacity-80" />
+               ) : (
+                 <span>[VIDEO_PREVIEW_LOADING]</span>
+               )}
+             </motion.div>
+           )}
         </AnimatePresence>
       </div>
 
-      {/* Info Overlay Panel */}
+      {/* Info Slide-Out Panel */}
       <motion.div
-        initial={false}
-        animate={{ 
-          x: isHovered ? "0%" : "101%", 
-          opacity: isHovered ? 1 : 0 
-        }}
-        transition={{ type: "spring", damping: 30, stiffness: 150 }}
-        className={`absolute top-0 right-0 h-full bg-black/95 backdrop-blur-xl text-white p-8 flex flex-col z-10
-          ${isLarge ? 'w-1/2' : 'w-full'}
-        `}
+        initial={{ x: "100%" }}
+        animate={{ x: isHovered ? "0%" : "100%" }}
+        transition={{ type: "spring", damping: 25, stiffness: 120 }}
+        className="absolute top-0 right-0 w-1/2 h-full bg-white/95 backdrop-blur-xl border-l border-black/5 p-8 flex flex-col justify-between z-10"
       >
-        <div className="flex-1 overflow-hidden">
-            <div className="flex justify-between items-start">
-                <span className="text-[10px] text-gray-500 font-mono tracking-widest">{car.brand}</span>
-                <span className="text-[10px] bg-white/10 px-2 py-1 rounded">#{car.id}</span>
-            </div>
-            
-            <h2 className={`font-black mt-4 leading-none uppercase italic tracking-tighter
-                ${isLarge ? 'text-4xl' : 'text-xl'}
-            `}>
-                {car.name}
-            </h2>
-            
-            <div className="h-[1px] w-full bg-white/20 my-6" />
-            
-            <p className="text-gray-400 font-light leading-relaxed text-sm mb-4">
-              A championship-winning formula car, engineered for peak performance and presented in pristine collector's condition.
-            </p>
-            
-            <div className="flex flex-wrap gap-2 text-[8px] font-bold">
-                <div className="border border-white/20 px-2 py-1 rounded-full uppercase tracking-tighter">
-                Scale_{car.scale}
-                </div>
-                <div className="border border-white/20 px-2 py-1 rounded-full uppercase tracking-tighter">
-                Mint_Stk
-                </div>
-            </div>
+        <div>
+          <span className="text-[10px] text-gray-400 font-mono tracking-widest uppercase">{car.brand}</span>
+          <h3 className="text-3xl font-black italic uppercase tracking-tighter leading-none mt-2">{car.name}</h3>
+          <p className="text-xs text-gray-500 font-light mt-6 leading-relaxed">{car.description}</p>
         </div>
-
-        <div className="mt-auto pt-6 flex items-center justify-between border-t border-white/10">
-            <div>
-                <p className="text-[7px] text-gray-500 uppercase mb-1">Value</p>
-                <span className={`${isLarge ? 'text-2xl' : 'text-lg'} font-black italic tracking-tighter`}>
-                {car.price}
-                </span>
-            </div>
-            <button className="bg-white text-black text-[9px] font-black px-5 py-3 hover:bg-red-500 hover:text-white transition-all duration-300 uppercase tracking-tighter italic">
-                Acquire Item
-            </button>
+        
+        <div className="flex items-center justify-between border-t border-gray-100 pt-6">
+           <div>
+             <p className="text-[8px] uppercase text-gray-400 tracking-widest mb-1">Acquisition</p>
+             <p className="text-xl font-black italic">{car.price}</p>
+           </div>
+           
+           {/* THE SHINY BUTTON */}
+           <button 
+             onMouseEnter={() => setCursorBlocked(true)}
+             onMouseLeave={() => setCursorBlocked(false)}
+             className="group/btn relative overflow-hidden bg-black text-white px-6 py-3 font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-transform"
+           >
+             <span className="relative z-10">Acquire</span>
+             {/* The Shine Effect Overlay */}
+             <div className="absolute inset-0 -translate-x-full group-hover/btn:animate-shine bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[-15deg]" />
+           </button>
         </div>
       </motion.div>
     </motion.div>
   );
 }
 
-
-// 3. THE STANDARD ARCHIVE CARD
+// --- SUB-COMPONENT: STANDARD CARD (Archive) ---
 function StandardCard({ car }) {
   return (
     <motion.div 
       layout
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      whileHover={{ y: -5 }}
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       className="group cursor-pointer"
     >
-      <div className="relative aspect-[4/3] bg-[#f5f5f5] rounded-lg overflow-hidden flex items-center justify-center p-6 mb-3 transition-colors group-hover:bg-[#ebebeb]">
-        <img 
-          src={car.image} 
-          alt={car.name} 
-          className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
-        />
-        <div className="absolute top-2 left-2 flex gap-1">
-          <span className="bg-white/80 backdrop-blur px-1.5 py-0.5 text-[8px] font-mono border rounded uppercase">
+      <div className="relative aspect-square bg-[#f8f8f8] rounded-sm flex items-center justify-center p-6 mb-3 border border-transparent group-hover:border-black/5 transition-colors">
+        <img src={car.image} className="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-110" />
+        <div className="absolute top-2 left-2">
+          <span className="text-[8px] font-mono border border-black/10 bg-white px-1.5 py-0.5 rounded text-gray-500">
             {car.scale}
           </span>
         </div>
       </div>
-      
-      <div className="px-1">
-        <h3 className="text-[11px] font-bold uppercase tracking-tight text-gray-900 truncate">
-          {car.name}
-        </h3>
-        <div className="flex justify-between items-center mt-1">
-          <span className="text-[10px] text-gray-400 font-mono uppercase">{car.brand}</span>
-          <span className="text-xs font-black italic">{car.price}</span>
+      <div>
+        <h4 className="text-xs font-bold uppercase tracking-tight truncate">{car.name}</h4>
+        <div className="flex justify-between items-center mt-1 text-[10px]">
+          <span className="text-gray-400">{car.brand}</span>
+          <span className="font-bold">{car.price}</span>
         </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// --- SUB-COMPONENT: RECTANGULAR CURSOR ---
+function CustomCursor({ active }) {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e) => setMousePos({ x: e.clientX, y: e.clientY });
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  return (
+    <motion.div
+      animate={{
+        x: mousePos.x,
+        y: mousePos.y,
+        scale: active ? 1 : 0,
+        opacity: active ? 1 : 0
+      }}
+      transition={{ type: "spring", damping: 30, stiffness: 250, mass: 0.8 }}
+      className="fixed top-0 left-0 pointer-events-none z-[9999]"
+      style={{ translateX: "-50%", translateY: "-50%" }} 
+    >
+      <div className="w-24 h-8 bg-white/20 backdrop-blur-md border border-white/50 shadow-2xl flex items-center justify-center rounded-sm">
+        <span className="text-[9px] font-black tracking-widest text-black uppercase">
+          View
+        </span>
       </div>
     </motion.div>
   );
