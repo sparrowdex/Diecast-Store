@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  brand       String
+  scale       String
+  price       String
+
+  // THE KEY CHANGE: We store a list of URLs, not just one
+  images      String[] 
+
+  description String?
+  material    String?
+  condition   String?
+
+  featured    Boolean  @default(false)
+  category    String   @default("Archive")
+  stock       Int      @default(1)
+  createdAt   DateTime @default(now())
+}
+
+model Order {
+  id            String   @id @default(cuid())
+  customerEmail String
+  customerName  String
+  total         String
+  status        String   @default("PENDING")
+  items         Json
+  createdAt     DateTime @default(now())
+}

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo } from 'react';
-import { CARS } from '@/data';
+import { FEATURED_EXHIBITS, ARCHIVE_COLLECTION } from '@/data';
+const CARS = [...FEATURED_EXHIBITS, ...ARCHIVE_COLLECTION];
 import CatalogCard from '@/components/CatalogCard';
 
 export default function CatalogPage() {
