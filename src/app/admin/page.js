@@ -1,102 +1,12 @@
-"use client";
-import { useState } from "react";
-import Link from "next/link";
-import { FEATURED_EXHIBITS, ARCHIVE_COLLECTION } from "@/data"; // We mock this for now, later this comes from DB
+import prisma from "@/lib/prisma";
+import AdminDashboard from "./Dashboard";
 
-const allCars = [...FEATURED_EXHIBITS, ...ARCHIVE_COLLECTION];
+export default async function AdminDashboardPage() {
+  const cars = await prisma.product.findMany({
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
 
-export default function AdminDashboard() {
-  const [cars, setCars] = useState(allCars);
-
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this exhibit? This action cannot be undone.")) {
-      setCars(cars.filter(car => car.id !== id));
-      // In a real app, you'd also make an API call here to delete from the DB
-    }
-  };
-
-  // Stats Calculation
-  const totalValue = cars.reduce((acc, car) => acc + parseInt(car.price.replace(/[^\d]/g, "")), 0);
-  const featuredCount = cars.filter(c => c.size === 'large').length;
-
-  return (
-    <div className="p-12">
-      {/* Header */}
-      <div className="flex justify-between items-end mb-12">
-        <div>
-           <h2 className="text-3xl font-black uppercase italic tracking-tighter mb-2">Dashboard</h2>
-           <p className="text-xs font-mono text-gray-500">System Status: <span className="text-green-500">ONLINE</span></p>
-        </div>
-        <Link href="/admin/inventory/new" className="bg-white text-black px-6 py-3 font-black text-xs uppercase tracking-widest hover:bg-gray-200 transition-colors">
-          + Upload Exhibit
-        </Link>
-      </div>
-
-      {/* KPI Cards */}
-      <div className="grid grid-cols-4 gap-6 mb-12">
-         <StatCard label="Total_Valuation" value={`₹${totalValue.toLocaleString()}`} />
-         <StatCard label="Total_Exhibits" value={cars.length} />
-         <StatCard label="Featured_Items" value={featuredCount} />
-         <StatCard label="Pending_Orders" value="3" highlight />
-      </div>
-
-      {/* Quick Inventory Table */}
-      <div className="bg-[#111] border border-white/5 rounded-lg overflow-hidden">
-        <div className="px-6 py-4 border-b border-white/5 flex justify-between items-center">
-           <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">Recent Inventory</h3>
-           <Link href="/admin/inventory" className="text-[9px] font-mono text-gray-600 hover:text-white transition-colors">VIEW_ALL</Link>
-        </div>
-        <table className="w-full text-left">
-          <thead className="bg-white/5 text-[9px] font-mono uppercase text-gray-500">
-             <tr>
-               <th className="px-6 py-3 font-normal">ID</th>
-               <th className="px-6 py-3 font-normal">Exhibit Name</th>
-               <th className="px-6 py-3 font-normal">Scale</th>
-               <th className="px-6 py-3 font-normal">Status</th>
-               <th className="px-6 py-3 font-normal text-right">Action</th>
-             </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5">
-             {cars.slice(0, 5).map(car => (
-               <tr key={car.id} className="hover:bg-white/5 transition-colors">
-                 <td className="px-6 py-4 text-xs font-mono text-gray-500">#{car.id}</td>
-                 <td className="px-6 py-4">
-                   <div className="flex items-center gap-3">
-                     <img src={car.image} className="w-8 h-8 object-contain bg-white/5 rounded-sm" />
-                     <span className="text-xs font-bold uppercase tracking-tight">{car.name}</span>
-                   </div>
-                 </td>
-                 <td className="px-6 py-4 text-xs font-mono">{car.scale}</td>
-                 <td className="px-6 py-4">
-                    {car.size === 'large' ? (
-                      <span className="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
-                        Featured
-                      </span>
-                    ) : (
-                      <span className="bg-gray-800 text-gray-400 border border-white/10 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
-                        Archive
-                      </span>
-                    )}
-                 </td>
-                 <td className="px-6 py-4 text-right">
-                   <Link href={`/admin/inventory/edit/${car.id}`} className="text-[10px] font-bold uppercase hover:text-white text-gray-500 mr-4">Edit</Link>
-                   <button onClick={() => handleDelete(car.id)} className="text-[10px] font-bold uppercase hover:text-red-500 text-gray-500">Delete</button>
-                 </td>
-               </tr>
-             ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-// Simple KPI Component
-function StatCard({ label, value, highlight }) {
-  return (
-    <div className={`p-6 border rounded-lg ${highlight ? 'bg-white text-black border-white' : 'bg-[#111] border-white/5 text-white'}`}>
-       <p className={`text-[9px] font-mono uppercase tracking-widest mb-2 ${highlight ? 'text-gray-500' : 'text-gray-500'}`}>{label}</p>
-       <p className="text-3xl font-black italic tracking-tighter">{value}</p>
-    </div>
-  )
+  return <AdminDashboard initialCars={cars} />;
 }

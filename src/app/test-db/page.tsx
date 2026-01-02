@@ -1,10 +1,18 @@
 import prisma from "@/lib/prisma";
-import Gallery from "./Gallery";
 
-export default async function GalleryPage() {
+export default async function TestPage() {
   try {
     // This simple query tests the Neon adapter connection
-    await prisma.$queryRaw`SELECT 1`;
+    const result = await prisma.$queryRaw`SELECT NOW()`;
+    
+    return (
+      <div className="p-8">
+        <h1 className="text-green-600 font-bold">Connection Successful!</h1>
+        <pre className="mt-4 bg-gray-100 p-4 rounded">
+          {JSON.stringify(result, null, 2)}
+        </pre>
+      </div>
+    );
   } catch (error) {
     return (
       <div className="p-8">
@@ -16,18 +24,4 @@ export default async function GalleryPage() {
       </div>
     );
   }
-
-  const featuredExhibits = await prisma.product.findMany({
-    where: {
-      featured: true,
-    },
-  });
-
-  const archiveCollection = await prisma.product.findMany({
-    where: {
-      category: "Archive",
-    },
-  });
-
-  return <Gallery featuredExhibits={featuredExhibits} archiveCollection={archiveCollection} />;
 }
