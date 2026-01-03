@@ -177,70 +177,10 @@ export default function ExhibitPreview({ formData, handleChange, handleImageChan
 
 
 
-        {/* BENTO GRID PLACEMENT PREVIEW */}
-        {(formData.category === "Archive" || formData.category === "Featured") && (
-          <div>
-             <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Bento Grid Placement Preview</h3>
-             <div className="rounded-lg p-8 bg-[#fafafa]">
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                     <BentoCard car={previewCar} isPreview={true} />
-                     {/* Placeholder bento cards for context */}
-                     <div className="bg-white rounded-xl p-6 border border-gray-100">
-                         <div className="text-center text-gray-400">
-                             <p className="text-sm font-medium">Featured Exhibit</p>
-                             <p className="text-xs mt-1">Placeholder</p>
-                         </div>
-                     </div>
-                     <div className="bg-white rounded-xl p-6 border border-gray-100">
-                         <div className="text-center text-gray-400">
-                             <p className="text-sm font-medium">New Arrival</p>
-                             <p className="text-xs mt-1">Placeholder</p>
-                         </div>
-                     </div>
-                 </div>
-             </div>
-          </div>
-        )}
 
-        {/* MEDIA GALLERY MANAGEMENT */}
-        <div>
-           <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Media Gallery Management</h3>
-           <div className="rounded-lg p-8 bg-[#fafafa]">
-               {formData.images.length > 0 || formData.video ? (
-                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                   {formData.images.map((imageUrl, index) => (
-                     <div key={index} className="relative group">
-                       <img
-                         src={imageUrl}
-                         alt={`Image ${index + 1}`}
-                         className="w-full h-24 object-cover rounded-lg border-2 border-white shadow-sm"
-                       />
-                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                         <span className="text-white text-xs font-bold">{index + 1}</span>
-                       </div>
-                     </div>
-                   ))}
-                   {formData.video && (
-                     <div className="relative group">
-                       <video
-                         src={formData.video}
-                         className="w-full h-24 object-cover rounded-lg border-2 border-white shadow-sm"
-                         muted
-                       />
-                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                         <span className="text-white text-xs font-bold">VIDEO</span>
-                       </div>
-                     </div>
-                   )}
-                 </div>
-               ) : (
-                 <div className="text-center text-gray-400 py-8">
-                   <p>No media uploaded yet</p>
-                   <p className="text-xs mt-1">Upload images and videos above to see them here</p>
-                 </div>
-               )}
-           </div>
-        </div>
+
+
+
       </div>
     </div>
   );
