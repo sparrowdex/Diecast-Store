@@ -18,6 +18,7 @@ model Product {
   images      String[] 
 
   description String?
+  editorsNote String?
   material    String?
   condition   String?
 

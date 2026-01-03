@@ -7,38 +7,19 @@ import ExhibitPreview from "@/components/ExhibitPreview";
 export default function EditExhibit({ car }) {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    name: "",
-    brand: "",
-    price: "",
-    scale: "",
-    images: [],
-    video: "",
-    material: "",
-    condition: "",
-    description: "",
-    featured: false,
-    category: "Archive",
-    stock: 1,
+    name: car?.name || "",
+    brand: car?.brand || "",
+    price: car?.price || "",
+    scale: car?.scale || "",
+    images: car?.images || [],
+    video: car?.video || "",
+    material: car?.material || "",
+    condition: car?.condition || "",
+    description: car?.description || "",
+    featured: car?.featured || false,
+    category: car?.category || "Archive",
+    stock: car?.stock || 1,
   });
-
-  useEffect(() => {
-    if (car) {
-      setFormData({
-        name: car.name || "",
-        brand: car.brand || "",
-        price: car.price || "",
-        scale: car.scale || "",
-        images: car.images || [],
-        video: car.video || "",
-        material: car.material || "",
-        condition: car.condition || "",
-        description: car.description || "",
-        featured: car.featured || false,
-        category: car.category || "Archive",
-        stock: car.stock || 1,
-      });
-    }
-  }, [car]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

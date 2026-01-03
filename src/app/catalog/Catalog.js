@@ -3,6 +3,62 @@
 import { useState, useMemo } from 'react';
 import CatalogCard from '@/components/CatalogCard';
 
+const VISIBLE_LIMIT = 5; // How many tiles to show before hiding the rest
+
+// Helper Component for Filter Groups to keep JSX clean
+const FilterGroup = ({ title, items, selected, setSelected, isExpanded, setExpanded }) => {
+  const visibleItems = isExpanded ? items : items.slice(0, VISIBLE_LIMIT);
+  const hiddenCount = items.length - VISIBLE_LIMIT;
+
+  return (
+    <div className="flex-1">
+      <div className="flex justify-between items-baseline mb-4">
+        <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{title}</h3>
+        {/* Optional: Clear selection if something is selected */}
+        {selected !== 'All' && (
+          <button onClick={() => setSelected('All')} className="text-[9px] text-red-500 underline">Clear</button>
+        )}
+      </div>
+      
+      <div className="flex flex-wrap gap-2">
+        {visibleItems.map(item => (
+          <button
+            key={item}
+            onClick={() => setSelected(item)}
+            className={`px-5 py-2.5 text-[10px] font-bold uppercase tracking-wider border rounded-sm transition-all duration-200
+              ${selected === item 
+                ? 'bg-black text-white border-black shadow-md' 
+                : 'bg-white text-gray-500 border-gray-100 hover:border-gray-300 hover:text-black'
+              }`}
+          >
+            {item === 'All' ? 'View All' : item}
+          </button>
+        ))}
+        
+        {/* The "Expand" Button (Only shows if there are hidden items) */}
+        {!isExpanded && hiddenCount > 0 && (
+          <button
+            onClick={() => setExpanded(true)}
+            className="px-4 py-2.5 text-[10px] font-mono text-gray-400 border border-transparent hover:text-black transition-colors flex items-center gap-1"
+          >
+            <span>+ {hiddenCount} More</span>
+          </button>
+        )}
+
+        {/* The "Collapse" Button (Only shows if expanded) */}
+        {isExpanded && items.length > VISIBLE_LIMIT && (
+          <button
+            onClick={() => setExpanded(false)}
+            className="px-4 py-2.5 text-[10px] font-mono text-gray-400 border border-transparent hover:text-black transition-colors"
+          >
+            Show Less
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export default function Catalog({ cars }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [scaleFilter, setScaleFilter] = useState('All');
@@ -11,9 +67,6 @@ export default function Catalog({ cars }) {
   // NEW: State to manage "Show More" toggle
   const [showAllScales, setShowAllScales] = useState(false);
   const [showAllBrands, setShowAllBrands] = useState(false);
-
-  // Constants
-  const VISIBLE_LIMIT = 5; // How many tiles to show before hiding the rest
 
   // Dynamically get unique options
   const brands = useMemo(() => ['All', ...new Set(cars.map(car => car.brand))], [cars]);
@@ -29,60 +82,6 @@ export default function Catalog({ cars }) {
       return matchesSearch && matchesScale && matchesBrand;
     });
   }, [searchTerm, scaleFilter, brandFilter, cars]);
-
-  // Helper Component for Filter Groups to keep JSX clean
-  const FilterGroup = ({ title, items, selected, setSelected, isExpanded, setExpanded }) => {
-    const visibleItems = isExpanded ? items : items.slice(0, VISIBLE_LIMIT);
-    const hiddenCount = items.length - VISIBLE_LIMIT;
-
-    return (
-      <div className="flex-1">
-        <div className="flex justify-between items-baseline mb-4">
-          <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{title}</h3>
-          {/* Optional: Clear selection if something is selected */}
-          {selected !== 'All' && (
-            <button onClick={() => setSelected('All')} className="text-[9px] text-red-500 underline">Clear</button>
-          )}
-        </div>
-        
-        <div className="flex flex-wrap gap-2">
-          {visibleItems.map(item => (
-            <button
-              key={item}
-              onClick={() => setSelected(item)}
-              className={`px-5 py-2.5 text-[10px] font-bold uppercase tracking-wider border rounded-sm transition-all duration-200
-                ${selected === item 
-                  ? 'bg-black text-white border-black shadow-md' 
-                  : 'bg-white text-gray-500 border-gray-100 hover:border-gray-300 hover:text-black'
-                }`}
-            >
-              {item === 'All' ? 'View All' : item}
-            </button>
-          ))}
-          
-          {/* The "Expand" Button (Only shows if there are hidden items) */}
-          {!isExpanded && hiddenCount > 0 && (
-            <button
-              onClick={() => setExpanded(true)}
-              className="px-4 py-2.5 text-[10px] font-mono text-gray-400 border border-transparent hover:text-black transition-colors flex items-center gap-1"
-            >
-              <span>+ {hiddenCount} More</span>
-            </button>
-          )}
-
-          {/* The "Collapse" Button (Only shows if expanded) */}
-          {isExpanded && items.length > VISIBLE_LIMIT && (
-            <button
-              onClick={() => setExpanded(false)}
-              className="px-4 py-2.5 text-[10px] font-mono text-gray-400 border border-transparent hover:text-black transition-colors"
-            >
-              Show Less
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="min-h-screen bg-[#fafafa] text-black font-sans selection:bg-black selection:text-white pb-20">

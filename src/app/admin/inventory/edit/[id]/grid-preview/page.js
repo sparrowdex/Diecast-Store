@@ -11,14 +11,31 @@ const FilterButton = ({ label, active, onClick }) => (
   </button>
 );
 
-export default function GridPreviewPage({ params }) {
-  const router = useRouter();
-  const { id } = use(params);
-  const car = CARS.find(c => c.id.toString() === id);
-
-  const [layoutPreset, setLayoutPreset] = useState('hero');
-  const [previewSlot, setPreviewSlot] = useState(0);
-  const [formData, setFormData] = useState({
+function getInitialFormData() {
+  if (typeof window === 'undefined') {
+    return {
+      name: "Preview Exhibit",
+      brand: "Brand",
+      price: "₹0",
+      scale: "1:43",
+      image: "",
+      video: "",
+      material: "",
+      condition: "",
+      description: "",
+      disclaimer: "",
+      size: "large",
+    };
+  }
+  const previewData = localStorage.getItem('previewFormData');
+  const savedData = localStorage.getItem('diecast_edit_state');
+  if (previewData) {
+    return JSON.parse(previewData);
+  }
+  if (savedData) {
+    return JSON.parse(savedData);
+  }
+  return {
     name: "Preview Exhibit",
     brand: "Brand",
     price: "₹0",
@@ -30,17 +47,17 @@ export default function GridPreviewPage({ params }) {
     description: "",
     disclaimer: "",
     size: "large",
-  });
+  };
+}
 
-  useEffect(() => {
-    const previewData = localStorage.getItem('previewFormData');
-    const savedData = localStorage.getItem('diecast_edit_state');
-    if (previewData) {
-      setFormData(JSON.parse(previewData));
-    } else if (savedData) {
-      setFormData(JSON.parse(savedData));
-    }
-  }, []);
+export default function GridPreviewPage({ params }) {
+  const router = useRouter();
+  const { id } = use(params);
+  const car = CARS.find(c => c.id.toString() === id);
+
+  const [layoutPreset, setLayoutPreset] = useState('hero');
+  const [previewSlot, setPreviewSlot] = useState(0);
+  const [formData, setFormData] = useState(getInitialFormData);
 
   const layouts = ['hero', 'panorama', 'quad', 'mosaic'];
   const cycleLayout = () => {

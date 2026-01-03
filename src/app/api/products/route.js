@@ -1,6 +1,23 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+  const featured = searchParams.get('featured');
+
+  try {
+    const products = await prisma.product.findMany({
+      where: {
+        featured: featured ? true : undefined,
+      },
+    });
+    return NextResponse.json(products, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return new NextResponse("Error fetching products", { status: 500 });
+  }
+}
+
 export async function POST(request) {
   const data = await request.json();
 

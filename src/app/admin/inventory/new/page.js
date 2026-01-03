@@ -59,6 +59,8 @@ export default function NewExhibitPage() {
     material: "",
     condition: "",
     description: "",
+    editorsNote: "",
+    featured: false,
     category: "Archive",
     stock: 1,
     layoutType: "hero",
@@ -103,6 +105,11 @@ export default function NewExhibitPage() {
       setFormData(prev => ({ ...prev, images: [...prev.images, ...newImageUrls] }));
       alert(`${res.length} image(s) uploaded.`);
     }
+  };
+
+  const handleImageChange = (e) => {
+    const { value } = e.target;
+    setFormData(prev => ({ ...prev, images: value.split(',').map(url => url.trim()) }));
   };
 
   const handleVideoUpload = (res) => {
@@ -158,9 +165,28 @@ export default function NewExhibitPage() {
     if (e) e.preventDefault();
     const dataToSend = { ...formData, images: reorderedImages };
     
-    console.log("Submitting:", dataToSend);
-    if (finalSubmit) {
-      router.push("/admin/inventory");
+    try {
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSend),
+      });
+
+      if (!response.ok) {
+        throw new Error('Something went wrong');
+      }
+
+      // Invalidate the cache or refetch the data on the inventory page
+      // This is a more advanced concept, for now, we'll just redirect
+      if (finalSubmit) {
+        router.push("/admin/inventory");
+      }
+
+    } catch (error) {
+      console.error("Failed to create exhibit:", error);
+      alert("Failed to create exhibit. Check the console for more details.");
     }
   };
 
@@ -208,6 +234,11 @@ export default function NewExhibitPage() {
            </div>
 
            <div className="md:col-span-2">
+             <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Editor&apos;s Note</label>
+             <textarea name="editorsNote" rows="2" value={formData.editorsNote} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white" />
+           </div>
+
+           <div className="md:col-span-2">
                 <InputField name="stock" label="Stock" value={formData.stock} onChange={handleChange} type="number" />
            </div>
 
@@ -235,17 +266,6 @@ export default function NewExhibitPage() {
                         <div className="bg-[#111] border border-white/5 rounded-lg p-6">
                             <div className="flex justify-between items-center mb-6">
                               <h3 className="text-xl font-bold text-white">Media Gallery Management</h3>
-                              {formData.category !== "Archive" && (
-                                <label className="flex items-center text-sm font-bold text-gray-300 cursor-pointer p-2 hover:bg-white/5 rounded transition-colors border border-white/10">
-                                    <input 
-                                        type="checkbox" 
-                                        checked={formData.category === "Featured"} 
-                                        onChange={(e) => setFormData({...formData, category: e.target.checked ? "Featured" : "New Arrival"})}
-                                        className="mr-3 h-4 w-4 accent-yellow-500 rounded"
-                                    />
-                                    Mark as Featured Exhibit
-                                </label>
-                              )}
                             </div>
                             <p className="text-xs text-gray-500 mb-6">Drag and drop to reorder images. The first image will be the cover image.</p>
                             
@@ -276,24 +296,8 @@ export default function NewExhibitPage() {
               
                         {/* 2. Product Page Preview (Full Width) */}
                         <div className="bg-[#111] border border-white/5 rounded-lg p-6">
-                          <h3 className="text-xl font-bold text-white mb-6">Product Page Preview</h3>
-                          <ExhibitPreview formData={{...formData, images: reorderedImages}} />
-                        </div>
-              
-                        {/* Conditional New Arrival Card Preview */}
-                        {formData.category !== "Archive" && (
-                          <div className="bg-[#111] border border-white/5 rounded-lg p-6">
-                            <h3 className="text-xl font-bold text-white mb-6">New Arrival Card Preview</h3>
-                            <NewArrivalCardPreview car={{...formData, image: reorderedImages[0] || ''}} />
-                          </div>
-                        )}
-              
-                        {/* Catalog Card Preview */}
-                        <div className="bg-[#111] border border-white/5 rounded-lg p-6">
-                           <h3 className="text-xl font-bold text-white mb-6">Catalog Card Preview</h3>
-                           <div className="flex justify-center">
-                               <CatalogCard car={{...formData, image: reorderedImages[0] || ''}} />
-                           </div>
+                          <h3 className="text-xl font-bold text-white mb-6">Live Preview & Input Fields</h3>
+                          <ExhibitPreview formData={{...formData, images: reorderedImages}} handleChange={handleChange} handleImageChange={handleImageChange} />
                         </div>
               
                         {/* Navigation */}
