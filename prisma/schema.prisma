@@ -16,6 +16,7 @@ model Product {
 
   // THE KEY CHANGE: We store a list of URLs, not just one
   images      String[] 
+  video       String? 
 
   description String?
   editorsNote String?

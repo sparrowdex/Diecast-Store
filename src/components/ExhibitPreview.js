@@ -7,6 +7,12 @@ import StandardCard from "./StandardCard";
 import BentoCard from "./BentoCard";
 import { UploadButton } from "@uploadthing/react";
 
+// This new helper checks the media object's type property, which is reliable.
+const isMediaVideo = (media) => {
+  if (!media || !media.type) return false;
+  return media.type.startsWith("video/");
+};
+
 function InputField({ name, label, value, onChange, placeholder, required = false }) {
   return (
     <div>
@@ -46,25 +52,30 @@ function TextareaField({ name, label, value, onChange, placeholder, rows = 4 }) 
 }
 
 
-export default function ExhibitPreview({ formData, handleChange, handleImageChange, carId }) {
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
+export default function ExhibitPreview({ formData, orderedMedia, handleChange, carId }) {
+  const [activeMediaIndex, setActiveMediaIndex] = useState(0);
+
+  // The component now expects `orderedMedia` to be an array of {url, type} objects.
+  // The fallback to formData is kept for robustness, though it contains only URLs.
+  const media = orderedMedia ? orderedMedia : [...(formData.images || []).map(url => ({url, type: 'image'})), ...(formData.video ? [{url: formData.video, type: 'video'}] : [])];
 
   const previewCar = {
     ...formData,
     id: 'preview',
     images: formData.images,
-    image: formData.images[0] || '/cars/placeholder.jpg', // Primary image for CatalogCard
+    image: (formData.images && formData.images.length > 0) ? formData.images[0] : '/cars/maybach.jpg',
+    video: formData.video,
     isNew: formData.category === 'New Arrival',
     isFeatured: formData.featured,
   };
 
-  const primaryMedia = formData.images[activeImageIndex] || null;
-  const isVideo = primaryMedia && primaryMedia.endsWith('.mp4');
+  const activeMedia = media[activeMediaIndex] || null;
+  const isVideo = isMediaVideo(activeMedia);
 
   const placeholderCars = [
-    { id: 'p1', name: 'Placeholder', brand: 'Brand', price: '₹–––', image: '/cars/placeholder.jpg', scale: '1:43' },
-    { id: 'p2', name: 'Placeholder', brand: 'Brand', price: '₹–––', image: '/cars/placeholder.jpg', scale: '1:18' },
-    { id: 'p3', name: 'Placeholder', brand: 'Brand', price: '₹–––', image: '/cars/placeholder.jpg', scale: '1:43' },
+    { id: 'p1', name: 'Placeholder', brand: 'Brand', price: '₹–––', image: '/cars/maybach.jpg', scale: '1:43' },
+    { id: 'p2', name: 'Placeholder', brand: 'Brand', price: '₹–––', image: '/cars/maybach.jpg', scale: '1:18' },
+    { id: 'p3', name: 'Placeholder', brand: 'Brand', price: '₹–––', image: '/cars/maybach.jpg', scale: '1:43' },
   ];
 
 
@@ -90,7 +101,7 @@ export default function ExhibitPreview({ formData, handleChange, handleImageChan
                       if (res) {
                           const newImageUrls = res.map(file => file.ufsUrl);
                           const updatedImages = [...formData.images, ...newImageUrls];
-                          handleImageChange({ target: { value: updatedImages.join(', ') } });
+                          handleChange({ target: { name: 'images', value: updatedImages } });
                       }
                   }}
                   onUploadError={(error) => {
@@ -133,18 +144,39 @@ export default function ExhibitPreview({ formData, handleChange, handleImageChan
             <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 p-4 bg-gray-50 border-b border-gray-100"> Product Page Preview</h3>
             <div className="h-[40vh] bg-white flex flex-col md:flex-row overflow-hidden relative selection:bg-black selection:text-white">
                 <motion.section layout className="w-full md:w-[60%] h-full relative bg-[#f8f8f8] flex items-center justify-center">
-                    <AnimatePresence mode="wait">{isVideo ? ( <motion.video key={primaryMedia} layoutId="car-image-preview" src={primaryMedia} className="w-full h-full object-contain" autoPlay loop muted playsInline initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}/> ) : ( <motion.img key={primaryMedia || 'placeholder'} layoutId="car-image-preview" src={primaryMedia || '/cars/placeholder.jpg'} className="w-[70%] h-[70%] p-8 object-contain drop-shadow-2xl" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} /> )}</AnimatePresence>
-                    {/* Image Navigation Dots */}
-                    {formData.images.length > 1 && (
-                      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-                        {formData.images.map((_, index) => (
+                    <AnimatePresence mode="wait">{isVideo ? ( <motion.video 
+  key={activeMedia.url} 
+  layoutId="car-image-preview" 
+  src={activeMedia.url} 
+  className="w-full h-full object-contain" 
+  autoPlay 
+  loop 
+  muted 
+  playsInline
+  onError={(e) => console.error('Video Error:', e, e.target.error)}
+  onCanPlay={() => console.log('Video can play for src:', activeMedia.url)}
+  onStalled={() => console.log('Video stalled for src:', activeMedia.url)}
+  onLoadStart={() => console.log('Video load start for src:', activeMedia.url)}
+/> ) : ( <motion.img key={activeMedia ? activeMedia.url : 'placeholder'} layoutId="car-image-preview" src={activeMedia ? activeMedia.url : '/cars/maybach.jpg'} className="w-[70%] h-[70%] p-8 object-contain drop-shadow-2xl" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} /> )}</AnimatePresence>
+                    {/* Media Gallery Management */}
+                    {media.length > 1 && (
+                      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 bg-white/50 backdrop-blur-sm p-2 rounded-full z-10">
+                        {media.map((item, index) => (
                           <button
-                            key={index}
-                            onClick={() => setActiveImageIndex(index)}
-                            className={`w-2 h-2 rounded-full transition-colors ${
-                              index === activeImageIndex ? 'bg-yellow-500' : 'bg-white/50 hover:bg-white/80'
+                            key={item.url}
+                            onClick={() => setActiveMediaIndex(index)}
+                            className={`w-10 h-10 rounded-full overflow-hidden border-2 transition-colors ${
+                              index === activeMediaIndex ? 'border-yellow-500' : 'border-transparent hover:border-black/20'
                             }`}
-                          />
+                          >
+                            {isMediaVideo(item) ? (
+                              <div className="w-full h-full bg-black flex items-center justify-center">
+                                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.55a1 1 0 011.45.89v2.22a1 1 0 01-1.45.89L15 12M4 6h11a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1z" /></svg>
+                              </div>
+                            ) : (
+                              <img src={item.url} className="w-full h-full object-cover" />
+                            )}
+                          </button>
                         ))}
                       </div>
                     )}
@@ -168,6 +200,17 @@ export default function ExhibitPreview({ formData, handleChange, handleImageChan
             </div>
         </div>
         
+        {/* FEATURED BENTO GRID PREVIEW */}
+        <div>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Featured Bento Grid Preview</h3>
+            <div className="rounded-lg p-8 bg-[#1B1B1B]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <BentoCard car={previewCar} layout="col-span-12 md:col-span-2 row-span-1" isPreview={true} />
+                    <BentoCard car={placeholderCars[0]} layout="col-span-12 md:col-span-1 row-span-1" isPreview={true} />
+                </div>
+            </div>
+        </div>
+
         {/* HOMEPAGE NEW ARRIVALS PREVIEW */}
         <div>
             <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Homepage New Arrivals Grid Preview</h3>

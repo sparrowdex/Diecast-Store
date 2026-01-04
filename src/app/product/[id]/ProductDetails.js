@@ -157,7 +157,7 @@ export default function ProductDetailClient({ car }) {
             <div className="mt-12 pt-8 border-t border-black/5 sticky bottom-0 bg-white/95 backdrop-blur">
               <div className="flex justify-between items-end mb-4">
                 <span className="text-[10px] uppercase text-gray-400 tracking-widest">Valuation</span>
-                <span className="text-4xl font-black italic tracking-tighter">{car.price}</span>
+                <span className="text-4xl font-black italic tracking-tighter">₹{car.price}</span>
               </div>
               <button 
                 onClick={() => addToCart(car)}

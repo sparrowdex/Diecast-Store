@@ -9,7 +9,7 @@ if (typeof window === 'undefined') {
 }
 
 const prismaClientSingleton = () => {
-  const connectionString = `${process.env.DATABASE_URL}`;
+  const connectionString = `${process.env.DATABASE_URL}?pgbouncer=true&connect_timeout=30`;
 
   // Pass the string directly to PrismaNeon (Best practice for v7)
   // This avoids manually creating a 'Pool' and handles the connection correctly

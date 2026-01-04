@@ -36,6 +36,16 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
 
   const layoutClass = layout; // The prop is now the class string itself
 
+  if (!car || !car.image) {
+    return (
+      <div className={`${layoutClass} rounded-2xl overflow-hidden bg-gray-800 border border-gray-700`}>
+        <div className="absolute inset-0 flex items-center justify-center p-8">
+          <span className="text-gray-500 text-xs font-mono">[Missing Content]</span>
+        </div>
+      </div>
+    );
+  }
+
   // Determine sidebar width based on card size
   let sidebarWidth = 'w-1/2';
   if (layout.includes('col-span-12')) {
@@ -66,7 +76,7 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
              />
            ) : (
-             <motion.div key="vid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-300 font-mono text-xs">
+             <motion.div key="vid" className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-300 font-mono text-xs">
                {car.video ? <video src={car.video} autoPlay muted loop playsInline className="w-full h-full object-cover opacity-80" /> : <span>[VIDEO_PREVIEW]</span>}
              </motion.div>
            )}

@@ -27,10 +27,7 @@ export default function EditExhibit({ car }) {
     setFormData(newFormData);
   };
 
-  const handleImageChange = (e) => {
-    const { value } = e.target;
-    setFormData({ ...formData, images: value.split(',').map(s => s.trim()) });
-  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -56,7 +53,7 @@ export default function EditExhibit({ car }) {
 
       {/* Form & Preview */}
       <form onSubmit={handleSubmit}>
-        <ExhibitPreview formData={formData} handleChange={handleChange} handleImageChange={handleImageChange} carId={car.id} />
+        <ExhibitPreview formData={formData} handleChange={handleChange} carId={car.id} />
         
         {/* Form Actions */}
         <div className="px-8 py-4 bg-[#111] border border-white/5 flex justify-end gap-4 mt-[-8px] rounded-b-lg">

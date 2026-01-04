@@ -7,6 +7,12 @@ import CatalogCard from "@/components/CatalogCard";
 import NewArrivalCardPreview from "@/components/NewArrivalCardPreview";
 import { UploadButton } from "@uploadthing/react";
 
+// This new helper checks the media object's type property, which is reliable.
+const isMediaVideo = (media) => {
+  if (!media || !media.type) return false;
+  return media.type.startsWith("video/");
+};
+
 // --- Layout Configurations for Mini-Maps and Main Grid (Step 3) ---
 const layoutConfigs = [
   {
@@ -54,8 +60,6 @@ export default function NewExhibitPage() {
     brand: "",
     price: "",
     scale: "",
-    images: [],
-    video: "",
     material: "",
     condition: "",
     description: "",
@@ -71,24 +75,24 @@ export default function NewExhibitPage() {
   const [selectedLayout, setSelectedLayout] = useState("hero");
   const [selectedSlot, setSelectedSlot] = useState(null);
 
-  // Drag & Drop State
+  // Drag & Drop State - THIS IS THE SINGLE SOURCE OF TRUTH FOR MEDIA
   const [reorderedImages, setReorderedImages] = useState([]);
   const dragItem = useRef(null);
   const dragOverItem = useRef(null);
 
-  // Sync reorderedImages when formData.images changes
-  useEffect(() => {
-    setReorderedImages(formData.images);
-  }, [formData.images]);
-
   // Mock Fetch for Bento Grid Context
   useEffect(() => {
     const fetchFeaturedExhibits = async () => {
-      const mockFeaturedExhibits = [
-        { id: 'ferrari', image: '/cars/ferrari.jpg', name: 'Ferrari SF90' },
-        { id: 'porsche', image: '/cars/porsche.jpg', name: 'Porsche 911' },
-      ];
-      setPreviouslyFeaturedExhibits(mockFeaturedExhibits);
+      try {
+        const response = await fetch('/api/products?featured=true');
+        if (!response.ok) {
+          throw new Error('Failed to fetch featured products');
+        }
+        const featuredProducts = await response.json();
+        setPreviouslyFeaturedExhibits(featuredProducts);
+      } catch (error) {
+        console.error("Error fetching featured exhibits:", error);
+      }
     };
     fetchFeaturedExhibits();
   }, []);
@@ -99,25 +103,36 @@ export default function NewExhibitPage() {
     setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
   };
 
-  const handleImageUpload = (res) => {
-    if (res) {
-      const newImageUrls = res.map(file => file.ufsUrl);
-      setFormData(prev => ({ ...prev, images: [...prev.images, ...newImageUrls] }));
-      alert(`${res.length} image(s) uploaded.`);
+  const handleMediaUpload = (res) => {
+    if (!res) return;
+
+    const newMediaObjects = res.map(file => ({ url: file.ufsUrl, type: file.type }));
+    
+    const imageFiles = newMediaObjects.filter(file => !isMediaVideo(file));
+    const videoFile = newMediaObjects.find(file => isMediaVideo(file));
+
+    setReorderedImages(prev => {
+      let existingImages = prev.filter(media => !isMediaVideo(media));
+      let finalMedia = [...existingImages, ...imageFiles];
+      
+      const finalVideo = videoFile || prev.find(media => isMediaVideo(media));
+      if (finalVideo) {
+        finalMedia.push(finalVideo);
+      }
+      return finalMedia;
+    });
+
+    if (imageFiles.length > 0) {
+      alert(`${imageFiles.length} image(s) uploaded.`);
+    }
+    if (videoFile) {
+      alert("Video uploaded successfully.");
+    }
+    if (imageFiles.length + (videoFile ? 1 : 0) < res.length) {
+      alert("Some files were of an unsupported type and were ignored.");
     }
   };
 
-  const handleImageChange = (e) => {
-    const { value } = e.target;
-    setFormData(prev => ({ ...prev, images: value.split(',').map(url => url.trim()) }));
-  };
-
-  const handleVideoUpload = (res) => {
-    if (res) {
-      setFormData(prev => ({ ...prev, video: res[0].ufsUrl }));
-      alert(`Video uploaded.`);
-    }
-  };
 
   // Drag and Drop Logic
   const handleSort = useCallback(() => {
@@ -129,13 +144,10 @@ export default function NewExhibitPage() {
     dragOverItem.current = null;
     
     setReorderedImages(_reorderedImages);
-    setFormData(prev => ({ ...prev, images: _reorderedImages }));
   }, [reorderedImages]);
 
-  const handleDeleteImage = (indexToDelete) => {
-      const updated = reorderedImages.filter((_, i) => i !== indexToDelete);
-      setReorderedImages(updated);
-      setFormData(prev => ({ ...prev, images: updated }));
+  const handleDeleteMedia = (indexToDelete) => {
+    setReorderedImages(prev => prev.filter((_, i) => i !== indexToDelete));
   };
 
   // Navigation Logic
@@ -163,7 +175,18 @@ export default function NewExhibitPage() {
 
   const handleSubmit = async (e, finalSubmit = true) => {
     if (e) e.preventDefault();
-    const dataToSend = { ...formData, images: reorderedImages };
+
+    const images = reorderedImages.filter(media => !isMediaVideo(media)).map(m => m.url);
+    const videoObj = reorderedImages.find(media => isMediaVideo(media));
+    const video = videoObj ? videoObj.url : "";
+    
+    const { layoutType, targetSlot, ...productData } = formData;
+    const dataToSend = { 
+      ...productData,
+      images,
+      video,
+      stock: parseInt(formData.stock, 10) || 0,
+    };
     
     try {
       const response = await fetch('/api/products', {
@@ -178,8 +201,6 @@ export default function NewExhibitPage() {
         throw new Error('Something went wrong');
       }
 
-      // Invalidate the cache or refetch the data on the inventory page
-      // This is a more advanced concept, for now, we'll just redirect
       if (finalSubmit) {
         router.push("/admin/inventory");
       }
@@ -189,6 +210,9 @@ export default function NewExhibitPage() {
       alert("Failed to create exhibit. Check the console for more details.");
     }
   };
+  
+  const imageCount = reorderedImages.filter(m => !isMediaVideo(m)).length;
+  const videoCount = reorderedImages.some(m => isMediaVideo(m)) ? 1 : 0;
 
   return (
     <div className="p-12 text-white">
@@ -214,15 +238,15 @@ export default function NewExhibitPage() {
            <InputField name="price" label="Price" value={formData.price} onChange={handleChange} placeholder="e.g., 1400" required />
            <InputField name="scale" label="Scale" value={formData.scale} onChange={handleChange} placeholder="e.g., 1:43" required />
            
-           <div>
-             <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Images</label>
-             <UploadButton endpoint="mediaUploader" onClientUploadComplete={handleImageUpload} />
-             <p className="text-xs text-gray-500 mt-2">{formData.images.length} images uploaded</p>
-           </div>
-           
-           <div>
-             <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Video (Optional)</label>
-             <UploadButton endpoint="mediaUploader" onClientUploadComplete={handleVideoUpload} />
+           <div className="md:col-span-2">
+             <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Media (Images & Video)</label>
+             <UploadButton 
+                endpoint="mediaUploader" 
+                onClientUploadComplete={handleMediaUpload} 
+             />
+             <p className="text-xs text-gray-500 mt-2">
+                {imageCount} image(s) and {videoCount} video uploaded.
+             </p>
            </div>
 
            <InputField name="material" label="Material" value={formData.material} onChange={handleChange} />
@@ -270,9 +294,9 @@ export default function NewExhibitPage() {
                             <p className="text-xs text-gray-500 mb-6">Drag and drop to reorder images. The first image will be the cover image.</p>
                             
                             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                              {reorderedImages.map((img, idx) => (
+                              {reorderedImages.map((media, idx) => (
                                 <div 
-                                  key={img} 
+                                  key={media.url} 
                                   draggable 
                                   onDragStart={(e) => (dragItem.current = idx)}
                                   onDragEnter={(e) => (dragOverItem.current = idx)}
@@ -280,9 +304,19 @@ export default function NewExhibitPage() {
                                   onDragOver={(e) => e.preventDefault()}
                                   className="relative aspect-square bg-black rounded-md overflow-hidden border border-white/10 cursor-move group hover:border-yellow-500/50 transition-colors"
                                 >
-                                  <img src={img} className="w-full h-full object-cover" />
-                                  {idx === 0 && <span className="absolute top-2 left-2 bg-yellow-500 text-black text-[10px] font-bold px-2 py-1 rounded shadow-lg">COVER</span>}
-                                  <button onClick={() => handleDeleteImage(idx)} className="absolute top-2 right-2 bg-red-600 text-white text-[10px] p-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">✕</button>
+                                  {isMediaVideo(media) ? (
+                                    <>
+                                      <video src={media.url} autoPlay loop muted className="w-full h-full object-cover" />
+                                      <span className="absolute top-2 left-2 bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg">VIDEO</span>
+                                      <button onClick={() => handleDeleteMedia(idx)} className="absolute top-2 right-2 bg-red-600 text-white text-[10px] p-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">✕</button>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <img src={media.url} className="w-full h-full object-cover" />
+                                      {idx === 0 && <span className="absolute top-2 left-2 bg-yellow-500 text-black text-[10px] font-bold px-2 py-1 rounded shadow-lg">COVER</span>}
+                                      <button onClick={() => handleDeleteMedia(idx)} className="absolute top-2 right-2 bg-red-600 text-white text-[10px] p-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">✕</button>
+                                    </>
+                                  )}
                                 </div>
                               ))}
                               {reorderedImages.length === 0 && (
@@ -297,7 +331,15 @@ export default function NewExhibitPage() {
                         {/* 2. Product Page Preview (Full Width) */}
                         <div className="bg-[#111] border border-white/5 rounded-lg p-6">
                           <h3 className="text-xl font-bold text-white mb-6">Live Preview & Input Fields</h3>
-                          <ExhibitPreview formData={{...formData, images: reorderedImages}} handleChange={handleChange} handleImageChange={handleImageChange} />
+                          <ExhibitPreview 
+                            formData={{
+                                ...formData,
+                                images: reorderedImages.filter(m => !isMediaVideo(m)).map(m => m.url),
+                                video: (reorderedImages.find(m => isMediaVideo(m)) || {}).url || ""
+                            }}
+                            orderedMedia={reorderedImages} 
+                            handleChange={handleChange} 
+                          />
                         </div>
               
                         {/* Navigation */}
@@ -349,11 +391,11 @@ export default function NewExhibitPage() {
                              ${isSelected ? 'border-yellow-500 ring-2 ring-yellow-500/20' : 'border-gray-800 hover:border-gray-600'}
                            `}
                          >
-                            {isSelected && reorderedImages[0] ? (
-                                <img src={reorderedImages[0]} className="w-full h-full object-cover" />
+                            {isSelected && reorderedImages.length > 0 && reorderedImages[0] ? (
+                                <img src={reorderedImages[0].url} className="w-full h-full object-cover" />
                             ) : isOccupied ? (
                                 <>
-                                  <img src={isOccupied.image} className="w-full h-full object-cover opacity-30 grayscale" />
+                                  <img src={(isOccupied.images && isOccupied.images.length > 0) ? isOccupied.images[0] : '/cars/maybach.jpg'} className="w-full h-full object-cover opacity-30 grayscale" />
                                   <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-gray-500">OCCUPIED</span>
                                 </>
                             ) : (
