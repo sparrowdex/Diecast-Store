@@ -40,6 +40,7 @@ export default function Inventory({ initialCars }) {
                <th className="px-6 py-3 font-normal">Scale</th>
                <th className="px-6 py-3 font-normal">Price</th>
                <th className="px-6 py-3 font-normal">Status</th>
+               <th className="px-6 py-3 font-normal">Stock</th>
                <th className="px-6 py-3 font-normal text-right">Action</th>
              </tr>
           </thead>
@@ -65,6 +66,13 @@ export default function Inventory({ initialCars }) {
                         Archive
                       </span>
                     )}
+                 </td>
+                 <td className="px-6 py-4 text-xs font-mono">
+                  {car.stock > 0 ? (
+                    <span>{car.stock}</span>
+                  ) : (
+                    <span className="text-red-500 font-bold">{car.stock}</span>
+                  )}
                  </td>
                  <td className="px-6 py-4 text-right">
                    <Link href={`/admin/inventory/edit/${car.id}`} className="text-[10px] font-bold uppercase hover:text-white text-gray-500 mr-4">Edit</Link>

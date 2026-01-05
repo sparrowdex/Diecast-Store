@@ -14,7 +14,7 @@ export default function CatalogCard({ car }) {
         {/* Image Container with Zoom Effect */}
         <div className="relative aspect-[4/3] bg-[#f9f9f9] p-8 flex items-center justify-center overflow-hidden">
           <img
-            src={car.image}
+            src={car.images && car.images.length > 0 ? car.images[0] : ''}
             alt={car.name}
             className="w-full h-full object-contain transform transition-transform duration-700 group-hover:scale-110 mix-blend-multiply"
           />

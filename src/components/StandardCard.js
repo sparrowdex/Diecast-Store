@@ -96,8 +96,8 @@ export default function StandardCard({ car, isPreview = false }) {
           
           {/* New Tags */}
           <div className="absolute top-2 right-2 flex flex-col items-end gap-1 z-10">
-            {car.isFeatured && <Tag text="Featured" colorClass="bg-black text-white" />}
-            {car.isNew && !car.isFeatured && <Tag text="New" colorClass="bg-white text-black border border-gray-200" />}
+            {car.featured && <Tag text="Featured" colorClass="bg-black text-white" />}
+            {car.isNew && !car.featured && <Tag text="New" colorClass="bg-white text-black border border-gray-200" />}
           </div>
           
           {/* ADD TO CART OVERLAY BUTTON */}

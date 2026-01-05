@@ -6,10 +6,12 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 
 // --- UPDATED BENTO CARD ---
-export default function BentoCard({ car, layout = 'side', setHoverState, setCursorBlocked, isPreview = false }) {
+export default function BentoCard({ car, layout = 'side', setHoverState, setCursorBlocked, isPreview = false, forceHover = false }) {
   const [isHovered, setIsHovered] = useState(false);
   const { addToCart } = useCart();
   const router = useRouter();
+
+  const effectiveHover = forceHover || isHovered;
 
   const handleClick = () => {
     if (!isPreview) {
@@ -63,13 +65,13 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
   return (
     <motion.div
       onClick={handleClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={forceHover ? undefined : handleMouseEnter}
+      onMouseLeave={forceHover ? undefined : handleMouseLeave}
       className={`relative ${layoutClass} rounded-2xl overflow-hidden bg-white border border-gray-100 group shadow-sm hover:shadow-2xl transition-all duration-700 cursor-pointer`}
     >
       <div className="absolute inset-0 flex items-center justify-center bg-[#fdfdfd] p-8">
         <AnimatePresence mode="wait">
-           {!isHovered ? (
+           {!effectiveHover ? (
              <motion.img 
                layoutId={isPreview ? null : `car-image-${car.id}`}
                key="img" src={car.images[0]} className="w-full h-full object-cover"
@@ -85,12 +87,12 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
 
       <motion.div
         initial={{ x: "100%" }}
-        animate={{ x: isHovered ? "0%" : "100%" }}
+        animate={{ x: effectiveHover ? "0%" : "100%" }}
         transition={{ type: "spring", damping: 25, stiffness: 120 }}
         className="absolute top-0 right-0 w-1/2 h-full bg-white/95 backdrop-blur-xl border-l border-black/5 p-8 flex flex-col justify-between z-10"
       >
         <div>
-          <span className="text-[10px] text-gray-400 font-mono tracking-widest uppercase">{car.brand}</span>
+          <span className="text-[10px] text-gray-400 font-mono tracking-widest uppercase">{car.brand} / {car.scale}</span>
           <h3 className="text-3xl font-black italic uppercase tracking-tighter leading-none mt-2">{car.name}</h3>
           <p className="text-xs text-gray-500 font-light mt-6 leading-relaxed line-clamp-3">{car.description}</p>
         </div>
@@ -98,7 +100,7 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
         <div className="flex items-center justify-between border-t border-gray-100 pt-6">
            <div>
              <p className="text-[8px] uppercase text-gray-400 tracking-widest mb-1">Acquisition</p>
-             <p className="text-xl font-black italic">{car.price}</p>
+             <p className="text-xl font-black italic">₹{car.price}</p>
            </div>
            
            <button 

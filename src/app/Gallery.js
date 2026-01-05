@@ -33,10 +33,12 @@ const Select = ({ value, onChange, options }) => (
 
 
 // --- MAIN PAGE COMPONENT ---
-export default function Gallery({ featuredExhibits, archiveCollection }) {
+export default function Gallery({ featuredExhibits, archiveCollection, newArrivals }) {
     const [isCursorBlocked, setCursorBlocked] = useState(false);
     const [hoverState, setHoverState] = useState(false);
     const { cart, setIsCartOpen } = useCart();
+
+    const fullCollection = useMemo(() => [...newArrivals, ...archiveCollection], [newArrivals, archiveCollection]);
   
     return (
       <main className="min-h-screen bg-[#fafafa] text-black p-4 md:p-12 font-sans relative selection:bg-black selection:text-white">
@@ -75,19 +77,20 @@ export default function Gallery({ featuredExhibits, archiveCollection }) {
         <section className="mb-20">
            <div className="flex flex-wrap justify-between items-end gap-6 mb-12">
              <div>
-                <h2 className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.3em] mb-2">Archive Collection</h2>
-                <h3 className="text-2xl font-bold tracking-tight">Full Collection</h3>
+                <h2 className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.3em] mb-2">The Collection</h2>
+                <h3 className="text-2xl font-bold tracking-tight">New Arrivals & Featured Collection</h3>
              </div>
           </div>
   
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-12">
             <AnimatePresence mode="popLayout">
-              {archiveCollection.map((car) => (
+              {fullCollection.map((car) => (
                 <StandardCard key={car.id} car={car} />
               ))}
             </AnimatePresence>
           </div>
-        </section>      <CustomCursor active={hoverState && !isCursorBlocked} />
+        </section>
+        <CustomCursor active={hoverState && !isCursorBlocked} />
     </main>
   );
 }

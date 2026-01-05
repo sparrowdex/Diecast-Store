@@ -9,20 +9,20 @@ export default function ProductDetailClient({ car }) {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { addToCart, setIsCartOpen, cart } = useCart();
 
-  // Combine image(s) and video into a single media array
+  // Combine image(s) and video into a single media array of objects
   const media = [];
   if (car?.images) {
-    media.push(...car.images);
+    media.push(...car.images.map(url => ({ url, type: 'image' })));
   }
   if (car?.video) {
-    media.push(car.video);
+    media.push({ url: car.video, type: 'video' });
   }
 
   const [activeMedia, setActiveMedia] = useState(media[0]);
 
   if (!car) return <div className="p-20 font-mono">Exhibit Not Found.</div>;
 
-  const isVideo = activeMedia && activeMedia.endsWith('.mp4');
+  const isVideo = activeMedia?.type === 'video';
 
   return (
     <main className="min-h-screen bg-white flex flex-col md:flex-row overflow-hidden relative selection:bg-black selection:text-white">
@@ -51,9 +51,9 @@ export default function ProductDetailClient({ car }) {
           <AnimatePresence mode="wait">
             {isVideo ? (
                <motion.video
-                key={activeMedia}
+                key={activeMedia.url}
                 layoutId={`car-image-${car.id}`}
-                src={activeMedia}
+                src={activeMedia.url}
                 className={`w-full h-full object-contain transition-all duration-700
                     ${isFullScreen ? 'p-0' : 'p-12'}`}
                 autoPlay loop muted playsInline
@@ -63,9 +63,9 @@ export default function ProductDetailClient({ car }) {
               />
             ) : (
               <motion.img
-                key={activeMedia}
+                key={activeMedia.url}
                 layoutId={`car-image-${car.id}`}
-                src={activeMedia}
+                src={activeMedia.url}
                 className={`object-contain transition-all duration-700 drop-shadow-2xl
                   ${isFullScreen ? 'w-[80%] h-[80%] p-0' : 'w-[70%] h-[70%] p-12'}`}
                 initial={{ opacity: 0 }}
@@ -83,14 +83,14 @@ export default function ProductDetailClient({ car }) {
               <button
                 key={index}
                 onClick={() => setActiveMedia(item)}
-                className={`w-12 h-12 rounded-full overflow-hidden border-2 transition-colors ${activeMedia === item ? 'border-black' : 'border-transparent hover:border-black/50'}`}
+                className={`w-12 h-12 rounded-full overflow-hidden border-2 transition-colors ${activeMedia.url === item.url ? 'border-black' : 'border-transparent hover:border-black/50'}`}
               >
-                {item.endsWith('.mp4') ? (
+                {item.type === 'video' ? (
                    <div className="w-full h-full bg-black flex items-center justify-center">
                       <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.55a1 1 0 011.45.89v2.22a1 1 0 01-1.45.89L15 12M4 6h11a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1z" /></svg>
                    </div>
                 ) : (
-                  <img src={item} className="w-full h-full object-cover" />
+                  <img src={item.url} className="w-full h-full object-cover" />
                 )}
               </button>
             ))}
@@ -140,14 +140,23 @@ export default function ProductDetailClient({ car }) {
                   </p>
                 </div>
 
+                {car.editorsNote && (
+                  <div>
+                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Editor&apos;s_Note</h3>
+                    <p className="text-sm font-light leading-relaxed text-gray-600">
+                      {car.editorsNote}
+                    </p>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 bg-gray-50 rounded-sm">
                     <p className="text-[8px] uppercase text-gray-400 tracking-widest mb-1">Material</p>
-                    <p className="text-xs font-bold">Diecast Metal / ABS</p>
+                    <p className="text-xs font-bold">{car.material || 'N/A'}</p>
                   </div>
                   <div className="p-4 bg-gray-50 rounded-sm">
                     <p className="text-[8px] uppercase text-gray-400 tracking-widest mb-1">Condition</p>
-                    <p className="text-xs font-bold">Mint (Boxed)</p>
+                    <p className="text-xs font-bold">{car.condition || 'N/A'}</p>
                   </div>
                 </div>
               </div>

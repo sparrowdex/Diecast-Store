@@ -19,33 +19,33 @@ const layoutConfigs = [
     name: "hero",
     label: "Hero Layout",
     miniMapGrid: "grid-cols-3 grid-rows-2",
-    miniMapSlots: ["col-span-2 row-span-2", "col-span-1 row-span-1", "col-span-1 row-span-1", "col-span-1 row-span-1"],
+    miniMapSlots: ["col-span-2 row-span-2", "col-span-1 row-span-1", "col-span-1 row-span-1"],
     mainGrid: "grid-cols-12 grid-rows-2",
-    mainSlots: ["col-span-8 row-span-2", "col-span-4 row-span-1", "col-span-4 row-span-1", "col-span-4 row-span-1"],
+    mainSlots: ["col-span-8 row-span-2", "col-span-4 row-span-1", "col-span-4 row-span-1"],
   },
   {
     name: "panorama",
     label: "Panorama Layout",
-    miniMapGrid: "grid-cols-3 grid-rows-2",
-    miniMapSlots: ["col-span-3 row-span-1", "col-span-1 row-span-1", "col-span-1 row-span-1", "col-span-1 row-span-1"],
+    miniMapGrid: "grid-cols-2 grid-rows-2",
+    miniMapSlots: ["col-span-2 row-span-1", "col-span-1 row-span-1", "col-span-1 row-span-1"],
     mainGrid: "grid-cols-12 grid-rows-2",
-    mainSlots: ["col-span-12 row-span-1", "col-span-4 row-span-1", "col-span-4 row-span-1", "col-span-4 row-span-1"],
+    mainSlots: ["col-span-12 row-span-1", "col-span-6 row-span-1", "col-span-6 row-span-1"],
   },
   {
-    name: "quad",
-    label: "Quad Layout",
-    miniMapGrid: "grid-cols-2 grid-rows-2",
-    miniMapSlots: ["col-span-1 row-span-1", "col-span-1 row-span-1", "col-span-1 row-span-1", "col-span-1 row-span-1"],
+    name: "columns",
+    label: "Columns Layout",
+    miniMapGrid: "grid-cols-3 grid-rows-1",
+    miniMapSlots: ["col-span-1 row-span-1", "col-span-1 row-span-1", "col-span-1 row-span-1"],
     mainGrid: "grid-cols-12 grid-rows-2",
-    mainSlots: ["col-span-6 row-span-1", "col-span-6 row-span-1", "col-span-6 row-span-1", "col-span-6 row-span-1"],
+    mainSlots: ["col-span-4 row-span-2", "col-span-4 row-span-2", "col-span-4 row-span-2"],
   },
   {
     name: "mosaic",
     label: "Mosaic Layout",
     miniMapGrid: "grid-cols-2 grid-rows-2",
-    miniMapSlots: ["col-span-1 row-span-2", "col-span-1 row-span-1", "col-span-1 row-span-1", "col-span-1 row-span-1"],
+    miniMapSlots: ["col-span-1 row-span-2", "col-span-1 row-span-1", "col-span-1 row-span-1"],
     mainGrid: "grid-cols-12 grid-rows-2",
-    mainSlots: ["col-span-6 row-span-2", "col-span-6 row-span-1", "col-span-6 row-span-1", "col-span-6 row-span-1"],
+    mainSlots: ["col-span-6 row-span-2", "col-span-6 row-span-1", "col-span-6 row-span-1"],
   },
 ];
 
@@ -116,29 +116,26 @@ export default function NewExhibitPage() {
 
     const newMediaObjects = res.map(file => ({ url: file.ufsUrl, type: file.type }));
     
-    const imageFiles = newMediaObjects.filter(file => !isMediaVideo(file));
-    const videoFile = newMediaObjects.find(file => isMediaVideo(file));
-
     setReorderedImages(prev => {
-      let existingImages = prev.filter(media => !isMediaVideo(media));
-      let finalMedia = [...existingImages, ...imageFiles];
-      
-      const finalVideo = videoFile || prev.find(media => isMediaVideo(media));
+      const newImages = newMediaObjects.filter(f => !isMediaVideo(f));
+      const newVideo = newMediaObjects.find(f => isMediaVideo(f));
+
+      const existingImages = prev.filter(f => !isMediaVideo(f));
+      const existingVideo = prev.find(f => isMediaVideo(f));
+
+      // Combine images, then add the single video (new one takes precedence)
+      let finalMedia = [...existingImages, ...newImages];
+      const finalVideo = newVideo || existingVideo;
       if (finalVideo) {
         finalMedia.push(finalVideo);
       }
       return finalMedia;
     });
 
-    if (imageFiles.length > 0) {
-      alert(`${imageFiles.length} image(s) uploaded.`);
-    }
-    if (videoFile) {
-      alert("Video uploaded successfully.");
-    }
-    if (imageFiles.length + (videoFile ? 1 : 0) < res.length) {
-      alert("Some files were of an unsupported type and were ignored.");
-    }
+    const imageCount = newMediaObjects.filter(f => !isMediaVideo(f)).length;
+    const videoCount = newMediaObjects.find(f => isMediaVideo(f)) ? 1 : 0;
+    if (imageCount > 0) alert(`${imageCount} image(s) uploaded.`);
+    if (videoCount > 0) alert("Video uploaded successfully.");
   };
 
 

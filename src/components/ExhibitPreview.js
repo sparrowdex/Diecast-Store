@@ -199,6 +199,23 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
                 </motion.section>
             </div>
         </div>
+
+        {formData.category === 'Featured' && (
+            <div>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 my-4">Featured Exhibit Hover Preview</h3>
+                <div className="rounded-lg p-8 bg-[#1B1B1B] grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <p className="text-sm text-center text-gray-400 mb-4 font-mono">Default State</p>
+                        <BentoCard car={previewCar} layout="aspect-video" isPreview={true} />
+                    </div>
+                    <div>
+                        <p className="text-sm text-center text-gray-400 mb-4 font-mono">Hover State</p>
+                        <BentoCard car={previewCar} layout="aspect-video" isPreview={true} forceHover={true} />
+                    </div>
+                </div>
+            </div>
+        )}
+
         
 
 

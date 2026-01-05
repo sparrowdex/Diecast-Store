@@ -19,7 +19,7 @@ export default async function GalleryPage() {
 
   const featuredExhibits = await prisma.product.findMany({
     where: {
-      featured: true,
+      category: "Featured Exhibit",
     },
   });
 
@@ -29,5 +29,17 @@ export default async function GalleryPage() {
     },
   });
 
-  return <Gallery featuredExhibits={featuredExhibits} archiveCollection={archiveCollection} />;
+  const newArrivals = await prisma.product.findMany({
+    where: {
+      category: "New Arrival",
+    },
+  });
+
+  return (
+    <Gallery
+      featuredExhibits={featuredExhibits}
+      archiveCollection={archiveCollection}
+      newArrivals={newArrivals}
+    />
+  );
 }
