@@ -200,16 +200,7 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
             </div>
         </div>
         
-        {/* FEATURED BENTO GRID PREVIEW */}
-        <div>
-            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Featured Bento Grid Preview</h3>
-            <div className="rounded-lg p-8 bg-[#1B1B1B]">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <BentoCard car={previewCar} layout="col-span-12 md:col-span-2 row-span-1" isPreview={true} />
-                    <BentoCard car={placeholderCars[0]} layout="col-span-12 md:col-span-1 row-span-1" isPreview={true} />
-                </div>
-            </div>
-        </div>
+
 
         {/* HOMEPAGE NEW ARRIVALS PREVIEW */}
         <div>

@@ -100,7 +100,15 @@ export default function NewExhibitPage() {
   // Handlers
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
+    if (name === 'category') {
+      setFormData(prev => ({
+        ...prev,
+        category: value,
+        featured: value === 'Featured'
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    }
   };
 
   const handleMediaUpload = (res) => {

@@ -36,7 +36,7 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
 
   const layoutClass = layout; // The prop is now the class string itself
 
-  if (!car || !car.image) {
+  if (!car || !car.images || car.images.length === 0) {
     return (
       <div className={`${layoutClass} rounded-2xl overflow-hidden bg-gray-800 border border-gray-700`}>
         <div className="absolute inset-0 flex items-center justify-center p-8">
@@ -72,7 +72,7 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
            {!isHovered ? (
              <motion.img 
                layoutId={isPreview ? null : `car-image-${car.id}`}
-               key="img" src={car.image} className="w-full h-full object-cover"
+               key="img" src={car.images[0]} className="w-full h-full object-cover"
                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
              />
            ) : (
