@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CubeIcon, PhotoIcon, ClipboardDocumentListIcon, ArrowLeftOnRectangleIcon } from "@heroicons/react/24/outline";
+import { CubeIcon, PhotoIcon, ClipboardDocumentListIcon, ArrowLeftOnRectangleIcon, StarIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -9,6 +9,8 @@ export default function AdminLayout({ children }) {
   const navItems = [
     { name: "Dashboard", href: "/admin", icon: CubeIcon },
     { name: "Inventory", href: "/admin/inventory", icon: PhotoIcon },
+    { name: "Featured", href: "/admin/featured", icon: StarIcon },
+    { name: "Journal", href: "/admin/journal", icon: PencilSquareIcon },
     { name: "Orders", href: "/admin/orders", icon: ClipboardDocumentListIcon },
   ];
 
@@ -23,7 +25,7 @@ export default function AdminLayout({ children }) {
 
         <nav className="flex-1 px-4 space-y-2">
           {navItems.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = pathname.startsWith(item.href) && (item.href !== '/admin' || pathname === '/admin');
             return (
               <Link
                 key={item.name}

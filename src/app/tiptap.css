@@ -1,0 +1,48 @@
+/* Basic Tiptap Editor Styling */
+
+.tiptap {
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  min-height: 150px;
+}
+
+.tiptap > .ProseMirror:focus {
+  outline: none;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.menu-bar {
+  border: 1px solid #ccc;
+  border-bottom: none;
+  border-radius: 0.5rem 0.5rem 0 0;
+  padding: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.menu-bar button {
+  font-weight: bold;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #f1f3f5;
+  transition: all 0.2s;
+}
+
+.menu-bar button:hover {
+  background-color: #e9ecef;
+}
+
+.menu-bar button.is-active {
+  background-color: #343a40;
+  color: white;
+}

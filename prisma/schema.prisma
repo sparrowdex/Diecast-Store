@@ -30,11 +30,101 @@ model Product {
 }
 
 model Order {
-  id            String   @id @default(cuid())
-  customerEmail String
-  customerName  String
-  total         String
-  status        String   @default("PENDING")
-  items         Json
-  createdAt     DateTime @default(now())
+  id             String @id @default(cuid())
+
+  // Associates order with a user from Clerk, optional for guest checkouts
+  userId         String?
+
+  firstName      String
+  lastName       String
+  email          String
+  phone          String
+  address        String
+  city           String
+  postalCode     String
+  country        String
+  shippingMethod String
+  total          Float
+  status         String      @default("PENDING") // Fulfillment status: PENDING, SHIPPED, DELIVERED
+  items          OrderItem[]
+
+  // Payment-related fields
+  paymentStatus     String  @default("UNPAID") // UNPAID, PAID, FAILED
+  razorpayOrderId   String? @unique
+  razorpayPaymentId String? @unique
+  razorpaySignature String?
+
+  createdAt DateTime @default(now())
 }
+
+
+
+model OrderItem {
+
+
+
+  id        String @id @default(cuid())
+
+
+
+  name      String
+
+
+
+  price     Float
+
+
+
+  quantity  Int
+
+
+
+  image     String
+
+
+
+  order     Order  @relation(fields: [orderId], references: [id])
+
+
+
+  orderId   String
+
+
+
+}
+
+
+
+
+
+
+
+model JournalEntry {
+
+
+  id          String   @id @default(cuid())
+
+  title       String
+
+  slug        String   @unique
+
+  content     String
+
+  author      String?
+
+  isPublished Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+
+  updatedAt   DateTime @updatedAt
+
+  imageUrl    String?
+
+  videoUrl    String?
+
+
+}
+
+
+
+

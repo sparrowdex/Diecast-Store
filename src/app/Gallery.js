@@ -33,7 +33,7 @@ const Select = ({ value, onChange, options }) => (
 
 
 // --- MAIN PAGE COMPONENT ---
-export default function Gallery({ featuredExhibits, archiveCollection, newArrivals }) {
+export default function Gallery({ featuredExhibits, archiveCollection, newArrivals, featuredLayout = 'hero' }) {
     const [isCursorBlocked, setCursorBlocked] = useState(false);
     const [hoverState, setHoverState] = useState(false);
     const { cart, setIsCartOpen } = useCart();
@@ -67,7 +67,7 @@ export default function Gallery({ featuredExhibits, archiveCollection, newArriva
           </div>
           <BentoGrid
               cars={featuredExhibits}
-              layout="hero"
+              layout={featuredLayout}
               setHoverState={setHoverState}
               setCursorBlocked={setCursorBlocked}
           />
@@ -91,6 +91,17 @@ export default function Gallery({ featuredExhibits, archiveCollection, newArriva
           </div>
         </section>
         <CustomCursor active={hoverState && !isCursorBlocked} />
+
+        <footer className="mt-32 border-t border-black/10 pt-12 pb-4">
+          <div className="flex justify-between items-center text-[10px] font-mono uppercase text-gray-400 tracking-widest">
+            <p>&copy; {new Date().getFullYear()} The Diecast Store. All Rights Reserved.</p>
+            <div className="flex gap-8">
+              <Link href="/privacy-policy" className="hover:text-black transition-colors">Privacy Policy</Link>
+              <Link href="/terms-of-service" className="hover:text-black transition-colors">Terms of Service</Link>
+              <Link href="/refund-policy" className="hover:text-black transition-colors">Refund Policy</Link>
+            </div>
+          </div>
+        </footer>
     </main>
   );
 }

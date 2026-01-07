@@ -1,27 +1,55 @@
 import prisma from "@/lib/prisma";
 import Gallery from "./Gallery";
+import fs from 'fs/promises';
+import path from 'path';
 
-export default async function GalleryPage() {
+async function getFeaturedExhibits() {
+  const configPath = path.join(process.cwd(), 'prisma', 'featured_config.json');
+  
+  // 1. Prioritize manual configuration
   try {
-    // This simple query tests the Neon adapter connection
-    await prisma.$queryRaw`SELECT 1`;
+    const fileContent = await fs.readFile(configPath, 'utf-8');
+    const config = JSON.parse(fileContent);
+
+    if (config.exhibitIds && config.exhibitIds.length > 0) {
+      const products = await prisma.product.findMany({
+        where: { id: { in: config.exhibitIds } },
+      });
+      
+      const orderedProducts = config.exhibitIds.map(id => products.find(p => p.id === id)).filter(Boolean);
+      
+      return {
+        layout: config.layout || 'hero',
+        exhibits: orderedProducts,
+      };
+    }
   } catch (error) {
-    return (
-      <div className="p-8">
-        <h1 className="text-red-600 font-bold">Connection Failed</h1>
-        <p className="text-sm text-gray-500">Check your DATABASE_URL in .env</p>
-        <pre className="mt-4 bg-red-50 p-4 rounded text-xs">
-          {String(error)}
-        </pre>
-      </div>
-    );
+    // Error reading config or config is empty, proceed to automatic logic
+    // console.error("Could not read featured config, proceeding to automatic layout.", error);
   }
 
-  const featuredExhibits = await prisma.product.findMany({
-    where: {
-      category: "Featured Exhibit",
-    },
+  // 2. Fallback to automatic logic
+  const exhibits = await prisma.product.findMany({
+    where: { category: "Featured Exhibit" },
+    orderBy: { createdAt: 'desc' }
   });
+
+  switch (exhibits.length) {
+    case 1:
+      return { layout: 'automatic-single', exhibits };
+    case 2:
+      return { layout: 'automatic-double', exhibits };
+    case 3:
+      return { layout: 'trio-hero-left', exhibits };
+    default:
+      // For 0 or 4+ exhibits, use the hero layout. BentoGrid will slice the array.
+      return { layout: 'hero', exhibits };
+  }
+}
+
+
+export default async function GalleryPage() {
+  const { layout, exhibits: featuredExhibits } = await getFeaturedExhibits();
 
   const archiveCollection = await prisma.product.findMany({
     where: {
@@ -37,6 +65,7 @@ export default async function GalleryPage() {
 
   return (
     <Gallery
+      featuredLayout={layout}
       featuredExhibits={featuredExhibits}
       archiveCollection={archiveCollection}
       newArrivals={newArrivals}
