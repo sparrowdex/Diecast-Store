@@ -2,7 +2,7 @@
 import { useState, use, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CARS, FEATURED_EXHIBITS } from "@/data";
+
 import BentoGrid from "@/components/BentoGrid";
 
 const FilterButton = ({ label, active, onClick }) => (
@@ -52,8 +52,34 @@ function getInitialFormData() {
 
 export default function GridPreviewPage({ params }) {
   const router = useRouter();
-  const { id } = use(params);
-  const car = CARS.find(c => c.id.toString() === id);
+  const { id } = params; // params is already available as props
+  const [cars, setCars] = useState([]);
+  const [featuredExhibits, setFeaturedExhibits] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      try {
+        const [carsRes, featuredRes] = await Promise.all([
+          fetch('/api/products'),
+          fetch('/api/products?featured=true')
+        ]);
+        const carsData = await carsRes.json();
+        const featuredData = await featuredRes.json();
+        setCars(carsData);
+        setFeaturedExhibits(featuredData);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+        // Optionally handle error state
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [id]); // Add id to dependency array to refetch if id changes
+
+  const car = cars.find(c => c.id.toString() === id);
 
   const [layoutPreset, setLayoutPreset] = useState('hero');
   const [previewSlot, setPreviewSlot] = useState(0);
@@ -77,10 +103,10 @@ export default function GridPreviewPage({ params }) {
   };
 
   // Logic for Bento Grid Preview - ensure the car being edited is included
-  const baseCars = (layoutPreset === 'quad' || layoutPreset === 'panorama' || layoutPreset === 'mosaic') ? [...FEATURED_EXHIBITS] : FEATURED_EXHIBITS.slice(0, 3);
+  const baseCars = (layoutPreset === 'quad' || layoutPreset === 'panorama' || layoutPreset === 'mosaic') ? [...featuredExhibits] : featuredExhibits.slice(0, 3);
 
   // If the car being edited is not in the base cars, replace one with it for preview (use previewCar if car not found)
-  const bentoCars = (car && baseCars.includes(car)) ? baseCars : [...baseCars.slice(0, -1), previewCar];
+  const bentoCars = (car && baseCars.some(c => c.id === car.id)) ? baseCars : [...baseCars.slice(0, -1), previewCar];
 
   // Ensure we have the right number of cars
   const finalBentoCars = (layoutPreset === 'quad' || layoutPreset === 'panorama' || layoutPreset === 'mosaic')
@@ -90,6 +116,14 @@ export default function GridPreviewPage({ params }) {
   const previewBentoLineup = [...finalBentoCars];
   if (previewSlot !== null && previewSlot < previewBentoLineup.length) {
     previewBentoLineup[previewSlot] = previewCar;
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#111] text-white p-8 flex items-center justify-center">
+        <p className="text-xl font-mono uppercase tracking-widest">Loading...</p>
+      </div>
+    );
   }
 
   // Allow preview even if car not found, using formData from localStorage

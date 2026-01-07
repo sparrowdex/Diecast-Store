@@ -41,7 +41,7 @@ const formSchema = z.object({
 });
 
 export async function createOrder(items: CartItem[], rawFormData: FormData) {
-  const { userId } = auth();
+  const { userId } = await auth();
   if (!userId) {
     return { success: false, error: 'User is not authenticated.' };
   }

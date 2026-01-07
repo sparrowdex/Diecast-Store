@@ -1,8 +1,9 @@
 "use client";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function ThankYouPage() {
+function ThankYouContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
 
@@ -22,5 +23,17 @@ export default function ThankYouPage() {
         Continue Shopping
       </Link>
     </div>
+  );
+}
+
+export default function ThankYouPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <p className="text-xl font-mono uppercase tracking-widest text-black">Loading thank you page...</p>
+      </div>
+    }>
+      <ThankYouContent />
+    </Suspense>
   );
 }
