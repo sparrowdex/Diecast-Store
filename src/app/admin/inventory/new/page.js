@@ -41,7 +41,7 @@ export default function NewExhibitPage() {
       setFormData(prev => ({
         ...prev,
         category: value,
-        featured: value === 'Featured'
+        featured: value === 'Featured Exhibit' ? true : prev.featured
       }));
     } else {
       setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
@@ -196,7 +196,7 @@ export default function NewExhibitPage() {
              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Category</label>
              <select name="category" value={formData.category} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white">
                <option value="Archive">Archive Collection</option>
-               <option value="Featured">Featured Exhibit</option>
+               <option value="Featured Exhibit">Featured Exhibit</option>
                <option value="New Arrival">New Arrival</option>
              </select>
            </div>

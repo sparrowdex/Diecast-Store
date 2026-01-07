@@ -1,42 +1,10 @@
 "use client";
 import { useCart } from "@/context/CartContext";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import Link from "next/link";
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements } from "@stripe/react-stripe-js";
-
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-);
+import CheckoutForm from "@/components/CheckoutForm";
 
 export default function CheckoutPage() {
-  const [clientSecret, setClientSecret] = useState("");
-
-  useEffect(() => {
-    // Create PaymentIntent as soon as the page loads
-    fetch("/api/create-payment-intent", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: cartTotal * 100 }),
-    })
-      .then((res) => res.json())
-      .then((data) => setClientSecret(data.clientSecret));
-  }, [cartTotal]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const appearance = {
-    theme: "stripe",
-  };
-  const options = {
-    clientSecret,
-    appearance,
-  };
+  const { cart, cartTotal, clearCart } = useCart();
 
   if (cart.length === 0) {
     return (
@@ -65,17 +33,11 @@ export default function CheckoutPage() {
           </h1>
         </div>
 
-        {clientSecret && (
-          <Elements options={options} stripe={stripePromise}>
-            <CheckoutForm
-              cart={cart}
-              cartTotal={cartTotal}
-              formData={formData}
-              handleChange={handleChange}
-              clearCart={clearCart}
-            />
-          </Elements>
-        )}
+        <CheckoutForm
+          cart={cart}
+          cartTotal={cartTotal}
+          clearCart={clearCart}
+        />
       </section>
 
       {/* RIGHT COLUMN: ORDER SUMMARY */}

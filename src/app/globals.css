@@ -5,30 +5,77 @@
   --foreground: #171717;
 }
 
-@theme {
-  /* This registers the 'animate-shine' class */
-  --animation-shine: shine 1.5s ease-in-out infinite;
+/* --- ANIMATION FIX --- */
+/* We define the animation class directly here to avoid Tailwind conflicts */
+.shine-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
 
-  @keyframes shine {
-    0% {
-      transform: translateX(-100%) skewX(-15deg);
-    }
-    50%, 100% {
-      transform: translateX(100%) skewX(-15deg);
-    }
+  /* Start state: off-screen to the left, skewed */
+  transform: translateX(-100%) skewX(-15deg);
+
+  /* We don't want it visible until we hover */
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+/* When the parent (.group) is hovered, run this animation on the child (.shine-effect) */
+.group:hover .shine-effect {
+  opacity: 1;
+  animation: shine-slide 0.7s ease-in-out; /* Runs once on hover */
+}
+
+@keyframes shine-slide {
+  0% {
+    transform: translateX(-100%) skewX(-15deg);
+  }
+  100% {
+    transform: translateX(200%) skewX(-15deg);
   }
 }
 
-@layer utilities {
-  .animate-shine {
-    animation: shine 1.5s ease-in-out infinite;
-  }
+/* Brackets that expand on hover */
+.tech-bracket {
+  transition: all 0.3s ease;
+  opacity: 0;
+  color: #ef4444; /* red-500 */
 }
 
-/* Base Styles */
+.group:hover .tech-bracket {
+  opacity: 1;
+  padding: 0 4px;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-  cursor: default; /* We will use custom cursor overlays */
+  cursor: default; 
 }
+
+/* Footer Container */
+.footer-container {
+  /* Keep your image logic */
+  background-image: url('/images/page_footer.png');
+  background-size: cover;
+  background-position: center;
+  
+  position: relative;
+  width: 100%;
+  
+  /* We remove fixed heights here to let content dictate height on mobile, 
+     but min-height ensures it looks big enough on desktop */
+  min-height: 300px; 
+  color: white;
+  
+  /* Critical for the overlay to sit behind text but over image */
+  isolation: isolate; 
+}
+
+/* REMOVED: .footer-content, .footer-section styles 
+   We will handle layout directly in Tailwind for better control 
+*/

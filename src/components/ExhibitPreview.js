@@ -108,7 +108,26 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
                       alert(`ERROR! ${error.message}`);
                   }}
               />
-
+              {formData.images && formData.images.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  <p className="text-xs text-gray-400">Existing Images:</p>
+                  {formData.images.map((url, index) => (
+                    <div key={index} className="flex items-center gap-2 bg-white/5 p-2 rounded">
+                      <img src={url} className="w-8 h-8 object-cover rounded" />
+                      <span className="text-xs text-gray-300 truncate flex-1">{url.split('/').pop()}</span>
+                      <button
+                        onClick={() => {
+                          const updatedImages = formData.images.filter((_, i) => i !== index);
+                          handleChange({ target: { name: 'images', value: updatedImages } });
+                        }}
+                        className="text-red-500 hover:text-red-700 text-xs"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
@@ -127,12 +146,41 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
                       alert(`ERROR! ${error.message}`);
                   }}
               />
+              {formData.video && (
+                <div className="mt-4">
+                  <p className="text-xs text-gray-400">Existing Video:</p>
+                  <div className="flex items-center gap-2 bg-white/5 p-2 rounded">
+                    <div className="w-8 h-8 bg-black rounded flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <span className="text-xs text-gray-300 truncate flex-1">{formData.video.split('/').pop()}</span>
+                    <button
+                      onClick={() => handleChange({ target: { name: 'video', value: '' } })}
+                      className="text-red-500 hover:text-red-700 text-xs"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
             <InputField name="material" label="Material" value={formData.material} onChange={handleChange} placeholder="e.g., Diecast Metal / ABS" />
             <InputField name="condition" label="Condition" value={formData.condition} onChange={handleChange} placeholder="e.g., Mint (Boxed)" />
             <TextareaField name="description" label="Description" value={formData.description} onChange={handleChange} />
             <TextareaField name="editorsNote" label="Editor's Note" value={formData.editorsNote} onChange={handleChange} />
-            <CheckboxField name="featured" label="Mark as Featured in Grid" checked={formData.featured} onChange={handleChange} />
+            <div className="md:col-span-2">
+              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Category</label>
+              <select name="category" value={formData.category} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white">
+                <option value="Archive">Archive Collection</option>
+                <option value="Featured Exhibit">Featured Exhibit</option>
+                <option value="New Arrival">New Arrival</option>
+              </select>
+            </div>
+            {formData.category !== "Featured Exhibit" && (
+              <CheckboxField name="featured" label="Mark as Featured in Grid" checked={formData.featured} onChange={handleChange} />
+            )}
         </div>
       </div>
 
@@ -144,20 +192,19 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
             <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 p-4 bg-gray-50 border-b border-gray-100"> Product Page Preview</h3>
             <div className="h-[40vh] bg-white flex flex-col md:flex-row overflow-hidden relative selection:bg-black selection:text-white">
                 <motion.section layout className="w-full md:w-[60%] h-full relative bg-[#f8f8f8] flex items-center justify-center">
-                    <AnimatePresence mode="wait">{isVideo ? ( <motion.video 
-  key={activeMedia.url} 
-  layoutId="car-image-preview" 
-  src={activeMedia.url} 
-  className="w-full h-full object-contain" 
-  autoPlay 
-  loop 
-  muted 
+                    <AnimatePresence mode="wait">{isVideo ? ( <motion.video
+  key={activeMedia.url}
+  src={activeMedia.url}
+  className="w-full h-full object-contain"
+  autoPlay
+  loop
+  muted
   playsInline
   onError={(e) => console.error('Video Error:', e, e.target.error)}
   onCanPlay={() => console.log('Video can play for src:', activeMedia.url)}
   onStalled={() => console.log('Video stalled for src:', activeMedia.url)}
   onLoadStart={() => console.log('Video load start for src:', activeMedia.url)}
-/> ) : ( <motion.img key={activeMedia ? activeMedia.url : 'placeholder'} layoutId="car-image-preview" src={activeMedia ? activeMedia.url : '/cars/maybach.jpg'} className="w-[70%] h-[70%] p-8 object-contain drop-shadow-2xl" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} /> )}</AnimatePresence>
+/> ) : ( <motion.img key={activeMedia ? activeMedia.url : 'placeholder'} src={activeMedia ? activeMedia.url : '/cars/maybach.jpg'} className="w-[70%] h-[70%] p-8 object-contain drop-shadow-2xl" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} /> )}</AnimatePresence>
                     {/* Media Gallery Management */}
                     {media.length > 1 && (
                       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 bg-white/50 backdrop-blur-sm p-2 rounded-full z-10">
@@ -200,7 +247,7 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
             </div>
         </div>
 
-        {formData.category === 'Featured' && (
+        {formData.category === 'Featured Exhibit' && (
             <div>
                 <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 my-4">Featured Exhibit Hover Preview</h3>
                 <div className="rounded-lg p-8 bg-[#1B1B1B] grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -220,17 +267,19 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
 
 
         {/* HOMEPAGE NEW ARRIVALS PREVIEW */}
-        <div>
-            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Homepage New Arrivals Grid Preview</h3>
-            <div className="rounded-lg p-8 bg-[#fafafa]">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <StandardCard car={previewCar} isPreview={true} />
-                    {placeholderCars.map(car => (
-                        <StandardCard key={car.id} car={car} isPreview={true} />
-                    ))}
+        {formData.category !== 'Featured Exhibit' && (
+            <div>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Homepage New Arrivals Grid Preview</h3>
+                <div className="rounded-lg p-8 bg-[#fafafa]">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <StandardCard car={previewCar} isPreview={true} />
+                        {placeholderCars.map(car => (
+                            <StandardCard key={car.id} car={car} isPreview={true} />
+                        ))}
+                    </div>
                 </div>
             </div>
-        </div>
+        )}
 
         {/* CATALOG CARD PREVIEW */}
         <div>

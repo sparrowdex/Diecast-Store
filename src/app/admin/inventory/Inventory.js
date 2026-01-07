@@ -57,9 +57,17 @@ export default function Inventory({ initialCars }) {
                  <td className="px-6 py-4 text-xs font-mono">{car.scale}</td>
                  <td className="px-6 py-4 text-xs font-mono">{car.price}</td>
                  <td className="px-6 py-4">
-                    {car.featured ? (
+                    {car.category === "Featured Exhibit" ? (
                       <span className="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
                         Featured
+                      </span>
+                    ) : car.category === "New Arrival" && car.featured ? (
+                      <span className="bg-green-500/10 text-green-500 border border-green-500/20 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+                        NA Featured
+                      </span>
+                    ) : car.category === "New Arrival" ? (
+                      <span className="bg-blue-500/10 text-blue-500 border border-blue-500/20 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+                        New Arrival
                       </span>
                     ) : (
                       <span className="bg-gray-800 text-gray-400 border border-white/10 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">

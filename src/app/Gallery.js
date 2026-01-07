@@ -7,6 +7,19 @@ import CartDrawer from "@/components/CartDrawer";
 import BentoGrid from "@/components/BentoGrid";
 import StandardCard from "@/components/StandardCard";
 import CustomCursor from "@/components/CustomCursor";
+import Footer from "@/components/Footer";
+
+// SpeedLink component for shine effect
+const SpeedLink = ({ href, children }) => {
+  return (
+    <Link href={href} className="group relative block w-fit overflow-hidden py-1">
+      <span className="relative z-10 font-mono text-sm font-bold uppercase italic tracking-widest text-gray-300 transition-colors duration-300 group-hover:text-white">
+        {children}
+      </span>
+      <div className="shine-effect" />
+    </Link>
+  );
+};
 
 // --- Reusable Filter Components ---
 const FilterButton = ({ label, active, onClick }) => (
@@ -41,67 +54,63 @@ export default function Gallery({ featuredExhibits, archiveCollection, newArriva
     const fullCollection = useMemo(() => [...newArrivals, ...archiveCollection], [newArrivals, archiveCollection]);
   
     return (
-      <main className="min-h-screen bg-[#fafafa] text-black p-4 md:p-12 font-sans relative selection:bg-black selection:text-white">
+      <main className="min-h-screen bg-[#fafafa] text-black font-sans relative selection:bg-black selection:text-white">
         <CartDrawer />
         
-        <header className="mb-20 flex justify-between items-baseline border-b border-black/10 pb-8">
-          <div>
-            <h1 className="text-6xl font-black tracking-tighter italic">THE_DIECAST_STORE</h1>
-            <p className="text-gray-400 text-[10px] tracking-[0.4em] font-mono uppercase mt-3 ml-1">Curated_Diecast_Exhibition</p>
-          </div>
-          <nav className="hidden md:flex gap-12 text-[10px] font-bold tracking-widest uppercase items-center">
-            <Link href="/catalog" className="cursor-pointer hover:underline underline-offset-4">Catalog</Link>
-            <Link href="/journal" className="cursor-pointer hover:underline underline-offset-4">Journal</Link>
-            <button onClick={() => setIsCartOpen(true)} className="group flex items-center gap-2 px-4 py-2 bg-black text-white rounded-sm hover:bg-red-600 transition-colors">
-              <span>VAULT</span>
-              <span className="bg-white/20 px-1.5 py-0.5 rounded text-[9px]">{cart.length}</span>
-            </button>
-          </nav>
-        </header>
-  
-        {/* Featured Section */}
-        <section className="mb-32">
-          <div className="flex items-center gap-6 mb-10">
-            <h2 className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.3em]">Featured_Exhibits</h2>
-            <div className="h-[1px] flex-1 bg-gradient-to-r from-black/10 to-transparent" />
-          </div>
-          <BentoGrid
-              cars={featuredExhibits}
-              layout={featuredLayout}
-              setHoverState={setHoverState}
-              setCursorBlocked={setCursorBlocked}
-          />
-        </section>
-  
-        {/* Archive Collection Section */}
-        <section className="mb-20">
-           <div className="flex flex-wrap justify-between items-end gap-6 mb-12">
-             <div>
-                <h2 className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.3em] mb-2">The Collection</h2>
-                <h3 className="text-2xl font-bold tracking-tight">New Arrivals & Featured Collection</h3>
-             </div>
-          </div>
-  
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-12">
-            <AnimatePresence mode="popLayout">
-              {fullCollection.map((car) => (
-                <StandardCard key={car.id} car={car} />
-              ))}
-            </AnimatePresence>
-          </div>
-        </section>
-        <CustomCursor active={hoverState && !isCursorBlocked} />
+        {/* Content Wrapper: Padding is applied here, keeping content centered/spaced */}
+        <div className="p-4 md:p-12">
+            <header className="mb-20 flex justify-between items-baseline border-b border-black/10 pb-8">
+              <div>
+                <h1 className="text-6xl font-black tracking-tighter italic">THE_DIECAST_STORE</h1>
+                <p className="text-gray-400 text-[10px] tracking-[0.4em] font-mono uppercase mt-3 ml-1">Curated_Diecast_Exhibition</p>
+              </div>
+              <nav className="hidden md:flex gap-12 text-[10px] font-bold tracking-widest uppercase items-center">
+                <SpeedLink href="/catalog">Catalog</SpeedLink>
+                <SpeedLink href="/journal">Journal</SpeedLink>
+                <button onClick={() => setIsCartOpen(true)} className="group flex items-center gap-2 px-4 py-2 bg-black text-white rounded-sm hover:bg-red-600 transition-colors">
+                  <span>VAULT</span>
+                  <span className="bg-white/20 px-1.5 py-0.5 rounded text-[9px]">{cart.length}</span>
+                </button>
+              </nav>
+            </header>
+      
+            {/* Featured Section */}
+            <section className="mb-32">
+              <div className="flex items-center gap-6 mb-10">
+                <h2 className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.3em]">Featured_Exhibits</h2>
+                <div className="h-[1px] flex-1 bg-gradient-to-r from-black/10 to-transparent" />
+              </div>
+              <BentoGrid
+                  cars={featuredExhibits}
+                  layout={featuredLayout}
+                  setHoverState={setHoverState}
+                  setCursorBlocked={setCursorBlocked}
+              />
+            </section>
+      
+            {/* Archive Collection Section */}
+            <section className="mb-20">
+               <div className="flex flex-wrap justify-between items-end gap-6 mb-12">
+                 <div>
+                    <h2 className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.3em] mb-2">The Collection</h2>
+                    <h3 className="text-2xl font-bold tracking-tight">New Arrivals & Featured Collection</h3>
+                 </div>
+               </div>
+      
+               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-12">
+                 <AnimatePresence mode="popLayout">
+                   {fullCollection.map((car) => (
+                     <StandardCard key={car.id} car={car} />
+                   ))}
+                 </AnimatePresence>
+               </div>
+            </section>
 
-        <footer className="mt-32 border-t border-black/10 pt-12 pb-4">
-          <div className="flex justify-between items-center text-[10px] font-mono uppercase text-gray-400 tracking-widest">
-            <p>&copy; {new Date().getFullYear()} The Diecast Store. All Rights Reserved.</p>
-            <div className="flex gap-8">
-              <Link href="/privacy-policy" className="hover:text-black transition-colors">Privacy Policy</Link>
-              <Link href="/terms-of-service" className="hover:text-black transition-colors">Terms of Service</Link>
-              <Link href="/refund-policy" className="hover:text-black transition-colors">Refund Policy</Link>
-            </div>
-          </div>
-        </footer>
+            <CustomCursor active={hoverState && !isCursorBlocked} />
+        </div>
+
+        {/* Footer sits outside the padding wrapper to span full width */}
+        <Footer />
     </main>
   );
-}
+} 

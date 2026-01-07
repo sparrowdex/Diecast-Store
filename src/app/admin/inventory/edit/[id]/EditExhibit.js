@@ -16,14 +16,17 @@ export default function EditExhibit({ car }) {
     material: car?.material || "",
     condition: car?.condition || "",
     description: car?.description || "",
-    featured: car?.featured || false,
+    featured: car?.category === "Featured Exhibit" ? true : car?.featured || false,
     category: car?.category || "Archive",
     stock: car?.stock || 1,
   });
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    const newFormData = { ...formData, [name]: type === 'checkbox' ? checked : value };
+    let newFormData = { ...formData, [name]: type === 'checkbox' ? checked : value };
+    if (name === 'category') {
+      newFormData.featured = value === 'Featured Exhibit' ? true : newFormData.featured;
+    }
     setFormData(newFormData);
   };
 
