@@ -1,13 +1,20 @@
+import JournalMediaDisplay from "@/components/JournalMediaDisplay";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 
 export default async function SingleJournalEntryPage({ params }) {
   const { slug } = params;
-  const entry = await prisma.journalEntry.findUnique({
-    where: {
-      slug: slug,
-    },
-  });
+  let entry = null;
+  try {
+    entry = await prisma.journalEntry.findUnique({
+      where: {
+        slug: slug,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching journal entry:", error);
+    // Let `entry` remain null, which the component already handles.
+  }
 
   if (!entry) {
     return (
@@ -40,22 +47,11 @@ export default async function SingleJournalEntryPage({ params }) {
         <div className="max-w-4xl mx-auto">
           {(entry.imageUrl || entry.videoUrl) && (
             <div className="mb-12">
-              {entry.videoUrl ? (
-                <video 
-                  src={entry.videoUrl} 
-                  autoPlay 
-                  loop 
-                  muted 
-                  playsInline
-                  className="w-full rounded-lg shadow-lg"
-                />
-              ) : entry.imageUrl ? (
-                <img 
-                  src={entry.imageUrl} 
-                  alt={entry.title} 
-                  className="w-full rounded-lg shadow-lg"
-                />
-              ) : null}
+              <JournalMediaDisplay 
+                imageUrl={entry.imageUrl} 
+                videoUrl={entry.videoUrl} 
+                altText={entry.title} 
+              />
             </div>
           )}
           <article className="prose prose-lg">

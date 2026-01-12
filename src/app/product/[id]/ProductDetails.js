@@ -1,6 +1,6 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react"; 
+import { useEffect, useState } from "react"; 
 import { useCart } from "@/context/CartContext";
 import CartDrawer from "@/components/CartDrawer";
 import Link from "next/link";
@@ -8,6 +8,7 @@ import Link from "next/link";
 export default function ProductDetailClient({ car, preview = false }) {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { addToCart, setIsCartOpen, cart } = useCart();
+  const [mediaError, setMediaError] = useState(false); // New state for media errors
 
   // Combine image(s) and video into a single media array of objects
   const media = [];
@@ -20,9 +21,18 @@ export default function ProductDetailClient({ car, preview = false }) {
 
   const [activeMedia, setActiveMedia] = useState(media[0]);
 
+  // Reset mediaError when activeMedia changes
+  useEffect(() => {
+    setMediaError(false);
+  }, [activeMedia]);
+
   if (!car) return <div className="p-20 font-mono text-black">Exhibit Not Found.</div>;
 
   const isVideo = activeMedia?.type === 'video';
+
+  const handleMediaError = () => {
+    setMediaError(true);
+  };
 
   return (
     <main className="min-h-screen bg-white flex flex-col md:flex-row overflow-hidden relative selection:bg-black selection:text-white">
@@ -53,7 +63,12 @@ export default function ProductDetailClient({ car, preview = false }) {
         {/* The Hero Media */}
         <div className="relative w-full h-full flex items-center justify-center">
           <AnimatePresence mode="wait">
-            {isVideo ? (
+            {mediaError ? (
+              <div className="flex flex-col items-center justify-center w-full h-full text-gray-500">
+                <svg className="w-16 h-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <p className="text-sm font-mono text-center">Failed to load media.<br/>Please check your connection.</p>
+              </div>
+            ) : isVideo ? (
                <motion.video
                 key={activeMedia.url}
                 layoutId={`car-image-${car.id}`}
@@ -63,6 +78,7 @@ export default function ProductDetailClient({ car, preview = false }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
+                onError={handleMediaError} // Add onError handler
               />
             ) : (
               <motion.img
@@ -73,6 +89,7 @@ export default function ProductDetailClient({ car, preview = false }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
+                onError={handleMediaError} // Add onError handler
               />
             )}
           </AnimatePresence>

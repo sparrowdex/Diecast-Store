@@ -2,11 +2,17 @@ import prisma from "@/lib/prisma";
 import JournalDashboard from "./JournalDashboard";
 
 export default async function JournalPage() {
-  const journalEntries = await prisma.journalEntry.findMany({
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+  let journalEntries = [];
+  try {
+    journalEntries = await prisma.journalEntry.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching journal entries for journal page:', error);
+    // Fallback to empty array to keep frontend visible
+  }
 
   return <JournalDashboard initialEntries={journalEntries} />;
 }
