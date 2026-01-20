@@ -2,11 +2,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
-import { createOrder, verifyPayment } from "@/lib/actions/razorpay.ts";
+import { createOrder, verifyPayment } from "@/lib/actions/razorpay";
+import { useCart } from "@/context/CartContext";
 
 // This is the new component for Razorpay
-export default function CheckoutForm({ cart, cartTotal, clearCart }) {
+export default function CheckoutForm({ cart, cartTotal }) {
   const router = useRouter();
+  const { clearCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
 
@@ -15,58 +17,71 @@ export default function CheckoutForm({ cart, cartTotal, clearCart }) {
     setIsProcessing(true);
     setError(null); // Clear previous errors
 
-    const form = e.currentTarget;
-    const formData = new FormData(form);
+    try {
+      const form = e.currentTarget;
+      const formData = new FormData(form);
 
-    // 1. Create order on the server
-    const result = await createOrder(cart, formData);
+      // 1. Create order on the server
+      const result = await createOrder(cart, formData);
 
-    if (!result.success) {
-      setError(result.error || "Failed to create order. Please try again.");
-      setIsProcessing(false);
-      return;
-    }
-
-    const razorpayOrder = result.order;
-
-    const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-      amount: razorpayOrder.amount,
-      currency: razorpayOrder.currency,
-      name: "Diecast-Store",
-      description: "Transaction",
-      order_id: razorpayOrder.id,
-      handler: async function (response) {
-        setIsProcessing(true);
-        setError(null);
-        // 2. This runs on success - Verify payment on server
-        const verificationResult = await verifyPayment(response);
-        
-        if (verificationResult.success) {
-          clearCart();
-          router.push(`/thank-you?orderId=${razorpayOrder.receipt}`);
+      if (!result.success) {
+        if (result.details) {
+          const fieldErrors = Object.values(result.details.fieldErrors).flat();
+          setError(fieldErrors[0] || "Please check your address details.");
         } else {
-          setError(verificationResult.error || "Payment verification failed. Please contact support.");
-          setIsProcessing(false);
+          setError(result.error || "Failed to create order. Please try again.");
         }
-      },
-      prefill: {
-        name: `${formData.get('firstName')} ${formData.get('lastName')}`,
-        email: formData.get('email'),
-        contact: formData.get('phone'),
-      },
-      theme: {
-        color: "#000000",
-      },
-      modal: {
-        ondismiss: function () {
-          setIsProcessing(false);
-        },
-      },
-    };
+        return;
+      }
 
-    const paymentObject = new window.Razorpay(options);
-    paymentObject.open();
+      const razorpayOrder = result.order;
+
+      // 2. Check for Mock Mode (Redirect to actual page instead of popup)
+      if (process.env.NEXT_PUBLIC_PAYMENT_MODE === 'mock') {
+        router.push(`/checkout/mock-payment?orderId=${razorpayOrder.id}&amount=${cartTotal}`);
+        return;
+      }
+
+      // 3. Real Razorpay Logic
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_placeholder',
+        amount: razorpayOrder.amount || (cartTotal * 100),
+        currency: razorpayOrder.currency || "INR",
+        name: "Diecast-Store",
+        description: "Transaction",
+        order_id: razorpayOrder.id,
+        handler: async function (response) {
+          setIsProcessing(true);
+          const verificationResult = await verifyPayment(response);
+          
+          if (verificationResult.success) {
+            if (typeof clearCart === 'function') clearCart(); // Safety check
+            router.push(`/checkout/order-success?orderId=${razorpayOrder.receipt}`);
+          } else {
+            setError(verificationResult.error || "Payment verification failed.");
+            setIsProcessing(false);
+          }
+        },
+        prefill: {
+          name: `${formData.get('firstName')} ${formData.get('lastName')}`,
+          email: formData.get('email'),
+          contact: formData.get('phone'),
+        },
+        theme: { color: "#000000" },
+        modal: { ondismiss: () => setIsProcessing(false) },
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+    } catch (err) {
+      console.error(err);
+      setError("An unexpected error occurred.");
+    } finally {
+      // Only stop processing if we aren't redirecting
+      if (process.env.NEXT_PUBLIC_PAYMENT_MODE !== 'mock') {
+        setIsProcessing(false);
+      }
+    }
   };
 
   return (
@@ -82,6 +97,7 @@ export default function CheckoutForm({ cart, cartTotal, clearCart }) {
             type="email"
             name="email"
             placeholder="Email Address"
+            defaultValue="collector@example.com"
             required
             className="w-full bg-white border border-black/10 p-4 text-xs font-mono focus:outline-none focus:border-black"
           />
@@ -89,6 +105,7 @@ export default function CheckoutForm({ cart, cartTotal, clearCart }) {
             type="tel"
             name="phone"
             placeholder="Phone Number"
+            defaultValue="9876543210"
             required
             className="mt-4 w-full bg-white border border-black/10 p-4 text-xs font-mono focus:outline-none focus:border-black"
           />
@@ -104,6 +121,7 @@ export default function CheckoutForm({ cart, cartTotal, clearCart }) {
               type="text"
               name="firstName"
               placeholder="First Name"
+              defaultValue="Srijeeta"
               required
               className="col-span-1 bg-white border border-black/10 p-4 text-xs font-mono focus:outline-none focus:border-black"
             />
@@ -111,6 +129,7 @@ export default function CheckoutForm({ cart, cartTotal, clearCart }) {
               type="text"
               name="lastName"
               placeholder="Last Name"
+              defaultValue="Das"
               required
               className="col-span-1 bg-white border border-black/10 p-4 text-xs font-mono focus:outline-none focus:border-black"
             />
@@ -118,6 +137,7 @@ export default function CheckoutForm({ cart, cartTotal, clearCart }) {
               type="text"
               name="address"
               placeholder="Address Line 1"
+              defaultValue="A-5, Tower 7, Block B"
               required
               className="col-span-2 bg-white border border-black/10 p-4 text-xs font-mono focus:outline-none focus:border-black"
             />
@@ -125,6 +145,7 @@ export default function CheckoutForm({ cart, cartTotal, clearCart }) {
               type="text"
               name="city"
               placeholder="City"
+              defaultValue="New Delhi"
               required
               className="col-span-1 bg-white border border-black/10 p-4 text-xs font-mono focus:outline-none focus:border-black"
             />
@@ -132,6 +153,7 @@ export default function CheckoutForm({ cart, cartTotal, clearCart }) {
               type="text"
               name="postalCode"
               placeholder="Postal Code"
+              defaultValue="110011"
               required
               className="col-span-1 bg-white border border-black/10 p-4 text-xs font-mono focus:outline-none focus:border-black"
             />
@@ -139,6 +161,7 @@ export default function CheckoutForm({ cart, cartTotal, clearCart }) {
               type="text"
               name="country"
               placeholder="Country"
+              defaultValue="India"
               required
               className="col-span-2 bg-white border border-black/10 p-4 text-xs font-mono focus:outline-none focus:border-black"
             />

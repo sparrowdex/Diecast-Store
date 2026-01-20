@@ -44,7 +44,11 @@ export default function CartDrawer() {
                 cart.map((item) => (
                   <div key={item.id} className="flex gap-4 group">
                     <div className="w-16 h-16 bg-gray-100 rounded-sm p-2 flex-shrink-0 border border-black/5">
-                      <img src={item.image} className="w-full h-full object-contain mix-blend-multiply" />
+                      <img 
+                        src={item.image || (item.images && item.images[0]) || "/placeholder-car.png"} 
+                        className="w-full h-full object-contain mix-blend-multiply" 
+                        alt={item.name}
+                      />
                     </div>
                     <div className="flex-1">
                       <div className="flex justify-between items-start">

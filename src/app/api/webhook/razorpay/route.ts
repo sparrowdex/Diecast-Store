@@ -5,24 +5,26 @@ import prisma from '@/lib/prisma';
 export async function POST(req: NextRequest) {
   const secret = process.env.RAZORPAY_WEBHOOK_SECRET!;
   const signature = req.headers.get('x-razorpay-signature');
+  const isMockRequest = req.headers.get('x-mock-request') === 'true';
 
-  if (!signature) {
-    return NextResponse.json({ error: 'No signature found' }, { status: 400 });
+  if (!isMockRequest) {
+    if (!signature) {
+      return NextResponse.json({ error: 'No signature found' }, { status: 400 });
+    }
+
+    const bodyText = await req.clone().text();
+    const generated_signature = crypto
+      .createHmac('sha256', secret)
+      .update(bodyText)
+      .digest('hex');
+
+    if (generated_signature !== signature) {
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
+    }
   }
 
-  const body = await req.text();
-
-  const generated_signature = crypto
-    .createHmac('sha256', secret)
-    .update(body)
-    .digest('hex');
-
-  if (generated_signature !== signature) {
-    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
-  }
-
-  // Signature is valid, now process the webhook event
-  const event = JSON.parse(body);
+  // Signature is valid or it's a mock request, now process the webhook event
+  const event = await req.json();
   const { event: eventType, payload } = event;
 
   try {

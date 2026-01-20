@@ -12,7 +12,8 @@ interface CartItem {
   name: string;
   price: number;
   quantity: number;
-  image: string;
+  image?: string;
+  images?: string[];
 }
 
 interface RazorpayResponse {
@@ -21,11 +22,14 @@ interface RazorpayResponse {
   razorpay_signature: string;
 }
 
-// Initialize Razorpay client
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID!,
-  key_secret: process.env.RAZORPAY_KEY_SECRET!,
-});
+// Initialize Razorpay client lazily to avoid crash in mock mode
+const getRazorpay = () => {
+  if (process.env.NEXT_PUBLIC_PAYMENT_MODE === 'mock') return null;
+  return new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID || 'missing',
+    key_secret: process.env.RAZORPAY_KEY_SECRET || 'missing',
+  });
+};
 
 // Zod schema for validating form data
 const formSchema = z.object({
@@ -41,10 +45,8 @@ const formSchema = z.object({
 });
 
 export async function createOrder(items: CartItem[], rawFormData: FormData) {
-  const { userId } = await auth();
-  if (!userId) {
-    return { success: false, error: 'User is not authenticated.' };
-  }
+  const authData = await auth();
+  const userId = authData?.userId || null; // Correctly allows guest checkout
 
   const formData = Object.fromEntries(rawFormData.entries());
 
@@ -56,7 +58,10 @@ export async function createOrder(items: CartItem[], rawFormData: FormData) {
   const validatedData = validation.data;
 
   // Calculate total amount on the server to prevent client-side manipulation
-  const totalAmount = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const totalAmount = items.reduce((acc, item) => {
+    const price = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
+    return acc + (price * item.quantity);
+  }, 0);
 
   try {
     const result = await prisma.$transaction(async (tx) => {
@@ -71,9 +76,9 @@ export async function createOrder(items: CartItem[], rawFormData: FormData) {
           items: {
             create: items.map((item) => ({
               name: item.name,
-              price: item.price,
+              price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
               quantity: item.quantity,
-              image: item.image,
+              image: item.image || (Array.isArray(item.images) ? item.images[0] : "/placeholder-car.png"),
             })),
           },
         },
@@ -83,11 +88,20 @@ export async function createOrder(items: CartItem[], rawFormData: FormData) {
       });
 
       // 2. Create the Razorpay order
-      const razorpayOrder = await razorpay.orders.create({
-        amount: totalAmount * 100, // Amount in paise
-        currency: 'INR',
-        receipt: order.id, // Use our internal order ID as the receipt
-      });
+      let razorpayOrder;
+      if (process.env.NEXT_PUBLIC_PAYMENT_MODE === 'mock') {
+        // Simulate a Razorpay order object for the demo
+        razorpayOrder = { id: `order_mock_${Math.random().toString(36).substring(7)}` };
+      } else {
+        const rzp = getRazorpay();
+        if (!rzp) throw new Error("Razorpay keys are missing in non-mock mode.");
+        
+        razorpayOrder = await rzp.orders.create({
+          amount: totalAmount * 100, // Amount in paise
+          currency: 'INR',
+          receipt: order.id,
+        });
+      }
 
       // 3. Update our order with the Razorpay order ID
       await tx.order.update({
@@ -120,13 +134,28 @@ export async function verifyPayment(response: RazorpayResponse) {
   }
 
   try {
-    await prisma.order.update({
-      where: { razorpayOrderId: razorpay_order_id },
-      data: {
-        paymentStatus: 'PAID',
-        razorpayPaymentId: razorpay_payment_id,
-        razorpaySignature: razorpay_signature,
-      },
+    await prisma.$transaction(async (tx) => {
+      // 1. Update the order status
+      const order = await tx.order.update({
+        where: { razorpayOrderId: razorpay_order_id },
+        data: {
+          paymentStatus: 'PAID',
+          razorpayPaymentId: razorpay_payment_id,
+          razorpaySignature: razorpay_signature,
+        },
+        include: { items: true }
+      });
+
+      // 2. Deduct stock for each item purchased
+      for (const item of order.items) {
+        // We assume the item name or a hidden ID field connects back to the Product
+        // If you have the product ID in OrderItem, use that. 
+        // For now, we'll match by name as a fallback.
+        await tx.product.updateMany({
+          where: { name: item.name },
+          data: { stock: { decrement: item.quantity } }
+        });
+      }
     });
     return { success: true };
   } catch (error) {

@@ -78,6 +78,10 @@ export default async function GalleryPage() {
       where: {
         category: "New Arrival",
       },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      take: 20
     });
   } catch (error) {
     console.error("Database error fetching new arrivals:", error);

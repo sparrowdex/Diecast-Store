@@ -1,5 +1,6 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUser, SignInButton, SignOutButton } from "@clerk/nextjs";
 import { useState, useMemo } from "react";
 import Link from 'next/link';
 import { useCart } from "@/context/CartContext";
@@ -9,14 +10,23 @@ import StandardCard from "@/components/StandardCard";
 import CustomCursor from "@/components/CustomCursor";
 import Footer from "@/components/Footer";
 
-// SpeedLink component for shine effect
+// --- COMPONENT: SpeedLink ("The Overtake" Animation) ---
 const SpeedLink = ({ href, children }) => {
   return (
     <Link href={href} className="group relative block w-fit overflow-hidden py-1">
-      <span className="relative z-10 font-mono text-sm font-bold uppercase italic tracking-widest text-gray-300 transition-colors duration-300 group-hover:text-white">
+      
+      {/* LAYER 1: The "Slow" Car (Black Text) */}
+      <span className="relative z-10 block font-mono text-sm font-bold uppercase tracking-widest text-black transition-transform duration-300 ease-[cubic-bezier(0.77,0,0.175,1)] group-hover:translate-x-[110%]">
         {children}
       </span>
-      <div className="shine-effect" />
+
+      {/* LAYER 2: The "Fast" Car (Red Text) */}
+      <span className="absolute inset-0 z-0 block -translate-x-[110%] font-mono text-sm font-bold uppercase italic tracking-widest text-[#FF1E1E] transition-transform duration-300 ease-[cubic-bezier(0.77,0,0.175,1)] group-hover:translate-x-0 group-hover:-skew-x-12">
+        {children}
+      </span>
+
+      {/* LAYER 3: The Racing Kerb (CSS class in globals.css) */}
+      <span className="absolute bottom-0 left-0 h-[3px] w-full translate-y-full opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 kerb-animation" />
     </Link>
   );
 };
@@ -49,6 +59,7 @@ const Select = ({ value, onChange, options }) => (
 export default function Gallery({ featuredExhibits, archiveCollection, newArrivals, featuredLayout = 'hero' }) {
     const [isCursorBlocked, setCursorBlocked] = useState(false);
     const [hoverState, setHoverState] = useState(false);
+    const { isSignedIn, isLoaded } = useUser();
     const { cart, setIsCartOpen } = useCart();
 
     const fullCollection = useMemo(() => [...newArrivals, ...archiveCollection], [newArrivals, archiveCollection]);
@@ -57,7 +68,6 @@ export default function Gallery({ featuredExhibits, archiveCollection, newArriva
       <main className="min-h-screen bg-[#fafafa] text-black font-sans relative selection:bg-black selection:text-white">
         <CartDrawer />
         
-        {/* Content Wrapper: Padding is applied here, keeping content centered/spaced */}
         <div className="p-4 md:p-12">
             <header className="mb-20 flex justify-between items-baseline border-b border-black/10 pb-8">
               <div>
@@ -65,16 +75,53 @@ export default function Gallery({ featuredExhibits, archiveCollection, newArriva
                 <p className="text-gray-400 text-[10px] tracking-[0.4em] font-mono uppercase mt-3 ml-1">Curated_Diecast_Exhibition</p>
               </div>
               <nav className="hidden md:flex gap-12 text-[10px] font-bold tracking-widest uppercase items-center">
+                
+                {/* User Section */}
+                {!isLoaded ? (
+                  <div className="w-12 h-4 bg-black/5 animate-pulse" />
+                ) : isSignedIn ? (
+                  <div className="group relative py-2">
+                    <Link href="/access" className="font-mono text-sm font-bold uppercase italic tracking-widest text-black border-b-2 border-black hover:text-[#FF1E1E] hover:border-[#FF1E1E] transition-all">
+                      ACCESS
+                    </Link>
+                    {/* Hover Dropdown */}
+                    <div className="absolute top-full left-0 w-48 pt-6 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 ease-out z-50">
+                      <div className="bg-white border border-black shadow-2xl p-2 flex flex-col">
+                        <Link href="/access" className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-all">Dashboard</Link>
+                        <Link href="/access/collection" className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-all">My Collection</Link>
+                        <Link href="/access/orders" className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-all">Order History</Link>
+                        <Link href="/access/settings" className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-all">Settings</Link>
+                        <div className="h-px bg-black/5 my-2" />
+                        <SignOutButton>
+                          <button className="w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-600 hover:bg-red-50 transition-colors">Logout_Session</button>
+                        </SignOutButton>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <SignInButton mode="modal">
+                    <button className="font-mono text-sm font-bold uppercase tracking-widest text-black hover:text-[#FF1E1E] transition-colors">
+                      LOGIN
+                    </button>
+                  </SignInButton>
+                )}
+
                 <SpeedLink href="/catalog">Catalog</SpeedLink>
                 <SpeedLink href="/journal">Journal</SpeedLink>
-                <button onClick={() => setIsCartOpen(true)} className="group flex items-center gap-2 px-4 py-2 bg-black text-white rounded-sm hover:bg-red-600 transition-colors">
-                  <span>VAULT</span>
-                  <span className="bg-white/20 px-1.5 py-0.5 rounded text-[9px]">{cart.length}</span>
+                
+                <button 
+                  onClick={() => setIsCartOpen(true)} 
+                  className="group relative flex items-center gap-2 px-6 py-2 rounded-sm checkered-hover overflow-hidden"
+                >
+                  <span className="relative z-10 font-bold mix-blend-difference text-white">VAULT</span>
+                  <span className="relative z-10 bg-white/20 px-1.5 py-0.5 rounded text-[9px] text-white">
+                    {cart.length}
+                  </span>
                 </button>
+
               </nav>
             </header>
       
-            {/* Featured Section */}
             <section className="mb-32">
               <div className="flex items-center gap-6 mb-10">
                 <h2 className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.3em]">Featured_Exhibits</h2>
@@ -88,7 +135,6 @@ export default function Gallery({ featuredExhibits, archiveCollection, newArriva
               />
             </section>
       
-            {/* Archive Collection Section */}
             <section className="mb-20">
                <div className="flex flex-wrap justify-between items-end gap-6 mb-12">
                  <div>
@@ -109,8 +155,8 @@ export default function Gallery({ featuredExhibits, archiveCollection, newArriva
             <CustomCursor active={hoverState && !isCursorBlocked} />
         </div>
 
-        {/* Footer sits outside the padding wrapper to span full width */}
         <Footer />
+        {/* Removed styles from here because they are now in globals.css */}
     </main>
   );
-} 
+}

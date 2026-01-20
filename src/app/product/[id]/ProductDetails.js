@@ -1,12 +1,14 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react"; 
+import { useUser, SignInButton, SignOutButton } from "@clerk/nextjs";
 import { useCart } from "@/context/CartContext";
 import CartDrawer from "@/components/CartDrawer";
 import Link from "next/link";
 
 export default function ProductDetailClient({ car, preview = false }) {
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const { isSignedIn, isLoaded } = useUser();
   const { addToCart, setIsCartOpen, cart } = useCart();
   const [mediaError, setMediaError] = useState(false); // New state for media errors
 
@@ -52,6 +54,36 @@ export default function ProductDetailClient({ car, preview = false }) {
               ← Gallery_Index
             </Link>
           )}
+
+          {/* User Section */}
+          {!preview && (
+            <div className="ml-auto mr-6">
+              {!isLoaded ? (
+                <div className="w-12 h-4 bg-black/5 animate-pulse" />
+              ) : isSignedIn ? (
+                <div className="group relative py-2">
+                  <Link href="/access" className="text-[10px] font-black tracking-widest uppercase text-black border-b border-black hover:text-red-600 hover:border-red-600 transition-all">
+                    ACCESS
+                  </Link>
+                  <div className="absolute top-full right-0 w-48 pt-6 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 ease-out z-50">
+                    <div className="bg-white border border-black shadow-2xl p-2 flex flex-col text-right">
+                      <Link href="/access" className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-all">My Collection</Link>
+                      <SignOutButton>
+                        <button className="w-full text-right px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-600 hover:bg-red-50 transition-colors">Logout</button>
+                      </SignOutButton>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <SignInButton mode="modal">
+                  <button className="text-[10px] font-black tracking-widest uppercase text-black hover:text-red-600 transition-colors">
+                    LOGIN
+                  </button>
+                </SignInButton>
+              )}
+            </div>
+          )}
+
           {!preview && (
             <button onClick={() => setIsCartOpen(true)} className="flex items-center gap-2 bg-white/80 backdrop-blur px-3 py-1 rounded-full border border-black/5 hover:bg-black hover:text-white transition-colors text-black">
                 <span className="text-[9px] font-black uppercase">Vault</span>
@@ -106,7 +138,7 @@ export default function ProductDetailClient({ car, preview = false }) {
               >
                 {item.type === 'video' ? (
                    <div className="w-full h-full bg-black flex items-center justify-center">
-                      <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.55a1 1 0 011.45.89v2.22a1 1 0 01-1.45.89L15 12M4 6h11a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1z" /></svg>
+                      <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                    </div>
                 ) : (
                   <img src={item.url} className="w-full h-full object-cover" alt="thumbnail" />

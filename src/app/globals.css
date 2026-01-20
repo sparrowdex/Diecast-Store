@@ -79,3 +79,46 @@ body {
 /* REMOVED: .footer-content, .footer-section styles 
    We will handle layout directly in Tailwind for better control 
 */
+
+/* --- 1. VAULT BUTTON: Checkered Effect --- */
+.checkered-hover {
+  position: relative;
+  background-color: #000000;
+  background-image: none;
+  transition: background-color 0.2s ease;
+  overflow: hidden; 
+}
+
+.checkered-hover:hover {
+  background-color: #ffffff;
+  background-image: 
+    linear-gradient(45deg, #000 25%, transparent 25%), 
+    linear-gradient(-45deg, #000 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, #000 75%), 
+    linear-gradient(-45deg, transparent 75%, #000 75%);
+  background-size: 30px 30px;
+  animation: checker-move 0.5s linear infinite;
+}
+
+@keyframes checker-move {
+  from { background-position: 0 0, 0 0, 0 0, 0 0; }
+  to { background-position: 30px 0, 30px 0, 30px 0, 30px 0; }
+}
+
+/* --- 2. SPEED LINK: Racing Kerb Effect --- */
+.kerb-animation {
+  background-image: repeating-linear-gradient(
+    90deg,
+    #FF1E1E 0,
+    #FF1E1E 10px,
+    transparent 10px,
+    transparent 20px
+  );
+  background-size: 20px 3px;
+  animation: kerb-scroll 0.5s linear infinite;
+}
+
+@keyframes kerb-scroll {
+  from { background-position: 0 0; }
+  to { background-position: -20px 0; }
+}
