@@ -13,14 +13,14 @@ const isMediaVideo = (media) => {
   return media.type.startsWith("video/");
 };
 
-function InputField({ name, label, value, onChange, placeholder, required = false }) {
+function InputField({ name, label, value, onChange, placeholder, required = false, type = "text" }) {
   return (
     <div>
       <label htmlFor={name} className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
         {label}
       </label>
       <input
-        type="text"
+        type={type}
         id={name}
         name={name}
         value={value}
@@ -65,8 +65,6 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
     images: formData.images,
     image: (formData.images && formData.images.length > 0) ? formData.images[0] : '/cars/maybach.jpg',
     video: formData.video,
-    isNew: formData.category === 'New Arrival',
-    isFeatured: formData.featured,
   };
 
   const activeMedia = media[activeMediaIndex] || null;
@@ -89,8 +87,16 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
         <div className="space-y-4">
             <InputField name="name" label="Exhibit Name" value={formData.name} onChange={handleChange} placeholder="e.g., Red Bull Racing RB19" required />
             <InputField name="brand" label="Brand" value={formData.brand} onChange={handleChange} placeholder="e.g., Bburago" required />
-            <InputField name="price" label="Price" value={formData.price} onChange={handleChange} placeholder="e.g., ₹1,400" required />
-            <InputField name="scale" label="Scale" value={formData.scale} onChange={handleChange} placeholder="e.g., 1:43" required />
+            <InputField name="price" label="Price" value={formData.price} onChange={handleChange} placeholder="e.g., 1,400" required />
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Scale</label>
+              <select name="scale" value={formData.scale} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white">
+                {['1:64', '1:43', '1:24', '1:18', '1:12'].map(s => (
+                  <option key={s} value={s} className="bg-[#111]">{s}</option>
+                ))}
+              </select>
+            </div>
+            <InputField name="modelYear" label="Model Year" type="number" value={formData.modelYear} onChange={handleChange} placeholder="e.g., 2023" />
             <div>
               <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
                   Images
@@ -170,15 +176,29 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
             <InputField name="condition" label="Condition" value={formData.condition} onChange={handleChange} placeholder="e.g., Mint (Boxed)" />
             <TextareaField name="description" label="Description" value={formData.description} onChange={handleChange} />
             <TextareaField name="editorsNote" label="Editor's Note" value={formData.editorsNote} onChange={handleChange} />
-            <div className="md:col-span-2">
-              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Category</label>
-              <select name="category" value={formData.category} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white">
-                <option value="Archive">Archive Collection</option>
-                <option value="Featured Exhibit">Featured Exhibit</option>
-                <option value="New Arrival">New Arrival</option>
-              </select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:col-span-2">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Collection Status</label>
+                <select name="collectionStatus" value={formData.collectionStatus} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white">
+                  <option value="ARCHIVE_CATALOG" className="bg-[#111]">Archive Catalog</option>
+                  <option value="NEW_ARRIVAL" className="bg-[#111]">New Arrival</option>
+                  <option value="FEATURED_EXHIBIT" className="bg-[#111]">Featured Exhibit</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Genre</label>
+                <select name="genre" value={formData.genre} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white">
+                  <option value="CLASSIC_VINTAGE" className="bg-[#111]">Classic & Vintage</option>
+                  <option value="RACE_COURSE" className="bg-[#111]">Race Course</option>
+                  <option value="CITY_LIFE" className="bg-[#111]">City Life</option>
+                  <option value="SUPERPOWERS" className="bg-[#111]">Superpowers</option>
+                  <option value="LUXURY_REDEFINED" className="bg-[#111]">Luxury Redefined</option>
+                  <option value="OFF_ROAD" className="bg-[#111]">Off-Road</option>
+                  <option value="FUTURE_PROOF" className="bg-[#111]">Future Proof</option>
+                </select>
+              </div>
             </div>
-            {formData.category !== "Featured Exhibit" && (
+            {formData.collectionStatus === "NEW_ARRIVAL" && (
               <CheckboxField name="featured" label="Mark as Featured in Grid" checked={formData.featured} onChange={handleChange} />
             )}
         </div>
@@ -230,7 +250,11 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
                 </motion.section>
                 <motion.section key={formData.name} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="w-full md:w-[40%] h-auto md:h-full overflow-y-auto bg-white border-l border-black/5 p-4 flex flex-col text-xs">
                     <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-3"><span className="px-2 py-0.5 border border-black/10 rounded-full text-[8px] font-mono uppercase text-gray-500">{formData.brand || "Brand"}</span><span className="px-2 py-0.5 border border-black/10 rounded-full text-[8px] font-mono uppercase text-gray-500">Scale {formData.scale || "1:--"}</span></div>
+                        <div className="flex items-center gap-2 mb-3">
+                            <span className="px-2 py-0.5 border border-black/10 rounded-full text-[8px] font-mono uppercase text-gray-500">{formData.brand || "Brand"}</span>
+                            <span className="px-2 py-0.5 border border-black/10 rounded-full text-[8px] font-mono uppercase text-gray-500">Scale {formData.scale || "1:--"}</span>
+                            <span className="px-2 py-0.5 border border-black/10 rounded-full text-[8px] font-mono uppercase text-gray-500">{formData.modelYear || "Year"}</span>
+                        </div>
                         <h1 className="text-lg font-black italic tracking-tighter uppercase leading-[0.9] mb-4">{formData.name || "Exhibit Name"}</h1>
                         <div className="h-px w-full bg-black/5 my-4" />
                         <div className="space-y-4">
@@ -247,7 +271,7 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
             </div>
         </div>
 
-        {formData.category === 'Featured Exhibit' && (
+        {formData.collectionStatus === 'FEATURED_EXHIBIT' && (
             <div>
                 <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 my-4">Featured Exhibit Hover Preview</h3>
                 <div className="rounded-lg p-8 bg-[#1B1B1B] grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -267,7 +291,7 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
 
 
         {/* HOMEPAGE NEW ARRIVALS PREVIEW */}
-        {formData.category !== 'Featured Exhibit' && (
+        {formData.collectionStatus !== 'FEATURED_EXHIBIT' && (
             <div>
                 <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Homepage New Arrivals Grid Preview</h3>
                 <div className="rounded-lg p-8 bg-[#fafafa]">

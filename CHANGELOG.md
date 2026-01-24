@@ -1,67 +1,57 @@
-# Changelog
+# Changelog - Diecast Store Refactor
 
-## 2026-01-07
+## [2026-01-24] - API & UI Refinements
 
-### Replaced Rich Text Editor and Upgraded Journal Feature
+### Changed
+- **Featured Logic**: Updated `getFeaturedExhibits` in `page.js` to ensure manual layout configurations strictly respect the `FEATURED_EXHIBIT` status, preventing non-featured items from appearing in the Bento grid.
+- **API Validation**: Updated `/api/products` (POST) and `/api/products/[id]` (PUT) to ensure `modelYear` is parsed as an Integer and implemented strict Enum validation for `genre` and `collectionStatus`.
+- **Redundancy Fix**: Restricted `featured` boolean filtering to the `NEW_ARRIVAL` status only to prevent data conflicts with `FEATURED_EXHIBIT`.
+- **UI Standardization**:
+    - Standardized currency symbols (`₹`) across `StandardCard`, `BentoCard`, and `CatalogCard`.
+    - Implemented robust image fallback logic in `StandardCard` and `BentoCard` to handle both the new `images` array and legacy `image` string.
+    - Updated `BentoCard` to use dynamic `sidebarWidth` based on grid layout.
+- **Checkout Refinement**: Fixed image display in `CheckoutSummary.jsx` to support the new `images` array structure.
+- **Shipping Logic**: Added `shippingCost` to the `Order` model in `schema.prisma` for better transaction tracking.
+- **Order Tracking**: Added `trackingNumber` to `Order` model and implemented the Order Status tracking UI.
+- **Future Planning**: Identified the need for Shipping API integration to automate tracking number generation (currently manual).
+- **Documentation**: Created `ORDER_FLOW_GUIDE.md` to explain the end-to-end purchase and fulfillment process.
+- **Data Integrity**: Enforced `featured: false` in API routes for any product not marked as `NEW_ARRIVAL` to prevent data conflicts.
+- **Journal Consistency**: Updated `JournalEntry` model in `schema.prisma` to use `images String[]` and `video String?` to match the `Product` model's media structure.
+- **Documentation**: Updated `FEATURE_GUIDE.md` to reflect the transition from "Category" to "Collection Status".
+- **Task Completion**: Marked all database resilience tasks in `TODO.md` as completed.
 
-This update replaces the legacy rich text editor (`react-quill`), which is incompatible with React 19, with a modern, robust solution using **Tiptap**.
+### Fixed
+- Fixed price input placeholder in `ExhibitPreview` to prevent "double currency" display bugs.
+- **Badge Logic**: Fixed `StandardCard` to use `collectionStatus` instead of the non-existent `isNew` property for displaying badges.
 
-**Key Features:**
+## [2026-01-21] - Categorization & Schema Overhaul
 
-*   **Modern Editor:** Implemented Tiptap for a stable and extensible rich text editing experience.
-*   **Component-Based:** Created a new reusable `RichTextEditor` component for use across the application.
-*   **Seamless Integration:** The new editor is now used for creating and editing journal entries in the admin panel.
+### Added
+- **New Schema Fields**: Added `collectionStatus` (Enum), `genre` (Enum), and `modelYear` (Int) to the `Product` model in Prisma.
+- **Genre Filtering**: Implemented a new "Car Identity" system with 7 specific genres (Classic & Vintage, Race Course, etc.) across the Home, Catalog, and Journal pages.
+- **Scale Dropdowns**: Replaced free-text scale inputs with a standardized dropdown (`1:64`, `1:43`, etc.) to ensure filter consistency.
+- **UI Badges**: Updated product cards and `ExhibitPreview` to display the new `modelYear` and `genre` data.
+- **Search API**: Updated `/api/products` GET handler to support filtering by `genre`, `collectionStatus`, `modelYear`, and keyword search (`q`).
 
-**Changes:**
+### Changed
+- **Decoupled Logic**: Separated "App Location" (where a car appears) from "Car Identity" (what the car is).
+    - `category` (String) -> `collectionStatus` (Enum: `ARCHIVE_CATALOG`, `NEW_ARRIVAL`, `FEATURED_EXHIBIT`).
+- **Admin Refactor**: Updated `NewExhibit` and `EditExhibit` forms to support the split categorization.
+- **Data Fetching**: Updated server-side queries in `page.js`, `catalog/page.js`, and `product/[id]/page.js` to use the new `collectionStatus` field and added try-catch blocks for database resilience.
+- **Filter UI**: Converted Genre and Scale filters into dropdown menus to prevent UI clutter.
 
-*   **Dependencies:**
-    *   Removed `react-quill`.
-    *   Added `@tiptap/react` and `@tiptap/starter-kit`.
-*   **New Component:**
-    *   `src/components/RichTextEditor.js`: A new, self-contained Tiptap editor component.
-*   **New Styles:**
-    *   `src/app/tiptap.css`: Basic styling for the new editor and its toolbar.
-*   **Admin Panel Updates:**
-    *   `src/app/admin/journal/new/page.js`: Now uses the `RichTextEditor` component.
-    *   `src/app/admin/journal/edit/[id]/EditJournalEntry.js`: Upgraded to use the `RichTextEditor` component.
-*   **Frontend Rendering:**
-    *   `src/app/journal/[slug]/page.js`: Updated to correctly render the clean HTML generated by Tiptap.
+### Fixed
+- Resolved `PrismaClientValidationError` caused by the removal of the legacy `category` field.
+
+### Cleanup
+- Removed `FeaturedExhibitPreviewStatic.js` as it is no longer used.
 
 ---
 
-## [2026-01-06]
+## Pending Tasks (To-Do)
 
-### Implemented Orders Section and Payment Integration
+### 1. Data Re-tagging
+- [ ] **Manual Update**: Since the migration dropped the `category` column, existing products need to be manually assigned a `collectionStatus` and `genre` via the Admin Panel or Prisma Studio.
 
-This update introduces a complete orders section to the admin dashboard and integrates a payment system using Stripe.
-
-**Key Features:**
-
-*   **Guest Checkout:** Customers can now place orders without creating an account.
-*   **Order Management:** A new "Orders" section in the admin dashboard allows for viewing all orders and their details.
-*   **Stripe Integration:** The checkout process is now powered by Stripe, allowing for secure credit card payments.
-*   **Database Updates:** The database schema has been updated to support orders and payment information.
-*   **API Routes:** New API routes have been created to handle orders, payment intents, and webhooks.
-
-**Changes:**
-
-*   **New Pages:**
-    *   `src/app/checkout/page.js`: Updated to handle order creation and payment processing.
-    *   `src/app/thank-you/page.js`: A new page to thank customers after a successful order.
-    *   `src/app/admin/orders/page.js`: A new page in the admin dashboard to display all orders.
-    *   `src/app/admin/orders/[id]/page.js`: A new page in the admin dashboard to display the details of a single order.
-*   **New Components:**
-    *   `src/components/CheckoutForm.js`: A new component to handle the Stripe payment form.
-*   **New API Routes:**
-    *   `src/app/api/orders/route.js`: For creating and retrieving orders.
-    *   `src/app/api/orders/[id]/route.js`: For retrieving a single order.
-    *   `src/app/api/create-payment-intent/route.js`: For creating a Stripe payment intent.
-    *   `src/app/api/webhook/route.js`: For handling Stripe webhooks.
-*   **Database Schema:**
-    *   `prisma/schema.prisma`: The `Order` model has been updated, and a new `OrderItem` model has been added.
-
-**Future Enhancements (as per `TODO.md`):**
-
-*   **User Accounts:** Implement user registration and login.
-*   **Persistent Carts:** Save a user's cart across sessions.
-*   **Wishlist:** Allow users to save items for later.
+---
+*End of Log*

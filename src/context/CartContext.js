@@ -10,16 +10,24 @@ export function CartProvider({ children }) {
   // Add item to cart
   const addToCart = (product) => {
     setCart((prev) => {
-      // Check if item already exists
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
         return prev.map((item) =>
           item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      return [...prev, { ...product, quantity: 1 }];
+      // Create a standardized cart item
+      const cartItem = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+        // Ensure a consistent image property for the cart
+        image: (product.images && product.images.length > 0) ? product.images[0] : '/placeholder.png'
+      };
+      return [...prev, cartItem];
     });
-    setIsCartOpen(true); // Open drawer automatically
+    setIsCartOpen(true);
   };
 
   // Remove item

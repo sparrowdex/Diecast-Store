@@ -46,73 +46,68 @@ const formSchema = z.object({
 
 export async function createOrder(items: CartItem[], rawFormData: FormData) {
   const authData = await auth();
-  const userId = authData?.userId || null; // Correctly allows guest checkout
+  const userId = authData?.userId || null;
 
   const formData = Object.fromEntries(rawFormData.entries());
 
-  // Validate form data
   const validation = formSchema.safeParse(formData);
   if (!validation.success) {
     return { success: false, error: 'Invalid form data.', details: validation.error.flatten() };
   }
   const validatedData = validation.data;
 
-  // Calculate total amount on the server to prevent client-side manipulation
   const totalAmount = items.reduce((acc, item) => {
     const price = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
     return acc + (price * item.quantity);
   }, 0);
 
   try {
-    const result = await prisma.$transaction(async (tx) => {
-      // 1. Create the main Order record
-      const order = await tx.order.create({
-        data: {
-          userId,
-          ...validatedData,
-          total: totalAmount,
-          status: 'PENDING',
-          paymentStatus: 'UNPAID',
-          items: {
-            create: items.map((item) => ({
-              name: item.name,
-              price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
-              quantity: item.quantity,
-              image: item.image || (Array.isArray(item.images) ? item.images[0] : "/placeholder-car.png"),
-            })),
-          },
-        },
-        include: {
-          items: true, // Include the created items in the result
-        },
+    // 1. Create the Razorpay order FIRST
+    let razorpayOrder;
+    const tempOrderIdForReceipt = `receipt_${crypto.randomBytes(8).toString('hex')}`;
+
+    if (process.env.NEXT_PUBLIC_PAYMENT_MODE === 'mock') {
+      razorpayOrder = { id: `order_mock_${crypto.randomBytes(4).toString('hex')}` };
+    } else {
+      const rzp = getRazorpay();
+      if (!rzp) throw new Error("Razorpay keys are missing in non-mock mode.");
+      
+      razorpayOrder = await rzp.orders.create({
+        amount: totalAmount * 100,
+        currency: 'INR',
+        receipt: tempOrderIdForReceipt,
       });
+    }
 
-      // 2. Create the Razorpay order
-      let razorpayOrder;
-      if (process.env.NEXT_PUBLIC_PAYMENT_MODE === 'mock') {
-        // Simulate a Razorpay order object for the demo
-        razorpayOrder = { id: `order_mock_${Math.random().toString(36).substring(7)}` };
-      } else {
-        const rzp = getRazorpay();
-        if (!rzp) throw new Error("Razorpay keys are missing in non-mock mode.");
-        
-        razorpayOrder = await rzp.orders.create({
-          amount: totalAmount * 100, // Amount in paise
-          currency: 'INR',
-          receipt: order.id,
-        });
-      }
+    if (!razorpayOrder) {
+      throw new Error("Failed to create Razorpay order.");
+    }
 
-      // 3. Update our order with the Razorpay order ID
-      await tx.order.update({
-        where: { id: order.id },
-        data: { razorpayOrderId: razorpayOrder.id },
-      });
-
-      return { success: true, order: razorpayOrder };
+    // 2. If Razorpay order is successful, create the order in our DB.
+    // This is a single atomic operation thanks to Prisma's nested create.
+    await prisma.order.create({
+      data: {
+        userId,
+        ...validatedData,
+        total: totalAmount,
+        status: 'PENDING',
+        paymentStatus: 'UNPAID',
+        razorpayOrderId: razorpayOrder.id, // Add the razorpay ID
+        items: {
+          create: items.map((item) => ({
+            name: item.name,
+            price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
+            quantity: item.quantity,
+            image: item.image || (Array.isArray(item.images) ? item.images[0] : "/placeholder-car.png"),
+            product: { 
+              connect: { id: item.id }
+            },
+          })),
+        },
+      },
     });
 
-    return result;
+    return { success: true, order: razorpayOrder };
 
   } catch (error) {
     console.error('Error creating Razorpay order:', error);

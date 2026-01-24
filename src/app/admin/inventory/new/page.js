@@ -19,13 +19,15 @@ export default function NewExhibitPage() {
     name: "",
     brand: "",
     price: "",
-    scale: "",
+    scale: "1:64",
     material: "",
     condition: "",
     description: "",
     editorsNote: "",
     featured: false,
-    category: "Archive",
+    collectionStatus: "ARCHIVE_CATALOG",
+    genre: "CITY_LIFE",
+    modelYear: new Date().getFullYear(),
     stock: 1,
   });
 
@@ -37,15 +39,13 @@ export default function NewExhibitPage() {
   // Handlers
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    if (name === 'category') {
-      setFormData(prev => ({
-        ...prev,
-        category: value,
-        featured: value === 'Featured Exhibit' ? true : prev.featured
-      }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    let val = type === 'checkbox' ? checked : value;
+
+    if (name === 'modelYear' || name === 'stock') {
+      val = parseInt(value) || 0;
     }
+
+    setFormData(prev => ({ ...prev, [name]: val }));
   };
 
   const handleMediaUpload = (res) => {
@@ -162,7 +162,15 @@ export default function NewExhibitPage() {
            <InputField name="name" label="Exhibit Name" value={formData.name} onChange={handleChange} placeholder="e.g., Red Bull RB19" required />
            <InputField name="brand" label="Brand" value={formData.brand} onChange={handleChange} placeholder="e.g., Bburago" required />
            <InputField name="price" label="Price" value={formData.price} onChange={handleChange} placeholder="e.g., 1400" required />
-           <InputField name="scale" label="Scale" value={formData.scale} onChange={handleChange} placeholder="e.g., 1:43" required />
+           <div>
+             <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Scale</label>
+             <select name="scale" value={formData.scale} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white">
+               {['1:64', '1:43', '1:24', '1:18', '1:12'].map(s => (
+                 <option key={s} value={s} className="bg-[#111]">{s}</option>
+               ))}
+             </select>
+           </div>
+           <InputField name="modelYear" label="Model Year" type="number" value={formData.modelYear} onChange={handleChange} placeholder="e.g., 2023" />
            
            <div className="md:col-span-2">
              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Media (Images & Video)</label>
@@ -192,13 +200,27 @@ export default function NewExhibitPage() {
                 <InputField name="stock" label="Stock" value={formData.stock} onChange={handleChange} type="number" />
            </div>
 
-           <div className="md:col-span-2">
-             <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Category</label>
-             <select name="category" value={formData.category} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white">
-               <option value="Archive">Archive Collection</option>
-               <option value="Featured Exhibit">Featured Exhibit</option>
-               <option value="New Arrival">New Arrival</option>
-             </select>
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:col-span-2">
+             <div>
+               <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Collection Status</label>
+               <select name="collectionStatus" value={formData.collectionStatus} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white">
+                 <option value="ARCHIVE_CATALOG" className="bg-[#111]">Archive Catalog</option>
+                 <option value="NEW_ARRIVAL" className="bg-[#111]">New Arrival</option>
+                 <option value="FEATURED_EXHIBIT" className="bg-[#111]">Featured Exhibit</option>
+               </select>
+             </div>
+             <div>
+               <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Genre</label>
+               <select name="genre" value={formData.genre} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white">
+                 <option value="CLASSIC_VINTAGE" className="bg-[#111]">Classic & Vintage</option>
+                 <option value="RACE_COURSE" className="bg-[#111]">Race Course</option>
+                 <option value="CITY_LIFE" className="bg-[#111]">City Life</option>
+                 <option value="SUPERPOWERS" className="bg-[#111]">Superpowers</option>
+                 <option value="LUXURY_REDEFINED" className="bg-[#111]">Luxury Redefined</option>
+                 <option value="OFF_ROAD" className="bg-[#111]">Off-Road</option>
+                 <option value="FUTURE_PROOF" className="bg-[#111]">Future Proof</option>
+               </select>
+             </div>
            </div>
 
            <div className="md:col-span-2 flex justify-end gap-4 mt-4 border-t border-white/5 pt-4">

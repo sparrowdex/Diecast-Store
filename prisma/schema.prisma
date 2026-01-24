@@ -24,7 +24,9 @@ model Product {
   condition   String?
 
   featured    Boolean  @default(false)
-  category    String   @default("Archive")
+  collectionStatus CollectionStatus @default(ARCHIVE_CATALOG)
+  genre       Genre?
+  modelYear   Int?
   stock       Int      @default(1)
   orderItems  OrderItem[]
   createdAt   DateTime @default(now())
@@ -45,6 +47,8 @@ model Order {
   postalCode     String
   country        String
   shippingMethod String
+  trackingNumber String?
+  shippingCost   Float       @default(0)
   total          Float
   status         String      @default("PENDING") // Fulfillment status: PENDING, SHIPPED, DELIVERED
   items          OrderItem[]
@@ -112,6 +116,8 @@ model JournalEntry {
   content     String
 
   author      String?
+  
+  genre       Genre?
 
   isPublished Boolean  @default(false)
 
@@ -119,9 +125,25 @@ model JournalEntry {
 
   updatedAt   DateTime @updatedAt
 
-  imageUrl    String?
+  images      String[]
 
-  videoUrl    String?
+  video       String?
 
 
+}
+
+enum CollectionStatus {
+  ARCHIVE_CATALOG
+  NEW_ARRIVAL
+  FEATURED_EXHIBIT
+}
+
+enum Genre {
+  CLASSIC_VINTAGE
+  RACE_COURSE
+  CITY_LIFE
+  SUPERPOWERS
+  LUXURY_REDEFINED
+  OFF_ROAD
+  FUTURE_PROOF
 }

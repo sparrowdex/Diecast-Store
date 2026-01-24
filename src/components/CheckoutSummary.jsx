@@ -60,9 +60,9 @@ export default function CheckoutSummary({ items, subtotal, shipping, customer })
           <div key={item.id} className="flex items-center gap-4 text-sm">
             <div className="w-12 h-12 bg-gray-50 border border-black/5 rounded flex-shrink-0 p-1">
               <img
-                src={item.image || (Array.isArray(item.images) ? item.images[0] : "/placeholder-car.png")}
+                src={item.image}
                 className="w-full h-full object-contain mix-blend-multiply"
-                alt=""
+                alt={item.name}
               />
             </div>
             <span className="flex-1">{item.name} <span className="text-gray-400 text-xs">x{item.quantity}</span></span>

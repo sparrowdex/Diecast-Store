@@ -38,7 +38,9 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
 
   const layoutClass = layout; // The prop is now the class string itself
 
-  if (!car || !car.images || car.images.length === 0) {
+  const images = car?.images && car.images.length > 0 ? car.images : (car?.image ? [car.image] : []);
+
+  if (!car || images.length === 0) {
     return (
       <div className={`${layoutClass} rounded-2xl overflow-hidden bg-gray-800 border border-gray-700`}>
         <div className="absolute inset-0 flex items-center justify-center p-8">
@@ -74,7 +76,7 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
            {!effectiveHover ? (
              <motion.img 
                layoutId={isPreview ? null : `car-image-${car.id}`}
-               key="img" src={car.images[0]} className="w-full h-full object-cover"
+               key="img" src={images[0]} className="w-full h-full object-cover"
                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
              />
            ) : (
@@ -89,10 +91,11 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
         initial={{ x: "100%" }}
         animate={{ x: effectiveHover ? "0%" : "100%" }}
         transition={{ type: "spring", damping: 25, stiffness: 120 }}
-        className="absolute top-0 right-0 w-1/2 h-full bg-white/95 backdrop-blur-xl border-l border-black/5 p-8 flex flex-col justify-between z-10"
+        className={`absolute top-0 right-0 ${sidebarWidth} h-full bg-white/95 backdrop-blur-xl border-l border-black/5 p-8 flex flex-col justify-between z-10`}
       >
         <div>
-          <span className="text-[10px] text-gray-400 font-mono tracking-widest uppercase">{car.brand} / {car.scale}</span>
+          <span className="text-[10px] text-gray-400 font-mono tracking-widest uppercase">{car.brand} / {car.scale} {car.modelYear && `/ ${car.modelYear}`}</span>
+          {car.genre && <div className="text-[9px] text-red-600 font-bold uppercase mt-1 tracking-tighter">{car.genre.replace(/_/g, ' ')}</div>}
           <h3 className="text-3xl font-black italic uppercase tracking-tighter leading-none mt-2">{car.name}</h3>
           <p className="text-xs text-gray-500 font-light mt-6 leading-relaxed line-clamp-3">{car.description}</p>
         </div>

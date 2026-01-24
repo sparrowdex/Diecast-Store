@@ -19,11 +19,16 @@ export default function CatalogCard({ car }) {
             className="w-full h-full object-contain transform transition-transform duration-700 group-hover:scale-110 mix-blend-multiply"
           />
           
-          {/* Scale Badge */}
-          <div className="absolute top-3 left-3">
+          {/* Badges */}
+          <div className="absolute top-3 left-3 flex flex-col gap-1">
             <span className="inline-block bg-white/80 backdrop-blur-sm border border-gray-200 rounded px-1.5 py-0.5 text-[8px] font-mono font-bold uppercase tracking-widest text-gray-500">
               {car.scale}
             </span>
+            {car.modelYear && (
+              <span className="inline-block bg-black/80 backdrop-blur-sm border border-white/10 rounded px-1.5 py-0.5 text-[8px] font-mono font-bold uppercase tracking-widest text-white">
+                {car.modelYear}
+              </span>
+            )}
           </div>
 
           {/* Quick Add Overlay Button */}
@@ -46,13 +51,18 @@ export default function CatalogCard({ car }) {
           <p className="text-[9px] font-mono uppercase tracking-widest text-gray-400 mb-1">
             {car.brand}
           </p>
+          {car.genre && (
+            <p className="text-[8px] font-bold uppercase tracking-widest text-red-600 mb-1">
+              {car.genre.replace(/_/g, ' ')}
+            </p>
+          )}
           <h3 className="text-sm font-black uppercase tracking-tight italic truncate mb-4 group-hover:text-red-600 transition-colors">
             {car.name}
           </h3>
           
           <div className="mt-auto flex justify-between items-end">
             <p className="text-lg font-black italic tracking-tighter">
-              {car.price}
+              ₹{car.price}
             </p>
             <span className="text-[8px] font-bold uppercase text-green-600 bg-green-50 px-2 py-1 rounded-full border border-green-100">
               In Stock

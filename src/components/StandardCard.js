@@ -18,7 +18,7 @@ export default function StandardCard({ car, isPreview = false }) {
     const [isHovered, setIsHovered] = useState(false);
     const [currentImage, setCurrentImage] = useState(0);
 
-    const images = car.images && car.images.length > 0 ? car.images : [car.image];
+    const images = car?.images && car.images.length > 0 ? car.images : (car?.image ? [car.image] : []);
 
     useEffect(() => {
         let interval;
@@ -66,38 +66,48 @@ export default function StandardCard({ car, isPreview = false }) {
         className="group cursor-pointer"
       >
         <div className="relative aspect-square bg-[#f8f8f8] rounded-sm flex items-center justify-center p-6 mb-3 border border-transparent group-hover:border-black/5 transition-colors overflow-hidden">
-            <AnimatePresence>
-                <motion.img
-                    key={currentImage}
-                    layoutId={isPreview ? null : `car-image-${car.id}`}
-                    src={images[currentImage]}
-                    alt={car.name}
-                    className="w-full h-full object-contain absolute inset-0"
-                    initial={{ opacity: 0 }}
-                    animate={{ 
-                        opacity: 1, 
-                        transition: { duration: 0.7, ease: "easeInOut" } 
-                    }}
-                    exit={{ 
-                        opacity: 0, 
-                        transition: { duration: 0.7, ease: "easeInOut" } 
-                    }}
-                    style={{
-                        filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
-                        transform: isHovered ? 'scale(1.1)' : 'scale(1)',
-                        transition: 'filter 0.5s ease-in-out, transform 0.5s ease-in-out',
-                    }}
-                />
-            </AnimatePresence>
+            {images.length === 0 ? (
+                <div className="flex items-center justify-center w-full h-full bg-gray-100 rounded-sm">
+                    <span className="text-[8px] font-mono text-gray-400 uppercase tracking-widest">
+                        No Image
+                    </span>
+                </div>
+            ) : (
+                <AnimatePresence>
+                    <motion.img
+                        key={currentImage}
+                        layoutId={isPreview ? null : `car-image-${car.id}`}
+                        src={images[currentImage]}
+                        alt={car.name}
+                        className="w-full h-full object-contain absolute inset-0"
+                        initial={{ opacity: 0 }}
+                        animate={{ 
+                            opacity: 1, 
+                            transition: { duration: 0.7, ease: "easeInOut" } 
+                        }}
+                        exit={{ 
+                            opacity: 0, 
+                            transition: { duration: 0.7, ease: "easeInOut" } 
+                        }}
+                        style={{
+                            filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
+                            transform: isHovered ? 'scale(1.1)' : 'scale(1)',
+                            transition: 'filter 0.5s ease-in-out, transform 0.5s ease-in-out',
+                        }}
+                    />
+                </AnimatePresence>
+            )}
 
-          <div className="absolute top-2 left-2 z-10">
+           <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
             <span className="text-[8px] font-mono border border-black/10 bg-white/50 backdrop-blur-sm px-1.5 py-0.5 rounded text-gray-500">{car.scale}</span>
+            {car.modelYear && <span className="text-[8px] font-mono border border-black/10 bg-white/50 backdrop-blur-sm px-1.5 py-0.5 rounded text-gray-500">{car.modelYear}</span>}
           </div>
           
           {/* New Tags */}
           <div className="absolute top-2 right-2 flex flex-col items-end gap-1 z-10">
-            {car.featured && <Tag text="Featured" colorClass="bg-black text-white" />}
-            {car.isNew && !car.featured && <Tag text="New" colorClass="bg-white text-black border border-gray-200" />}
+            {car.collectionStatus === 'NEW_ARRIVAL' && car.featured && <Tag text="Featured" colorClass="bg-black text-white" />}
+            {car.collectionStatus === 'NEW_ARRIVAL' && !car.featured && <Tag text="New" colorClass="bg-white text-black border border-gray-200" />}
+            {car.genre && <Tag text={car.genre.replace(/_/g, ' ')} colorClass="bg-gray-100 text-gray-600 border border-gray-200" />}
           </div>
           
           {/* ADD TO CART OVERLAY BUTTON */}
@@ -117,7 +127,7 @@ export default function StandardCard({ car, isPreview = false }) {
           <h4 className="text-xs font-bold uppercase tracking-tight truncate">{car.name}</h4>
           <div className="flex justify-between items-center mt-1 text-[10px]">
             <span className="text-gray-400">{car.brand}</span>
-            <span className="font-bold">{car.price}</span>
+            <span className="font-bold">₹{car.price}</span>
           </div>
         </div>
       </motion.div>

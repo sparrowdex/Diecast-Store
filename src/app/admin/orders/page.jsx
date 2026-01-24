@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { updateOrderStatus } from "@/lib/actions/order-admin";
+import StatusToggle from "@/components/dashboard/StatusToggle";
 
 export const dynamic = "force-dynamic";
 
@@ -69,37 +69,6 @@ export default async function AdminOrdersPage() {
           </tbody>
         </table>
       </div>
-    </div>
-  );
-}
-
-/**
- * Client Component for the status dropdown
- */
-function StatusToggle({ orderId, currentStatus }) {
-  "use client";
-  
-  const handleStatusChange = async (e) => {
-    const newStatus = e.target.value;
-    const res = await updateOrderStatus(orderId, newStatus);
-    if (!res.success) alert(res.error);
-  };
-
-  return (
-    <div className="relative group">
-      <select
-        defaultValue={currentStatus}
-        onChange={handleStatusChange}
-        className={`text-[10px] font-black uppercase px-3 py-2 border-2 outline-none cursor-pointer transition-all
-          ${currentStatus === 'PENDING' ? 'bg-transparent text-white border-white/20' : ''}
-          ${currentStatus === 'SHIPPED' ? 'bg-white text-black border-white' : ''}
-          ${currentStatus === 'DELIVERED' ? 'bg-green-600 text-white border-green-600' : ''}
-        `}
-      >
-        <option value="PENDING" className="bg-black text-white">Pending_Arrival</option>
-        <option value="SHIPPED" className="bg-black text-white">In_Transit</option>
-        <option value="DELIVERED" className="bg-black text-white">Delivered_to_Vault</option>
-      </select>
     </div>
   );
 }

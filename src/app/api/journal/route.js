@@ -20,7 +20,8 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-  const { title, slug, content, author, isPublished, imageUrl, videoUrl } = await request.json();
+  const { title, slug, content, author, isPublished, imageUrl, videoUrl } =
+    await request.json();
 
   try {
     const newJournalEntry = await prisma.journalEntry.create({
@@ -30,8 +31,8 @@ export async function POST(request) {
         content,
         author,
         isPublished,
-        imageUrl,
-        videoUrl,
+        images: imageUrl ? [imageUrl] : [],
+        video: videoUrl,
       },
     });
 

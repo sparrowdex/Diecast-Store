@@ -59,10 +59,34 @@ const FilterGroup = ({ title, items, selected, setSelected, isExpanded, setExpan
   );
 };
 
+const SelectFilter = ({ title, value, onChange, options }) => (
+  <div className="flex-1 min-w-[180px]">
+    <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-4">{title}</h3>
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full appearance-none bg-white border border-gray-100 p-3 rounded-sm text-[10px] font-bold uppercase tracking-wider outline-none focus:border-black transition-all pr-10"
+      >
+        <option value="All">All {title.split(' ').pop()}s</option>
+        {options.filter(opt => opt !== 'All').map(opt => (
+          <option key={opt} value={opt}>{opt.replace(/_/g, ' ')}</option>
+        ))}
+      </select>
+      <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+        <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+    </div>
+  </div>
+);
+
 export default function Catalog({ cars }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [scaleFilter, setScaleFilter] = useState('All');
   const [brandFilter, setBrandFilter] = useState('All');
+  const [genreFilter, setGenreFilter] = useState('All');
   
   // NEW: State to manage "Show More" toggle
   const [showAllScales, setShowAllScales] = useState(false);
@@ -71,6 +95,7 @@ export default function Catalog({ cars }) {
   // Dynamically get unique options
   const brands = useMemo(() => ['All', ...new Set(cars.map(car => car.brand))], [cars]);
   const scales = useMemo(() => ['All', ...new Set(cars.map(car => car.scale))], [cars]);
+  const genres = useMemo(() => ['All', ...new Set(cars.map(car => car.genre).filter(Boolean))], [cars]);
 
   // Filter Logic
   const filteredCars = useMemo(() => {
@@ -79,9 +104,10 @@ export default function Catalog({ cars }) {
                             car.brand.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesScale = scaleFilter === 'All' || car.scale === scaleFilter;
       const matchesBrand = brandFilter === 'All' || car.brand === brandFilter;
-      return matchesSearch && matchesScale && matchesBrand;
+      const matchesGenre = genreFilter === 'All' || car.genre === genreFilter;
+      return matchesSearch && matchesScale && matchesBrand && matchesGenre;
     });
-  }, [searchTerm, scaleFilter, brandFilter, cars]);
+  }, [searchTerm, scaleFilter, brandFilter, genreFilter, cars]);
 
   return (
     <div className="min-h-screen bg-[#fafafa] text-black font-sans selection:bg-black selection:text-white pb-20">
@@ -117,16 +143,22 @@ export default function Catalog({ cars }) {
             />
           </div>
 
-          <div className="flex flex-col md:flex-row gap-12 border-b border-gray-100 pb-12">
+          <div className="flex flex-col lg:flex-row gap-8 border-b border-gray-100 pb-12">
             
-            {/* B. Scale Section with Expand Logic */}
-            <FilterGroup 
-              title="Filter by Scale" 
-              items={scales} 
-              selected={scaleFilter} 
-              setSelected={setScaleFilter} 
-              isExpanded={showAllScales}
-              setExpanded={setShowAllScales}
+            {/* B. Scale Dropdown */}
+            <SelectFilter 
+              title="Filter by Scale"
+              value={scaleFilter}
+              onChange={setScaleFilter}
+              options={scales}
+            />
+
+            {/* NEW: Genre Dropdown */}
+            <SelectFilter 
+              title="Filter by Genre"
+              value={genreFilter}
+              onChange={setGenreFilter}
+              options={genres}
             />
 
             {/* C. Brand Section with Expand Logic */}
@@ -154,7 +186,7 @@ export default function Catalog({ cars }) {
             <p className="text-4xl text-gray-300 font-black italic mb-2">0_RESULTS</p>
             <p className="text-xs font-mono text-gray-400 uppercase">Adjust filters to reveal inventory.</p>
             <button 
-                onClick={() => {setSearchTerm(''); setScaleFilter('All'); setBrandFilter('All');}}
+                onClick={() => {setSearchTerm(''); setScaleFilter('All'); setBrandFilter('All'); setGenreFilter('All');}}
                 className="mt-6 px-6 py-2 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-gray-800"
             >
                 Reset All

@@ -14,7 +14,10 @@ async function getFeaturedExhibits() {
     if (config.exhibitIds && config.exhibitIds.length > 0) {
       try {
         const products = await prisma.product.findMany({
-          where: { id: { in: config.exhibitIds } },
+          where: { 
+            id: { in: config.exhibitIds },
+            collectionStatus: "FEATURED_EXHIBIT"
+          },
         });
 
         const orderedProducts = config.exhibitIds.map(id => products.find(p => p.id === id)).filter(Boolean);
@@ -36,7 +39,7 @@ async function getFeaturedExhibits() {
   // 2. Fallback to automatic logic
   try {
     const exhibits = await prisma.product.findMany({
-      where: { category: "Featured Exhibit" },
+      where: { collectionStatus: "FEATURED_EXHIBIT" },
       orderBy: { createdAt: 'desc' }
     });
 
@@ -61,22 +64,11 @@ async function getFeaturedExhibits() {
 export default async function GalleryPage() {
   const { layout, exhibits: featuredExhibits } = await getFeaturedExhibits();
 
-  let archiveCollection = [];
-  try {
-    archiveCollection = await prisma.product.findMany({
-      where: {
-        category: "Archive",
-      },
-    });
-  } catch (error) {
-    console.error("Database error fetching archive collection:", error);
-  }
-
   let newArrivals = [];
   try {
     newArrivals = await prisma.product.findMany({
       where: {
-        category: "New Arrival",
+        collectionStatus: "NEW_ARRIVAL",
       },
       orderBy: {
         createdAt: 'desc'
@@ -91,7 +83,6 @@ export default async function GalleryPage() {
     <Gallery
       featuredLayout={layout}
       featuredExhibits={featuredExhibits}
-      archiveCollection={archiveCollection}
       newArrivals={newArrivals}
     />
   );

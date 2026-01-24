@@ -68,16 +68,20 @@ export default function AdminDashboard({ initialCars }) {
                  </td>
                  <td className="px-6 py-4 text-xs font-mono">{car.scale}</td>
                  <td className="px-6 py-4">
-                    {car.featured ? (
+                    {car.collectionStatus === "FEATURED_EXHIBIT" ? (
                       <span className="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
                         Featured
+                      </span>
+                    ) : car.collectionStatus === "NEW_ARRIVAL" ? (
+                      <span className="bg-blue-500/10 text-blue-500 border border-blue-500/20 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+                        New Arrival
                       </span>
                     ) : (
                       <span className="bg-gray-800 text-gray-400 border border-white/10 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
                         Archive
                       </span>
                     )}
-                 </td>
+                  </td>
                  <td className="px-6 py-4 text-right">
                    <Link href={`/admin/inventory/edit/${car.id}`} className="text-[10px] font-bold uppercase hover:text-white text-gray-500 mr-4">Edit</Link>
                    <button onClick={() => handleDelete(car.id)} className="text-[10px] font-bold uppercase hover:text-red-500 text-gray-500">Delete</button>

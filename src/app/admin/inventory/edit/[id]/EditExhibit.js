@@ -10,24 +10,30 @@ export default function EditExhibit({ car }) {
     name: car?.name || "",
     brand: car?.brand || "",
     price: car?.price || "",
-    scale: car?.scale || "",
+    scale: car?.scale || "1:64",
     images: car?.images || [],
     video: car?.video || "",
     material: car?.material || "",
     condition: car?.condition || "",
     description: car?.description || "",
-    featured: car?.category === "Featured Exhibit" ? true : car?.featured || false,
-    category: car?.category || "Archive",
+    editorsNote: car?.editorsNote || "",
+    featured: car?.featured || false,
+    collectionStatus: car?.collectionStatus || "ARCHIVE_CATALOG",
+    genre: car?.genre || "CITY_LIFE",
+    modelYear: car?.modelYear || new Date().getFullYear(),
     stock: car?.stock || 1,
   });
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    let newFormData = { ...formData, [name]: type === 'checkbox' ? checked : value };
-    if (name === 'category') {
-      newFormData.featured = value === 'Featured Exhibit' ? true : newFormData.featured;
+    let val = type === 'checkbox' ? checked : value;
+
+    // Ensure numeric fields are sent as integers for Prisma
+    if (name === 'modelYear' || name === 'stock') {
+      val = parseInt(value) || 0;
     }
-    setFormData(newFormData);
+
+    setFormData(prev => ({ ...prev, [name]: val }));
   };
 
 

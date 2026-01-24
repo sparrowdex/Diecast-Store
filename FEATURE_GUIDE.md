@@ -29,9 +29,9 @@ Controlling *which* products are considered "featured" is still done when you ed
 
 1.  Navigate to the **Inventory** tab in the admin panel.
 2.  Either create a new exhibit or edit an existing one.
-3.  Find the **Category** dropdown menu.
-4.  To make a product available for the homepage grid, set its category to **"Featured Exhibit"**.
-5.  To remove a product from the featured pool, simply change its category to something else (e.g., "Archive").
+3.  Find the **Collection Status** dropdown menu.
+4.  To make a product available for the homepage grid, set its status to **"Featured Exhibit"**.
+5.  To remove a product from the featured pool, simply change its status to something else (e.g., "Archive Catalog").
 6.  Save the product.
 
 The most recent products marked as "Featured" will be used by the automatic layout system.

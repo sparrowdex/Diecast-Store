@@ -38,15 +38,15 @@ const FilterButton = ({ label, active, onClick }) => (
     </button>
 );
 
-const Select = ({ value, onChange, options }) => (
+const Select = ({ value, onChange, options, placeholder }) => (
     <div className="relative">
         <select
             value={value}
             onChange={onChange}
             className="appearance-none bg-transparent text-gray-400 border-gray-200 hover:border-black border rounded-full px-4 py-1.5 text-[10px] font-mono transition-all uppercase tracking-widest pr-8"
         >
-            <option value="All">All Scales</option>
-            {options.map(option => <option key={option} value={option}>{option}</option>)}
+            <option value="All">{placeholder}</option>
+            {options.map(option => <option key={option} value={option}>{option.replace(/_/g, ' ')}</option>)}
         </select>
         <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
             <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -56,14 +56,24 @@ const Select = ({ value, onChange, options }) => (
 
 
 // --- MAIN PAGE COMPONENT ---
-export default function Gallery({ featuredExhibits, archiveCollection, newArrivals, featuredLayout = 'hero' }) {
+export default function Gallery({ featuredExhibits, newArrivals, featuredLayout = 'hero' }) {
     const [isCursorBlocked, setCursorBlocked] = useState(false);
     const [hoverState, setHoverState] = useState(false);
     const { isSignedIn, isLoaded } = useUser();
     const { cart, setIsCartOpen } = useCart();
 
-    const fullCollection = useMemo(() => [...newArrivals, ...archiveCollection], [newArrivals, archiveCollection]);
-  
+    // Filtering State
+    const [selectedGenre, setSelectedGenre] = useState("All");
+    const [selectedScale, setSelectedScale] = useState("All");
+
+    const filteredCollection = useMemo(() => {
+        return newArrivals.filter(car => {
+            const genreMatch = selectedGenre === "All" || car.genre === selectedGenre;
+            const scaleMatch = selectedScale === "All" || car.scale === selectedScale;
+            return genreMatch && scaleMatch;
+        });
+    }, [newArrivals, selectedGenre, selectedScale]);
+
     return (
       <main className="min-h-screen bg-[#fafafa] text-black font-sans relative selection:bg-black selection:text-white">
         <CartDrawer />
@@ -139,13 +149,27 @@ export default function Gallery({ featuredExhibits, archiveCollection, newArriva
                <div className="flex flex-wrap justify-between items-end gap-6 mb-12">
                  <div>
                     <h2 className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.3em] mb-2">The Collection</h2>
-                    <h3 className="text-2xl font-bold tracking-tight">New Arrivals & Featured Collection</h3>
+                    <h3 className="text-2xl font-bold tracking-tight">New Arrivals</h3>
+                 </div>
+                 <div className="flex flex-wrap gap-3 items-center">
+                    <Select 
+                        value={selectedScale} 
+                        onChange={(e) => setSelectedScale(e.target.value)} 
+                        options={['1:64', '1:43', '1:24', '1:18', '1:12']} 
+                        placeholder="All Scales"
+                    />
+                    <Select 
+                        value={selectedGenre} 
+                        onChange={(e) => setSelectedGenre(e.target.value)} 
+                        options={['CLASSIC_VINTAGE', 'RACE_COURSE', 'CITY_LIFE', 'SUPERPOWERS', 'LUXURY_REDEFINED', 'OFF_ROAD', 'FUTURE_PROOF']} 
+                        placeholder="All Genres"
+                    />
                  </div>
                </div>
       
                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-12">
                  <AnimatePresence mode="popLayout">
-                   {fullCollection.map((car) => (
+                   {filteredCollection.map((car) => (
                      <StandardCard key={car.id} car={car} />
                    ))}
                  </AnimatePresence>
