@@ -93,29 +93,48 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
         transition={{ type: "spring", damping: 25, stiffness: 120 }}
         className={`absolute top-0 right-0 ${sidebarWidth} h-full bg-white/95 backdrop-blur-xl border-l border-black/5 p-8 flex flex-col justify-between z-10`}
       >
+        {/* F1 Checkered Border Effect */}
+        <div 
+          className="absolute top-0 left-0 w-[3px] h-full opacity-20"
+          style={{
+            backgroundImage: `repeating-conic-gradient(#000 0% 25%, transparent 0% 50%)`,
+            backgroundSize: '6px 6px'
+          }}
+        />
+
         <div>
           <span className="text-[10px] text-gray-400 font-mono tracking-widest uppercase">{car.brand} / {car.scale} {car.modelYear && `/ ${car.modelYear}`}</span>
           {car.genre && <div className="text-[9px] text-red-600 font-bold uppercase mt-1 tracking-tighter">{car.genre.replace(/_/g, ' ')}</div>}
-          <h3 className="text-3xl font-black italic uppercase tracking-tighter leading-none mt-2">{car.name}</h3>
+          <h3 className="text-3xl font-black italic uppercase tracking-tighter leading-none mt-2 text-black">{car.name}</h3>
           <p className="text-xs text-gray-500 font-light mt-6 leading-relaxed line-clamp-3">{car.description}</p>
         </div>
         
         <div className="flex items-center justify-between border-t border-gray-100 pt-6">
            <div>
              <p className="text-[8px] uppercase text-gray-400 tracking-widest mb-1">Acquisition</p>
-             <p className="text-xl font-black italic">₹{car.price}</p>
+             <p className="text-xl font-black italic text-black">₹{car.price}</p>
            </div>
            
-           <button 
+           <motion.button 
              onClick={handleAddToCart}
              onMouseEnter={() => !isPreview && setCursorBlocked(true)}
              onMouseLeave={() => !isPreview && setCursorBlocked(false)}
              disabled={isPreview}
-             className="group/btn relative overflow-hidden bg-black text-white px-6 py-3 font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-transform disabled:bg-gray-400"
+             whileHover={{ scale: 1.05 }}
+             whileTap={{ scale: 0.98 }}
+             className="group/btn relative overflow-hidden bg-black text-white px-8 py-3 font-black text-[10px] uppercase tracking-widest transition-all disabled:bg-gray-400"
            >
-             <span className="relative z-10">Acquire</span>
+             {/* Hidden text to maintain button width */}
+             <span className="invisible block">Acquire</span>
+             
+             {/* The sliding wrapper */}
+             <div className="absolute inset-0 z-10 flex w-[200%] h-full transition-transform duration-300 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] group-hover/btn:-translate-x-1/2 group-hover/btn:-skew-x-[15deg]">
+               <span className="w-1/2 h-full flex items-center justify-center">Acquire</span>
+               <span className="w-1/2 h-full flex items-center justify-center italic">Acquire</span>
+             </div>
+
              <div className="absolute inset-0 -translate-x-full group-hover/btn:animate-shine bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[-15deg]" />
-           </button>
+           </motion.button>
         </div>
       </motion.div>
     </motion.div>

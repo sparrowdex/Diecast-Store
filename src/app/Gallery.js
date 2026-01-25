@@ -16,12 +16,12 @@ const SpeedLink = ({ href, children }) => {
     <Link href={href} className="group relative block w-fit overflow-hidden py-1">
       
       {/* LAYER 1: The "Slow" Car (Black Text) */}
-      <span className="relative z-10 block font-mono text-sm font-bold uppercase tracking-widest text-black transition-transform duration-300 ease-[cubic-bezier(0.77,0,0.175,1)] group-hover:translate-x-[110%]">
+      <span className="relative z-10 block font-mono text-[10px] sm:text-sm font-bold uppercase tracking-widest text-black transition-transform duration-300 ease-[cubic-bezier(0.77,0,0.175,1)] group-hover:translate-x-[110%]">
         {children}
       </span>
 
       {/* LAYER 2: The "Fast" Car (Red Text) */}
-      <span className="absolute inset-0 z-0 block -translate-x-[110%] font-mono text-sm font-bold uppercase italic tracking-widest text-[#FF1E1E] transition-transform duration-300 ease-[cubic-bezier(0.77,0,0.175,1)] group-hover:translate-x-0 group-hover:-skew-x-12">
+      <span className="absolute inset-0 z-0 block -translate-x-[110%] font-mono text-[10px] sm:text-sm font-bold uppercase italic tracking-widest text-[#FF1E1E] transition-transform duration-300 ease-[cubic-bezier(0.77,0,0.175,1)] group-hover:translate-x-0 group-hover:-skew-x-12">
         {children}
       </span>
 
@@ -79,19 +79,19 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
         <CartDrawer />
         
         <div className="p-4 md:p-12">
-            <header className="mb-20 flex justify-between items-baseline border-b border-black/10 pb-8">
-              <div>
-                <h1 className="text-6xl font-black tracking-tighter italic">THE_DIECAST_STORE</h1>
+            <header className="mb-12 md:mb-20 flex flex-col md:flex-row justify-between items-center md:items-baseline border-b border-black/10 pb-8 gap-8 md:gap-0">
+              <div className="text-center md:text-left">
+                <h1 className="text-2xl sm:text-5xl md:text-6xl font-black tracking-tighter italic">THE_DIECAST_STORE</h1>
                 <p className="text-gray-400 text-[10px] tracking-[0.4em] font-mono uppercase mt-3 ml-1">Curated_Diecast_Exhibition</p>
               </div>
-              <nav className="hidden md:flex gap-12 text-[10px] font-bold tracking-widest uppercase items-center">
+              <nav className="flex w-full md:w-auto items-center justify-between md:justify-end gap-1 sm:gap-6 md:gap-8 lg:gap-12 text-[10px] font-bold tracking-widest uppercase">
                 
                 {/* User Section */}
                 {!isLoaded ? (
                   <div className="w-12 h-4 bg-black/5 animate-pulse" />
                 ) : isSignedIn ? (
                   <div className="group relative py-2">
-                    <Link href="/access" className="font-mono text-sm font-bold uppercase italic tracking-widest text-black border-b-2 border-black hover:text-[#FF1E1E] hover:border-[#FF1E1E] transition-all">
+                    <Link href="/access" className="font-mono text-[10px] sm:text-sm font-bold uppercase italic tracking-widest text-black border-b-2 border-black hover:text-[#FF1E1E] hover:border-[#FF1E1E] transition-all">
                       ACCESS
                     </Link>
                     {/* Hover Dropdown */}
@@ -110,7 +110,7 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
                   </div>
                 ) : (
                   <SignInButton mode="modal">
-                    <button className="font-mono text-sm font-bold uppercase tracking-widest text-black hover:text-[#FF1E1E] transition-colors">
+                    <button className="font-mono text-[10px] sm:text-sm font-bold uppercase tracking-widest text-black hover:text-[#FF1E1E] transition-colors">
                       LOGIN
                     </button>
                   </SignInButton>
@@ -121,7 +121,7 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
                 
                 <button 
                   onClick={() => setIsCartOpen(true)} 
-                  className="group relative flex items-center gap-2 px-6 py-2 rounded-sm checkered-hover overflow-hidden"
+                  className="group relative flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2 rounded-sm checkered-hover overflow-hidden"
                 >
                   <span className="relative z-10 font-bold mix-blend-difference text-white">VAULT</span>
                   <span className="relative z-10 bg-white/20 px-1.5 py-0.5 rounded text-[9px] text-white">
@@ -155,7 +155,7 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
                     <Select 
                         value={selectedScale} 
                         onChange={(e) => setSelectedScale(e.target.value)} 
-                        options={['1:64', '1:43', '1:24', '1:18', '1:12']} 
+                        options={['1:64', '1:32', '1:24', '1:18']} 
                         placeholder="All Scales"
                     />
                     <Select 

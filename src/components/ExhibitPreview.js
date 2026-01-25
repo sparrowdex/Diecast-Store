@@ -91,7 +91,7 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
             <div>
               <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Scale</label>
               <select name="scale" value={formData.scale} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white">
-                {['1:64', '1:43', '1:24', '1:18', '1:12'].map(s => (
+                {['1:64', '1:32', '1:24', '1:18'].map(s => (
                   <option key={s} value={s} className="bg-[#111]">{s}</option>
                 ))}
               </select>

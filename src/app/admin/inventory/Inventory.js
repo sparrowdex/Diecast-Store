@@ -62,9 +62,15 @@ export default function Inventory({ initialCars }) {
                         Featured
                       </span>
                     ) : car.collectionStatus === "NEW_ARRIVAL" ? (
-                      <span className="bg-blue-500/10 text-blue-500 border border-blue-500/20 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
-                        New Arrival
-                      </span>
+                      car.featured ? (
+                        <span className="bg-red-500/10 text-red-500 border border-red-500/20 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+                          NA Featured
+                        </span>
+                      ) : (
+                        <span className="bg-blue-500/10 text-blue-500 border border-blue-500/20 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+                          New Arrival
+                        </span>
+                      )
                     ) : (
                       <span className="bg-gray-800 text-gray-400 border border-white/10 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
                         Archive
