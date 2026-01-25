@@ -12,6 +12,23 @@ function Tag({ text, colorClass }) {
     );
 }
 
+const OutOfStockStamp = () => (
+  <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none overflow-hidden p-4">
+    <motion.div 
+      initial={{ scale: 2, opacity: 0, rotate: -20 }}
+      animate={{ scale: 1, opacity: 0.9, rotate: -12 }}
+      className="border-4 md:border-8 border-[#FF1E1E] text-[#FF1E1E] px-4 md:px-8 py-1 md:py-2 font-black text-xl md:text-4xl uppercase tracking-tighter italic whitespace-nowrap"
+      style={{
+        boxShadow: 'inset 0 0 0 2px #FF1E1E',
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(2px)'
+      }}
+    >
+      OUT_OF_STOCK
+    </motion.div>
+  </div>
+);
+
 export default function StandardCard({ car, isPreview = false }) {
     const router = useRouter();
     const { addToCart } = useCart(); 
@@ -66,6 +83,8 @@ export default function StandardCard({ car, isPreview = false }) {
         className="group cursor-pointer"
       >
         <div className="relative aspect-square bg-[#f8f8f8] rounded-sm flex items-center justify-center p-6 mb-3 border border-transparent group-hover:border-black/5 transition-colors overflow-hidden">
+            {car.stock === 0 && <OutOfStockStamp />}
+            
             {images.length === 0 ? (
                 <div className="flex items-center justify-center w-full h-full bg-gray-100 rounded-sm">
                     <span className="text-[8px] font-mono text-gray-400 uppercase tracking-widest">
@@ -98,24 +117,46 @@ export default function StandardCard({ car, isPreview = false }) {
                 </AnimatePresence>
             )}
 
-           <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
+          {/* Top Left: Scale */}
+          <div className="absolute top-2 left-2 z-10">
             <span className="text-[8px] font-mono border border-black/10 bg-white/50 backdrop-blur-sm px-1.5 py-0.5 rounded text-gray-500">{car.scale}</span>
-            {car.modelYear && <span className="text-[8px] font-mono border border-black/10 bg-white/50 backdrop-blur-sm px-1.5 py-0.5 rounded text-gray-500">{car.modelYear}</span>}
           </div>
-          
-          {/* New Tags */}
-          <div className="absolute top-2 right-2 flex flex-col items-end gap-1 z-10">
+
+          {/* Top Right: Status */}
+          <div className="absolute top-2 right-2 z-10 flex flex-col items-end gap-1">
             {car.collectionStatus === 'NEW_ARRIVAL' && car.featured && <Tag text="Featured" colorClass="bg-black text-white" />}
             {car.collectionStatus === 'NEW_ARRIVAL' && !car.featured && <Tag text="New" colorClass="bg-white text-black border border-gray-200" />}
-            {car.genre && <Tag text={car.genre.replace(/_/g, ' ')} colorClass="bg-gray-100 text-gray-600 border border-gray-200" />}
+          </div>
+
+          {/* Bottom Left: Model Year */}
+          {car.modelYear && (
+            <div className="absolute bottom-2 left-2 z-10">
+              <span className="text-[8px] font-mono border border-black/10 bg-white/50 backdrop-blur-sm px-1.5 py-0.5 rounded text-gray-500">{car.modelYear}</span>
+            </div>
+          )}
+
+          {/* Bottom Right: Genre (Hidden on Hover if button shows) */}
+          <div className="absolute bottom-2 right-2 z-10">
+            <AnimatePresence>
+              {(!isHovered || isPreview || car.stock === 0) && car.genre && (
+                <motion.div
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 5 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Tag text={car.genre.replace(/_/g, ' ')} colorClass="bg-gray-100 text-gray-600 border border-gray-200" />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
           
           {/* ADD TO CART OVERLAY BUTTON */}
-          {!isPreview && (
+          {!isPreview && car.stock > 0 && (
             <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                <button 
                  onClick={handleAddToCart}
-                 disabled={isPreview}
+                 disabled={isPreview || car.stock === 0}
                  className="bg-black text-white text-[8px] px-3 py-1.5 uppercase font-bold rounded-full hover:bg-red-600 transition-colors"
                >
                  Add +

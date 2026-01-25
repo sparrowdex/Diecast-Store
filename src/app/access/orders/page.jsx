@@ -1,5 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
+import ManifestoButton from "@/components/ManifestoButton";
+import Link from "next/link";
 
 export default async function OrderHistoryPage() {
   const { userId } = await auth();
@@ -26,6 +28,7 @@ export default async function OrderHistoryPage() {
                   <p className="text-[10px] font-mono text-gray-400 uppercase">{new Date(order.createdAt).toLocaleDateString()}</p>
                   <p className="text-sm font-bold uppercase tracking-tight">Order #{order.id.slice(-6)}</p>
                   <p className="text-xs font-mono text-gray-500 mt-1">Total: ₹{order.total.toLocaleString()}</p>
+                  <ManifestoButton orderId={order.id} />
                 </div>
                 <span className={`text-[10px] font-black uppercase px-3 py-1 border ${
                   order.status === 'DELIVERED' ? 'bg-green-50 border-green-200 text-green-600' : 'bg-black text-white border-black'
@@ -33,6 +36,16 @@ export default async function OrderHistoryPage() {
                   {order.status}
                 </span>
               </div>
+
+              <div className="flex justify-between items-center mt-6 pt-6 border-t border-black/5">
+                <Link 
+                  href={`/access/orders/${order.id}/track`}
+                  className="text-[10px] font-black uppercase tracking-widest bg-black text-white px-6 py-2 hover:bg-red-600 transition-colors"
+                >
+                  Track_Shipment →
+                </Link>
+              </div>
+
               <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 mt-4">
                 {order.items.map((item, i) => (
                   <div key={i} title={item.name} className="aspect-square bg-white border border-black/5 p-2 flex items-center justify-center">

@@ -6,13 +6,15 @@ import ws from 'ws';
 // Mandatory for Node.js environments
 if (typeof window === 'undefined') {
   neonConfig.webSocketConstructor = ws;
-  neonConfig.pipelineConnect = false; // Can improve stability for some queries
+  neonConfig.pipelineConnect = false; 
   neonConfig.useSecureWebSocket = true;
 }
 
 const prismaClientSingleton = () => {
-  const isUnpooled = !!process.env.DATABASE_URL_UNPOOLED;
-  const baseEnvUrl = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
+  // For the application runtime, we should prefer the POOLED connection (DATABASE_URL)
+  // to avoid "connection closed" errors caused by connection exhaustion in dev mode.
+  const baseEnvUrl = process.env.DATABASE_URL || process.env.DATABASE_URL_UNPOOLED;
+  const isUnpooled = baseEnvUrl === process.env.DATABASE_URL_UNPOOLED;
 
   if (!baseEnvUrl) {
     throw new Error("Database connection string is missing in environment variables");

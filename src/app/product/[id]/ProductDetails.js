@@ -10,6 +10,7 @@ export default function ProductDetailClient({ car, preview = false }) {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { isSignedIn, isLoaded } = useUser();
   const { addToCart, setIsCartOpen, cart } = useCart();
+  const [quantity, setQuantity] = useState(1);
   const [mediaError, setMediaError] = useState(false); // New state for media errors
 
   // Combine image(s) and video into a single media array of objects
@@ -217,15 +218,37 @@ export default function ProductDetailClient({ car, preview = false }) {
             {/* Bottom Action Bar: Static position, always at the bottom of the section */}
             <div className="bg-white border-t border-black/5 p-8 md:p-16 pt-8">
               <div className="flex justify-between items-end mb-4">
-                <span className="text-[10px] uppercase text-gray-400 tracking-widest">Valuation</span>
-                <span className="text-4xl font-black italic tracking-tighter text-black">₹{car.price}</span>
+                <div>
+                  <p className="text-[10px] uppercase text-gray-400 tracking-widest mb-1">Valuation</p>
+                  <p className="text-4xl font-black italic tracking-tighter text-black leading-none">₹{car.price}</p>
+                </div>
+
+                {/* Quantity Selector */}
+                <div className="flex items-center border border-black/10 rounded-sm overflow-hidden h-12">
+                  <button 
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="px-4 h-full hover:bg-gray-50 transition-colors text-sm font-bold border-r border-black/10"
+                  >
+                    -
+                  </button>
+                  <span className="px-6 font-mono text-sm h-full flex items-center justify-center min-w-[50px] bg-white">
+                    {quantity}
+                  </span>
+                  <button 
+                    onClick={() => setQuantity(Math.min(car.stock || 99, quantity + 1))}
+                    className="px-4 h-full hover:bg-gray-50 transition-colors text-sm font-bold border-l border-black/10"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
               <button
-                onClick={() => addToCart(car)}
-                className="w-full group relative overflow-hidden bg-black text-white py-5 font-black text-xs uppercase tracking-[0.3em] hover:bg-gray-900 transition-colors"
+                onClick={() => addToCart(car, quantity)}
+                disabled={car.stock === 0}
+                className="w-full group relative overflow-hidden bg-black text-white py-5 font-black text-xs uppercase tracking-[0.3em] hover:bg-gray-900 transition-colors disabled:bg-gray-300 disabled:text-gray-500"
               >
-                 <span className="relative z-10">Acquire Exhibit</span>
-                 <div className="absolute inset-0 -translate-x-full group-hover:animate-shine bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[-15deg]" />
+                 <span className="relative z-10">{car.stock === 0 ? 'Sold Out' : 'Acquire Exhibit'}</span>
+                 {car.stock > 0 && <div className="absolute inset-0 -translate-x-full group-hover:animate-shine bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[-15deg]" />}
               </button>
               <p className="text-[8px] text-gray-400 text-center mt-3 font-mono">WORLDWIDE_SHIPPING_AVAILABLE</p>
             </div>

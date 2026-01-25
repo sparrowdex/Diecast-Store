@@ -5,6 +5,23 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 
+const OutOfStockStamp = () => (
+  <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none overflow-hidden p-8">
+    <motion.div 
+      initial={{ scale: 2, opacity: 0, rotate: -20 }}
+      animate={{ scale: 1, opacity: 0.9, rotate: -12 }}
+      className="border-8 border-[#FF1E1E] text-[#FF1E1E] px-8 py-2 font-black text-4xl lg:text-6xl uppercase tracking-tighter italic whitespace-nowrap"
+      style={{
+        boxShadow: 'inset 0 0 0 4px #FF1E1E',
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(2px)'
+      }}
+    >
+      OUT_OF_STOCK
+    </motion.div>
+  </div>
+);
+
 // --- UPDATED BENTO CARD ---
 export default function BentoCard({ car, layout = 'side', setHoverState, setCursorBlocked, isPreview = false, forceHover = false }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -72,6 +89,8 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
       className={`relative ${layoutClass} rounded-2xl overflow-hidden bg-white border border-gray-100 group shadow-sm hover:shadow-2xl transition-all duration-700 cursor-pointer`}
     >
       <div className="absolute inset-0 flex items-center justify-center bg-[#fdfdfd] p-8">
+        {car.stock === 0 && <OutOfStockStamp />}
+        
         <AnimatePresence mode="wait">
            {!effectiveHover ? (
              <motion.img 
@@ -119,18 +138,18 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
              onClick={handleAddToCart}
              onMouseEnter={() => !isPreview && setCursorBlocked(true)}
              onMouseLeave={() => !isPreview && setCursorBlocked(false)}
-             disabled={isPreview}
+             disabled={isPreview || car.stock === 0}
              whileHover={{ scale: 1.05 }}
              whileTap={{ scale: 0.98 }}
-             className="group/btn relative overflow-hidden bg-black text-white px-8 py-3 font-black text-[10px] uppercase tracking-widest transition-all disabled:bg-gray-400"
+             className="group/btn relative overflow-hidden bg-black text-white px-8 py-3 font-black text-[10px] uppercase tracking-widest transition-all disabled:bg-gray-300 disabled:text-gray-500"
            >
              {/* Hidden text to maintain button width */}
-             <span className="invisible block">Acquire</span>
+             <span className="invisible block">{car.stock === 0 ? 'Sold Out' : 'Acquire'}</span>
              
              {/* The sliding wrapper */}
              <div className="absolute inset-0 z-10 flex w-[200%] h-full transition-transform duration-300 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] group-hover/btn:-translate-x-1/2 group-hover/btn:-skew-x-[15deg]">
-               <span className="w-1/2 h-full flex items-center justify-center">Acquire</span>
-               <span className="w-1/2 h-full flex items-center justify-center italic">Acquire</span>
+               <span className="w-1/2 h-full flex items-center justify-center">{car.stock === 0 ? 'Sold Out' : 'Acquire'}</span>
+               <span className="w-1/2 h-full flex items-center justify-center italic">{car.stock === 0 ? 'Sold Out' : 'Acquire'}</span>
              </div>
 
              <div className="absolute inset-0 -translate-x-full group-hover/btn:animate-shine bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[-15deg]" />

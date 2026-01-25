@@ -4,13 +4,46 @@ import StatusToggle from "@/components/dashboard/StatusToggle";
 export const dynamic = "force-dynamic";
 
 export default async function AdminOrdersPage() {
-  const orders = await prisma.order.findMany({
-    include: { items: true },
-    orderBy: { createdAt: "desc" },
-  });
+  let orders = [];
+  let dbError = false;
+
+  try {
+    orders = await prisma.order.findMany({
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        city: true,
+        country: true,
+        total: true,
+        status: true,
+        paymentStatus: true,
+        createdAt: true,
+        items: {
+          select: {
+            name: true,
+            image: true,
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 50, // Limit to recent 50 orders to prevent connection crashes
+    });
+  } catch (error) {
+    console.error("Order Log Fetch Error:", error);
+    dbError = true;
+  }
 
   return (
     <div className="p-8 bg-black min-h-screen font-sans text-white">
+      {dbError && (
+        <div className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded text-red-500 text-xs font-mono flex items-center gap-3">
+          <div className="w-2 h-2 bg-red-500 rounded-full animate-ping" />
+          <span>DATABASE_CONNECTION_ERROR: Unable to retrieve order logs. Telemetry offline.</span>
+        </div>
+      )}
+
       <div className="flex justify-between items-end mb-12 border-b-4 border-white pb-6">
         <h1 className="text-5xl font-black uppercase italic tracking-tighter text-white">
           Order_Log

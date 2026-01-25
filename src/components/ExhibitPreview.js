@@ -71,9 +71,9 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
   const isVideo = isMediaVideo(activeMedia);
 
   const placeholderCars = [
-    { id: 'p1', name: 'Placeholder', brand: 'Brand', price: '₹–––', image: '/cars/maybach.jpg', scale: '1:43' },
+    { id: 'p1', name: 'Placeholder', brand: 'Brand', price: '₹–––', image: '/cars/maybach.jpg', scale: '1:64' },
     { id: 'p2', name: 'Placeholder', brand: 'Brand', price: '₹–––', image: '/cars/maybach.jpg', scale: '1:18' },
-    { id: 'p3', name: 'Placeholder', brand: 'Brand', price: '₹–––', image: '/cars/maybach.jpg', scale: '1:43' },
+    { id: 'p3', name: 'Placeholder', brand: 'Brand', price: '₹–––', image: '/cars/maybach.jpg', scale: '1:32' },
   ];
 
 

@@ -5,22 +5,27 @@ import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import confetti from "canvas-confetti";
-import { toPng } from "html-to-image";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 
 export default function OrderSuccessClient() {
   const searchParams = useSearchParams();
   const displayId = searchParams.get("payment_id") || searchParams.get("orderId") || "TXN_UNKNOWN";
   
   const [isScanning, setIsScanning] = useState(true);
-  const blueprintRef = useRef(null); // Reference to the area we want to download
+  const blueprintRef = useRef(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsScanning(false), 2000);
+    if (isScanning) {
+      const timer = setTimeout(() => setIsScanning(false), 2000);
+      return () => clearTimeout(timer);
+    }
+
+    const duration = 3 * 1000;
+    const animationEnd = Date.now() + duration;
+    let frameId;
 
     const frame = () => {
-      const duration = 2 * 1000;
-      const end = Date.now() + duration;
-      
       confetti({
         particleCount: 2,
         angle: 60,
@@ -38,25 +43,44 @@ export default function OrderSuccessClient() {
         shapes: ['square'],
       });
 
-      if (Date.now() < end) requestAnimationFrame(frame);
+      if (Date.now() < animationEnd) {
+        frameId = requestAnimationFrame(frame);
+      }
     };
 
-    if (!isScanning) frame();
-    return () => clearTimeout(timer);
+    frameId = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(frameId);
   }, [isScanning]);
 
-  // --- DOWNLOAD LOGIC ---
+  // --- PDF DOWNLOAD LOGIC ---
   const downloadManifesto = async () => {
     if (blueprintRef.current === null) return;
-    
+
     try {
-      const dataUrl = await toPng(blueprintRef.current, { cacheBust: true, backgroundColor: '#ffffff' });
-      const link = document.createElement('a');
-      link.download = `THE_DIECAST_STORE_MANIFESTO_${displayId.substring(0, 8)}.png`;
-      link.href = dataUrl;
-      link.click();
+      const element = blueprintRef.current;
+      // Capture the blueprint area as a high-quality canvas
+      const canvas = await html2canvas(element, {
+        scale: 2, 
+        backgroundColor: "#ffffff",
+        logging: false,
+        useCORS: true // Helps if you eventually use external images
+      });
+      
+      const imgData = canvas.toDataURL("image/png");
+      
+      // Initialize A4 PDF in portrait mode
+      const pdf = new jsPDF("p", "mm", "a4");
+      
+      // Calculate scaling to fit the A4 page width (210mm)
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      // Add the image to the PDF
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`THE_DIECAST_STORE_MANIFESTO_${displayId.substring(0, 8)}.pdf`);
     } catch (err) {
-      console.error("Capture failed:", err);
+      console.error("PDF Generation failed:", err);
     }
   };
 
@@ -115,33 +139,33 @@ export default function OrderSuccessClient() {
                 </p>
               </div>
 
-              {/* Blueprint Section (Captured for Download) */}
-              <div ref={blueprintRef} className="bg-white border border-black/10 shadow-sm mb-12 overflow-hidden">
-                <div className="bg-black p-4 flex justify-between items-center">
-                  <span className="text-[8px] font-mono text-white/50 uppercase tracking-[0.3em]">Technical_Manifesto_v1.0</span>
+              {/* Blueprint Section (Captured for PDF) */}
+              <div ref={blueprintRef} className="mb-12 overflow-hidden" style={{ backgroundColor: '#ffffff', borderStyle: 'solid', borderWidth: '1px', borderColor: '#e5e7eb' }}>
+                <div className="p-4 flex justify-between items-center" style={{ backgroundColor: '#000000' }}>
+                  <span className="text-[8px] font-mono uppercase tracking-[0.3em]" style={{ color: 'rgba(255,255,255,0.5)' }}>Technical_Manifesto_v1.0</span>
                   <div className="flex gap-1">
-                    <div className="w-1 h-1 bg-white/20" />
-                    <div className="w-1 h-1 bg-white/20" />
+                    <div className="w-1 h-1" style={{ backgroundColor: '#333333' }} />
+                    <div className="w-1 h-1" style={{ backgroundColor: '#333333' }} />
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-black/5">
-                  <div className="bg-white p-8">
-                    <p className="text-[9px] font-mono text-gray-400 uppercase tracking-widest mb-3 italic">Reference_ID</p>
-                    <p className="text-lg font-mono font-bold text-black truncate">{displayId}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-px" style={{ backgroundColor: '#f3f4f6' }}>
+                  <div className="p-8" style={{ backgroundColor: '#ffffff' }}>
+                    <p className="text-[9px] font-mono uppercase tracking-widest mb-3 italic" style={{ color: '#999999' }}>Reference_ID</p>
+                    <p className="text-lg font-mono font-bold truncate" style={{ color: '#000000' }}>{displayId}</p>
                   </div>
-                  <div className="bg-white p-8 border-l border-black/10">
-                    <p className="text-[9px] font-mono text-gray-400 uppercase tracking-widest mb-3 italic">Vault_Status</p>
+                  <div className="p-8 border-l" style={{ backgroundColor: '#ffffff', borderLeftStyle: 'solid', borderLeftWidth: '1px', borderLeftColor: '#e5e7eb' }}>
+                    <p className="text-[9px] font-mono uppercase tracking-widest mb-3 italic" style={{ color: '#999999' }}>Vault_Status</p>
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                      <p className="text-lg font-black italic uppercase text-black">SECURED</p>
+                      <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#10b981' }} />
+                      <p className="text-lg font-black italic uppercase" style={{ color: '#000000' }}>SECURED</p>
                     </div>
                   </div>
                 </div>
                 
-                <div className="p-8 border-t border-black/5 bg-gray-50/50">
-                  <p className="text-[9px] font-mono text-gray-400 uppercase tracking-widest mb-2 italic">Curator_Note</p>
-                  <p className="text-[11px] leading-relaxed text-gray-600 font-medium">
+                <div className="p-8 border-t" style={{ borderTopStyle: 'solid', borderTopWidth: '1px', borderTopColor: '#f3f4f6', backgroundColor: '#fafafa' }}>
+                  <p className="text-[9px] font-mono uppercase tracking-widest mb-2 italic" style={{ color: '#999999' }}>Curator_Note</p>
+                  <p className="text-[11px] leading-relaxed font-medium" style={{ color: '#333333' }}>
                     This exhibit has been officially processed and allocated to your private vault. 
                     The engineering specifications and provenance of this model have been verified 
                     against the Curated_Diecast_Exhibition standards.
@@ -166,7 +190,7 @@ export default function OrderSuccessClient() {
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  Download_Technical_Manifesto.png
+                  Download_Technical_Manifesto.pdf
                 </button>
               </div>
             </motion.div>
