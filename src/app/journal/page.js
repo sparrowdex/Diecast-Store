@@ -150,6 +150,9 @@ function JournalCard({ story, index }) {
                         <span className="text-[9px] font-mono text-gray-400 uppercase tracking-widest">
                             {new Date(story.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                         </span>
+                        {story.author && (
+                            <span className="text-[9px] font-mono text-gray-400 uppercase tracking-widest border-l border-black/10 pl-3">BY: {story.author}</span>
+                        )}
                         {story.genre && (
                             <span className="text-[9px] font-mono text-red-600 uppercase tracking-widest border-l border-black/10 pl-3">
                                 {story.genre.replace(/_/g, ' ')}

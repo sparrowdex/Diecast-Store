@@ -83,10 +83,14 @@ export default function JournalPreview({ entry }) {
         )}
 
         <div className="max-w-3xl mx-auto px-6 py-20">
-          <article className="prose prose-invert prose-orange max-w-none tiptap-content font-geist">
+          <article className="prose prose-invert prose-orange max-w-none tiptap-content font-geist 
+            prose-headings:font-black prose-headings:italic prose-headings:uppercase prose-headings:tracking-tighter prose-headings:text-white
+            prose-h1:text-5xl md:prose-h1:text-7xl prose-h1:mb-8
+            prose-h2:text-3xl md:prose-h2:text-4xl prose-h2:mt-12 prose-h2:mb-6
+            prose-p:text-white/70 prose-p:leading-relaxed prose-p:text-lg
+            prose-li:text-white/70 prose-li:marker:text-[#FF8700] prose-ul:list-disc prose-ol:list-decimal">
              {/* Geist Typography logic ensures the content looks perfect */}
              <div 
-               className="text-white/80 leading-relaxed" 
                dangerouslySetInnerHTML={{ __html: entry.content }} 
              />
           </article>

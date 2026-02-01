@@ -124,9 +124,10 @@ export default function EditJournalEntry({ entry }) {
           </div>
         </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <InputField label="Title" value={formData.title} onChange={(val) => setFormData(prev => ({...prev, title: val}))} />
           <InputField label="Slug" value={formData.slug} onChange={(val) => setFormData(prev => ({...prev, slug: val}))} />
+          <InputField label="Author" value={formData.author} onChange={(val) => setFormData(prev => ({...prev, author: val}))} />
           <div className="space-y-2 font-geist-mono">
             <label className="text-[10px] font-black uppercase tracking-widest opacity-40">Editorial_Genre</label>
             <select value={formData.genre} onChange={(e) => setFormData(prev => ({...prev, genre: e.target.value}))} className="w-full bg-white/5 border border-white/10 p-4 text-xs outline-none uppercase italic text-white appearance-none">
