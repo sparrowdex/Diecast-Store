@@ -1,16 +1,12 @@
-import React from "react";
 import prisma from "@/lib/prisma";
 import JournalPreview from "./JournalPreview";
+import { notFound } from "next/navigation";
 
-export default function JournalPreviewPage({ params }) {
-  const { id } = React.use(params);
-  const journalEntry = React.use(
-    prisma.journalEntry.findUnique({
-      where: {
-        id: id,
-      },
-    })
-  );
+export default async function PreviewPage({ params }) {
+  const { id } = await params;
+  const entry = await prisma.journalEntry.findUnique({ where: { id } });
 
-  return <JournalPreview entry={journalEntry} />;
+  if (!entry) notFound();
+
+  return <JournalPreview entry={entry} />;
 }

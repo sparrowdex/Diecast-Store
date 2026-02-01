@@ -1,5 +1,80 @@
 # Changelog - Diecast Store Refactor
 
+## [2026-02-01] - Journal Cinematic Overhaul & Production Resilience
+
+### Added
+- **Cinematic Journal Header**: Implemented a high-impact header for journal entries that transitions from a grayscale cover image to an auto-playing cinematic video.
+- **Manifest Card Preview**: Added a 1:1 visual preview of the journal grid card within the Admin Preview HUD.
+- **Split Media Staging**: Redesigned Admin Journal forms with dedicated staging slots for Slot_01 (Static Cover) and Slot_02 (Hover Cinematic).
+- **Video Readiness Logic**: Integrated `onCanPlay` event listeners to prevent "black screen" transitions by keeping the cover image visible until the video buffer is ready.
+
+### Changed
+- **Journal Media Display**: Refactored component to support `autoPlay` modes and layered the image on top of the video for smoother cross-fading.
+- **Genre Synchronization**: Aligned the public journal filter with the Admin Enum settings (`CLASSIC_VINTAGE`, `RACE_COURSE`, etc.).
+
+### Fixed
+- **Next.js 15 Dynamic Routes**: Resolved "Entry Not Found" errors by correctly awaiting the `params` Promise in `[slug]` and `[id]` routes.
+- **Broken Image Tags**: Fixed a bug where video URLs were being rendered in `<img>` tags due to strict regex anchors failing on query parameters.
+- **Media Playback**: Resolved issues where videos remained black or failed to trigger on hover by implementing explicit ref-based playback controls.
+- **Prisma Update Validation**: Fixed a `PrismaClientValidationError` by stripping non-schema fields (`imageUrl`, `videoUrl`) from the update payload.
+- **Build Time Timeouts**: Addressed `ETIMEDOUT` errors during `next build` by implementing connection timeout guidance for serverless database cold starts.
+
+---
+
+## [2026-01-30] - Digital Collector ID & Archive Overhaul
+
+### Added
+- **Cinematic Journal Header**: Implemented a high-impact header for journal entries that transitions from a grayscale cover image to an auto-playing cinematic video.
+- **Manifest Card Preview**: Added a 1:1 visual preview of the journal grid card within the Admin Preview HUD.
+- **Split Media Staging**: Redesigned the Admin Journal forms with dedicated staging slots for Slot_01 (Static Cover) and Slot_02 (Hover Cinematic).
+- **Auto-Routing Media Logic**: Implemented a robust detection system that automatically routes uploaded files to the correct media slot based on file extension, even with query parameters.
+
+### Changed
+- **Journal Media Display**: Refactored the component to support `autoPlay` modes and added a `poster` attribute to prevent "black box" flickering during video loads.
+- **Admin Preview HUD**: Enhanced the preview interface with a "View Live Site" link and a "Modify Entry" shortcut.
+- **Journal Grid Logic**: Updated the public journal page to correctly handle the "Feature" card layout and synchronized the genre filter with the Admin settings.
+
+### Fixed
+- **Next.js 15 Dynamic Routes**: Resolved "Entry Not Found" errors by correctly awaiting the `params` Promise in `[slug]` and `[id]` routes.
+- **Broken Image Tags**: Fixed a bug where video URLs were being rendered in `<img>` tags due to overly strict regex anchors.
+- **Media Playback**: Resolved issues where videos remained black or failed to trigger on hover by implementing explicit ref-based playback controls.
+- **Media Display Layering**: Fixed a "black screen" issue on hover by layering the static cover image over the video element and utilizing the `poster` attribute for seamless transitions.
+- **Journal Header Simplification**: Updated the single journal entry page to display only the static cover image in the header, resolving visibility issues and improving readability as requested.
+- **Genre Synchronization**: Synchronized the public journal genre filter with the Admin panel settings and implemented robust filtering logic to handle published status and genre matching.
+- **Prisma Validation**: Fixed a `findUnique` error where `slug` was being passed as `undefined` due to the sync-dynamic-api change in Next.js 15.
+- **Prisma Update Validation**: Fixed a `PrismaClientValidationError` in the Journal API by stripping non-schema fields (`imageUrl`, `videoUrl`, `id`, etc.) from the update payload.
+- **Genre Filtering**: Fixed a bug where the public genre filter was disconnected from the Admin settings and was displaying unpublished drafts.
+- **Grid Layout**: Corrected a CSS Grid spanning issue where the featured journal entry was not occupying the full width of the row.
+
+---
+
+## [2026-01-30] - Digital Collector ID & Archive Overhaul
+
+### Added
+- **Digital Collector ID**: Implemented a personalized, F1-inspired identity card (`CollectorIDCard`) displaying collector name, bio, and verification stamps.
+- **Collection Stats**: Added a high-contrast `StatsPanel` to track total models and rare editions directly on the dashboard.
+- **My Archive Page**: Created a dedicated collection management route (`/access/collection`) for detailed viewing and curation of acquired exhibits.
+- **Car Nicknames**: Users can now assign custom nicknames to their diecast models via the new interactive `CollectionItem` interface.
+- **Wishlist Support**: Updated schema with `WishlistItem` model to support the upcoming "Hunting List" feature.
+- **Dashboard Data Aggregator**: Created a centralized API (`/api/user/dashboard-data`) to efficiently fetch profile, stats, and collection data in a single request.
+- **Profile Customization API**: Implemented a profile update endpoint (`/api/user/profile`) to handle collector identity and theme preferences.
+- **Nickname API**: Added a specific endpoint (`/api/collection/[itemId]`) to handle individual item personalization.
+
+### Changed
+- **User Dashboard**: Overhauled the main access page to focus on identity and collection metrics, replacing the static welcome block with the new ID system.
+- **Prisma Schema**: Enhanced `Product`, `User`, and `OrderItem` models to support personalization, rarity tracking, and the new identity layer.
+- **Theming System**: Integrated dashboard-specific light/dark mode persistence based on user profile settings stored in the database.
+- **Data Fetching**: Updated the dashboard to automatically sync/create a user profile record on the first visit.
+
+### Fixed
+- **File Organization**: Relocated `CollectionItem` to the components directory and consolidated API logic into the standard `app/api` structure for better Next.js App Router compliance.
+- **Import Paths**: Corrected component references in the collection page to match the new directory structure.
+
+### Removed
+- **Redundant Logic**: Deleted misplaced API routes (`src/components/dashboard/route.js`) and duplicate component files (`src/app/access/CollectionItem.jsx`) to maintain project cleanliness.
+
+---
+
 ## [2026-01-25] - UI/UX, Persistence & Telemetry Fixes
 
 ### Added

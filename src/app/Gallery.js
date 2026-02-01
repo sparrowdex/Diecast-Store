@@ -26,7 +26,7 @@ const SpeedLink = ({ href, children }) => {
       </span>
 
       {/* LAYER 3: The Racing Kerb (CSS class in globals.css) */}
-      <span className="absolute bottom-0 left-0 h-[3px] w-full translate-y-full opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 kerb-animation" />
+      <span className="absolute bottom-0 left-0 h-0.75 w-full translate-y-full opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 kerb-animation" />
     </Link>
   );
 };
@@ -98,9 +98,11 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
                     <div className="absolute top-full left-0 w-48 pt-6 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 ease-out z-50">
                       <div className="bg-white border border-black shadow-2xl p-2 flex flex-col">
                         <Link href="/access" className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-all">Dashboard</Link>
+                        <Link href="/access/profile" className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-all">Profile</Link>
                         <Link href="/access/collection" className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-all">My Collection</Link>
                         <Link href="/access/orders" className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-all">Order History</Link>
                         <Link href="/access/settings" className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-all">Settings</Link>
+                        
                         <div className="h-px bg-black/5 my-2" />
                         <SignOutButton>
                           <button className="w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-600 hover:bg-red-50 transition-colors">Logout_Session</button>
@@ -135,7 +137,7 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
             <section className="mb-32">
               <div className="flex items-center gap-6 mb-10">
                 <h2 className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.3em]">Featured_Exhibits</h2>
-                <div className="h-[1px] flex-1 bg-gradient-to-r from-black/10 to-transparent" />
+                <div className="h-px flex-1 bg-linear-to-r from-black/10 to-transparent" />
               </div>
               <BentoGrid
                   cars={featuredExhibits}

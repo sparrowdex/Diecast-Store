@@ -1,68 +1,83 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
-import OrderCard from "@/components/dashboard/OrderCard"; // Import the new component
+import Link from "next/link";
+import CollectorIDCard from "@/components/dashboard/CollectorIDCard";
+import StatsPanel from "@/components/dashboard/StatsPanel";
+import OrderCard from "@/components/dashboard/OrderCard";
+import ProgressPanel from "@/components/dashboard/ProgressPanel";
 
 export default async function AccessDashboardPage() {
   const { userId } = await auth();
+  const user = await currentUser();
 
-  const recentOrders = await prisma.order.findMany({
-    where: { userId: userId, paymentStatus: 'PAID' },
-    take: 3,
-    include: {
-      items: {
-        select: {
-          name: true,
-          image: true
-        }
-      }
-    },
-    orderBy: { createdAt: 'desc' }
+  let userProfile = await prisma.user.findUnique({ where: { id: userId } });
+  if (!userProfile) {
+    userProfile = await prisma.user.create({
+      data: { id: userId, theme: "dark", collectorName: `COLLECTOR_${userId?.slice(-4)}` },
+    });
+  }
+
+  const orders = await prisma.order.findMany({
+    where: { userId, paymentStatus: 'PAID' },
+    include: { items: { include: { product: true } } },
+    orderBy: { createdAt: 'desc' },
+    take: 3
   });
 
+  const allPaidOrders = await prisma.order.findMany({
+    where: { userId, paymentStatus: 'PAID' },
+    include: { items: { include: { product: true } } }
+  });
+
+  const allItems = allPaidOrders.flatMap(order => order.items);
+  const stats = {
+    totalModels: allItems.reduce((sum, item) => sum + item.quantity, 0),
+    rareEditions: allItems.filter(item => item.product?.isRare).length,
+  };
+
+  const allProducts = await prisma.product.findMany({ select: { category: true } });
+  const categories = [...new Set(allItems.map(item => item.product?.category).filter(Boolean))].map(cat => {
+    const total = allProducts.filter(p => p.category === cat).length;
+    const owned = allItems.filter(item => item.product?.category === cat).length;
+    return {
+      name: cat,
+      percentage: total > 0 ? Math.round((owned / total) ? 100 : 0) : 0,
+    };
+  });
+
+  const isDark = userProfile.theme === 'dark';
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* 1. Dashboard Header */}
-      <header className="mb-12 border-b border-black pb-4">
-        <h2 className="text-4xl font-black italic tracking-tighter text-black">
-          THE_VAULT
-        </h2>
-        <div className="flex justify-between font-mono text-xs text-gray-400 mt-2">
-           <span>// AUTHORIZED_PERSONNEL_ONLY</span>
-           <span>ID: {userId?.slice(-8)}</span>
+    <div className="space-y-12">
+      <header className={`border-b-2 pb-4 ${isDark ? 'border-white/10' : 'border-black'}`}>
+        <div className="flex justify-between items-end">
+          <h2 className="text-2xl md:text-4xl font-black italic tracking-tighter uppercase leading-none">Collector_Dashboard</h2>
+          <Link href="/access/collection" className="font-geist-mono text-[9px] hover:underline mb-1 opacity-50 uppercase">[ Full_Archive ]</Link>
         </div>
       </header>
 
-      {/* 2. Welcome Block */}
-      <div className="mb-16 border-l-2 border-black pl-6">
-        <h3 className="mb-2 text-xs font-bold uppercase tracking-[0.3em] text-gray-400">
-          Dashboard_Overview
-        </h3>
-        <p className="max-w-xl font-mono text-sm leading-relaxed text-gray-600">
-          Welcome back. This is your personal archive. Manage your collection, track acquisitions, and monitor vault status from this terminal.
-        </p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2">
+          <CollectorIDCard profile={{ ...userProfile, imageUrl: user?.imageUrl }} />
+        </div>
+        <div className="lg:col-span-1 space-y-6">
+          <StatsPanel stats={stats} theme={userProfile.theme} />
+          <ProgressPanel categories={categories} theme={userProfile.theme} />
+        </div>
       </div>
 
-      {/* 3. Recent Acquisitions Grid */}
-      <section>
-        <div className="mb-6 flex items-baseline justify-between">
-          <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-gray-400">
-            Recent_Acquisitions
-          </h3>
-          <span className="font-mono text-[10px] text-gray-300">
-            DISPLAYING {recentOrders.length} LATEST
-          </span>
+      <section className="pt-8">
+        <div className="flex justify-between items-center mb-8">
+            <h3 className="text-[10px] font-black uppercase tracking-[0.4em] opacity-30 italic">Recent_Acquisitions</h3>
+            <span className="h-[1px] flex-grow mx-6 bg-current opacity-5 hidden md:block"></span>
         </div>
-
-        {/* This CSS Grid creates the "Bento Box" layout */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {recentOrders.length === 0 ? (
-            <div className="col-span-full flex h-32 items-center justify-center border border-dashed border-gray-200 font-mono text-xs text-gray-400">
-              [NO_DATA_AVAILABLE]
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {orders.length === 0 ? (
+            <div className={`col-span-full py-20 border-2 border-dashed ${isDark ? 'border-white/5' : 'border-black/5'} text-center font-geist-mono text-[10px] opacity-20`}>
+              // NO_ASSETS_DETECTED_IN_VAULT
             </div>
           ) : (
-            recentOrders.map((order) => (
-              <OrderCard key={order.id} order={order} />
-            ))
+            orders.map((order) => <OrderCard key={order.id} order={order} isDark={isDark} />)
           )}
         </div>
       </section>

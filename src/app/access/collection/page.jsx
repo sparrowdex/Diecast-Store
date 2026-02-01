@@ -1,48 +1,66 @@
+
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
-import Link from "next/link";
+import CollectionItem from "@/components/dashboard/CollectionItem";
+import { redirect } from 'next/navigation';
 
 export default async function CollectionPage() {
   const { userId } = await auth();
 
-  const purchasedItems = await prisma.orderItem.findMany({
-    where: {
-      order: {
-        userId: userId,
-        paymentStatus: 'PAID',
+  if (!userId) {
+    redirect('/access');
+  }
+
+  const [userProfile, purchasedItems] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { theme: true }
+    }),
+    prisma.orderItem.findMany({
+      where: {
+        order: {
+          userId: userId,
+          paymentStatus: 'PAID',
+        },
       },
-    },
-    include: {
-      product: true, // Include product details for linking
-    },
-    orderBy: {
-      order: {
-        createdAt: 'desc'
+      include: {
+        product: true, 
+      },
+      orderBy: {
+        order: {
+          createdAt: 'desc'
+        }
       }
-    }
-  });
+    })
+  ]);
+
+  const isDark = userProfile?.theme === 'dark';
 
   return (
-    <div>
-      <h2 className="text-3xl font-black uppercase italic tracking-tighter text-black mb-6">Exhibit_Collection</h2>
+    <div className="space-y-10">
+      {/* RESPONSIVE HEADER - Matches Dashboard and Profile */}
+      <header className={`border-b-2 pb-4 transition-colors duration-500 ${isDark ? 'border-white/10' : 'border-black'}`}>
+        <div className="flex justify-between items-end">
+          <h2 className="text-2xl sm:text-4xl font-black italic tracking-tighter uppercase leading-none break-words">
+            My_Archive
+          </h2>
+          <p className="font-geist-mono text-[9px] opacity-40 uppercase hidden sm:block">
+            // TOTAL_ASSETS: {purchasedItems.length.toString().padStart(2, '0')}
+          </p>
+        </div>
+      </header>
+
       {purchasedItems.length === 0 ? (
-        <div className="bg-gray-50 border border-black/10 p-8">
-            <p className="text-sm font-mono text-gray-400 italic">No exhibits acquired yet.</p>
+        <div className={`p-20 border-2 border-dashed flex items-center justify-center transition-all ${isDark ? "bg-zinc-900/50 border-white/5" : "bg-black/[0.02] border-black/5"}`}>
+            <p className="text-[10px] font-geist-mono text-current opacity-30 italic uppercase tracking-widest">
+                // NO_EXHIBITS_DETECTED_IN_SECTOR
+            </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        /* DYNAMIC GRID - Optimized for small mobile screens (2 cols) up to Desktop */
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
           {purchasedItems.map(item => (
-            <Link key={item.id} href={`/product/${item.productId}`}>
-              <div className="border border-black/10 hover:border-black transition-colors group aspect-square flex flex-col">
-                <div className="flex-grow bg-white p-4 flex items-center justify-center">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform" />
-                </div>
-                <div className="p-4 border-t border-black/5">
-                    <p className="text-xs font-bold uppercase truncate group-hover:underline">{item.name}</p>
-                    <p className="text-[10px] text-gray-400 font-mono">Acquired: {new Date(item.createdAt).toLocaleDateString()}</p>
-                </div>
-              </div>
-            </Link>
+            <CollectionItem key={item.id} item={item} isDark={isDark} />
           ))}
         </div>
       )}

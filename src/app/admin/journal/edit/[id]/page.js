@@ -1,13 +1,12 @@
 import prisma from "@/lib/prisma";
 import EditJournalEntry from "./EditJournalEntry";
+import { notFound } from "next/navigation";
 
-export default async function EditJournalEntryPage({ params }) {
-  const { id } = params;
-  const journalEntry = await prisma.journalEntry.findUnique({
-    where: {
-      id: id,
-    },
-  });
+export default async function EditJournalPage({ params }) {
+  const { id } = await params;
+  const entry = await prisma.journalEntry.findUnique({ where: { id } });
 
-  return <EditJournalEntry entry={journalEntry} />;
+  if (!entry) notFound();
+
+  return <EditJournalEntry entry={entry} />;
 }

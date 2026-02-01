@@ -2,6 +2,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from 'framer-motion';
 import Link from "next/link";
+import JournalMediaDisplay from "@/components/JournalMediaDisplay";
+
+const GENRES = ["CLASSIC_VINTAGE", "RACE_COURSE", "CITY_LIFE", "SUPERPOWERS", "LUXURY_REDEFINED", "OFF_ROAD", "FUTURE_PROOF"];
 
 export default function JournalPage() {
   const [stories, setStories] = useState([]);
@@ -45,9 +48,13 @@ export default function JournalPage() {
   };
   
   const displayedStories = useMemo(() => {
-    const base = searchQuery.trim() === "" ? stories : searchResults;
-    if (selectedGenre === "All") return base;
-    return base.filter(story => story.genre === selectedGenre);
+    // 1. Filter for published entries only (Public View) - Ensure boolean check
+    const published = (searchQuery.trim() === "" ? stories : searchResults).filter(s => Boolean(s.isPublished));
+    
+    // 2. Apply Genre Filter
+    if (!selectedGenre || selectedGenre === "All") return published;
+    // Robust comparison: handle potential nulls or case mismatches
+    return published.filter(story => story.genre?.toUpperCase() === selectedGenre.toUpperCase());
   }, [stories, searchResults, searchQuery, selectedGenre]);
 
   return (
@@ -78,7 +85,7 @@ export default function JournalPage() {
                     className="appearance-none bg-black text-white font-mono border-2 border-neutral-800 p-3 text-sm rounded-none outline-none focus:border-white transition-colors duration-300 pr-10 uppercase tracking-widest"
                 >
                     <option value="All">All Genres</option>
-                    {['CLASSIC_VINTAGE', 'RACE_COURSE', 'CITY_LIFE', 'SUPERPOWERS', 'LUXURY_REDEFINED', 'OFF_ROAD', 'FUTURE_PROOF'].map(g => (
+                    {GENRES.map(g => (
                         <option key={g} value={g}>{g.replace(/_/g, ' ')}</option>
                     ))}
                 </select>
@@ -114,31 +121,21 @@ function JournalCard({ story, index }) {
     const isFeature = index === 0;
 
     return (
-        <Link href={`/journal/${story.slug}`} className="group cursor-pointer flex flex-col">
+        <Link href={`/journal/${story.slug}`} className={`group cursor-pointer flex flex-col ${isFeature ? 'md:col-span-2' : 'md:col-span-1'}`}>
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}
-                className={`flex flex-col ${isFeature ? 'md:col-span-2 border-b border-black/5 pb-16 mb-8' : 'md:col-span-1'}`}
+                className={`flex flex-col ${isFeature ? 'border-b border-black/5 pb-16 mb-8' : ''}`}
             >
                 {/* Image Container */}
                 <div className="overflow-hidden mb-6 relative w-full">
                     <div className={`w-full bg-gray-100 relative overflow-hidden ${isFeature ? 'aspect-[21/9]' : 'aspect-[4/3]'}`}>
-                        {story.videoUrl ? (
-                            <video 
-                                src={story.videoUrl}
-                                autoPlay
-                                loop
-                                muted
-                                playsInline
-                                className="w-full h-full object-cover"
-                            />
-                        ) : story.imageUrl ? (
-                            <img 
-                                src={story.imageUrl}
-                                alt={story.title}
-                                className="w-full h-full object-cover"
+                        {(story.images?.[0] || story.video) ? (
+                            <JournalMediaDisplay 
+                                imageUrl={story.images?.[0]} 
+                                videoUrl={story.video} 
                             />
                         ) : (
                             <div className="w-full h-full bg-gray-200"></div>
@@ -155,7 +152,7 @@ function JournalCard({ story, index }) {
                         </span>
                         {story.genre && (
                             <span className="text-[9px] font-mono text-red-600 uppercase tracking-widest border-l border-black/10 pl-3">
-                                {story.genre.replace('_', ' ')}
+                                {story.genre.replace(/_/g, ' ')}
                             </span>
                         )}
                     </div>

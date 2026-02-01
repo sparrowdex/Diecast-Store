@@ -5,13 +5,10 @@ export default async function JournalPage() {
   let journalEntries = [];
   try {
     journalEntries = await prisma.journalEntry.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: { createdAt: 'desc' },
     });
   } catch (error) {
-    console.error('Error fetching journal entries for journal page:', error);
-    // Fallback to empty array to keep frontend visible
+    console.error('Error fetching journal entries:', error);
   }
 
   return <JournalDashboard initialEntries={journalEntries} />;

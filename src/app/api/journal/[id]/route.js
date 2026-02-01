@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
-  const { id } = params;
+  const { id } = await params;
 
   try {
     const journalEntry = await prisma.journalEntry.findUnique({
@@ -23,7 +23,7 @@ export async function GET(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
-  const { id } = params;
+  const { id } = await params;
 
   try {
     await prisma.journalEntry.delete({
@@ -40,7 +40,7 @@ export async function DELETE(request, { params }) {
 }
 
 export async function PUT(request, { params }) {
-  const { id } = params;
+  const { id } = await params;
   const data = await request.json();
 
   try {

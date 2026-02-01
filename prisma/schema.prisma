@@ -13,6 +13,7 @@ model Product {
   brand       String
   scale       String
   price       String
+  category    String?
 
   // THE KEY CHANGE: We store a list of URLs, not just one
   images      String[] 
@@ -27,9 +28,23 @@ model Product {
   collectionStatus CollectionStatus @default(ARCHIVE_CATALOG)
   genre       Genre?
   modelYear   Int?
+  isRare      Boolean  @default(false)
   stock       Int      @default(1)
   orderItems  OrderItem[]
+  wishlist    WishlistItem[]
   createdAt   DateTime @default(now())
+}
+
+model User {
+  id                String   @id // Clerk User ID
+  collectorName     String?
+  bio               String?
+  stamp             String?
+  fontPreference    String?
+  progressRingColor String?
+  theme             String?  @default("dark")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model Order {
@@ -66,70 +81,43 @@ model Order {
 
 model OrderItem {
 
-
-
   id        String @id @default(cuid())
-
-
-
   name      String
-
-
-
   price     Float
-
-
-
   quantity  Int
-
-
-
   image     String
-
-
-
   order     Order  @relation(fields: [orderId], references: [id])
   orderId   String
 
   product   Product @relation(fields: [productId], references: [id])
   productId String
-
-
+  nickname  String?
 
 }
 
-
-
-
-
-
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String   // Clerk User ID
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  nickname  String?  // e.g., "The Grail"
+  createdAt DateTime @default(now())
+}
 
 model JournalEntry {
-
-
   id          String   @id @default(cuid())
-
   title       String
-
   slug        String   @unique
-
   content     String
-
   author      String?
-  
   genre       Genre?
-
   isPublished Boolean  @default(false)
-
+  isFeatured  Boolean  @default(false) // NEW FIELD: Tracks the hero slot
+  readTime    Int?     // NEW FIELD: Stores the "Est. Lap Time"
   createdAt   DateTime @default(now())
-
   updatedAt   DateTime @updatedAt
-
   images      String[]
-
   video       String?
-
-
 }
 
 enum CollectionStatus {

@@ -1,62 +1,55 @@
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
-import ManifestoButton from "@/components/ManifestoButton";
+import OrderHistoryItem from "@/components/dashboard/OrderHistoryItem";
 import Link from "next/link";
 
-export default async function OrderHistoryPage() {
+export default async function OrdersHistoryPage() {
   const { userId } = await auth();
 
-  const orders = await prisma.order.findMany({
-    where: { userId: userId, paymentStatus: 'PAID' },
-    include: { items: true },
-    orderBy: { createdAt: 'desc' }
-  });
+  // Run queries in parallel for better performance
+  const [userProfile, orders] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { theme: true }
+    }),
+    prisma.order.findMany({
+      where: {
+        userId: userId,
+        paymentStatus: 'PAID',
+      },
+      include: {
+        items: true,
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
+  ]);
+
+  const isDark = userProfile?.theme === 'dark';
 
   return (
-    <div>
-      <h2 className="text-3xl font-black uppercase italic tracking-tighter text-black mb-6">Acquisition_Log</h2>
-      <div className="space-y-4">
-        {orders.length === 0 ? (
-          <div className="bg-gray-50 border border-black/10 p-8">
-            <p className="text-sm font-mono text-gray-400 italic">No exhibits acquired yet.</p>
-          </div>
-        ) : (
-          orders.map(order => (
-            <div key={order.id} className="border border-black/10 p-6 hover:border-black transition-colors group">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <p className="text-[10px] font-mono text-gray-400 uppercase">{new Date(order.createdAt).toLocaleDateString()}</p>
-                  <p className="text-sm font-bold uppercase tracking-tight">Order #{order.id.slice(-6)}</p>
-                  <p className="text-xs font-mono text-gray-500 mt-1">Total: ₹{order.total.toLocaleString()}</p>
-                  <ManifestoButton orderId={order.id} />
-                </div>
-                <span className={`text-[10px] font-black uppercase px-3 py-1 border ${
-                  order.status === 'DELIVERED' ? 'bg-green-50 border-green-200 text-green-600' : 'bg-black text-white border-black'
-                }`}>
-                  {order.status}
-                </span>
-              </div>
+    <div className={`p-6 md:p-12 transition-colors duration-500 ${isDark ? 'bg-[#0a0a0a] text-white' : 'bg-[#f4f4f4] text-black'}`}>
+      <header className={`mb-12 border-b pb-4 transition-colors duration-500 ${isDark ? 'border-white/10' : 'border-black'}`}>
+        <div className="flex justify-between items-end">
+          <h2 className="text-4xl font-black italic tracking-tighter uppercase">Order_History</h2>
+          <Link href="/access" className="font-mono text-[10px] hover:underline mb-1 opacity-50">
+            [ RETURN_TO_DASHBOARD ]
+          </Link>
+        </div>
+      </header>
 
-              <div className="flex justify-between items-center mt-6 pt-6 border-t border-black/5">
-                <Link 
-                  href={`/access/orders/${order.id}/track`}
-                  className="text-[10px] font-black uppercase tracking-widest bg-black text-white px-6 py-2 hover:bg-red-600 transition-colors"
-                >
-                  Track_Shipment →
-                </Link>
-              </div>
-
-              <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 mt-4">
-                {order.items.map((item, i) => (
-                  <div key={i} title={item.name} className="aspect-square bg-white border border-black/5 p-2 flex items-center justify-center">
-                    <img src={item.image} alt={item.name} className="w-full h-full object-contain mix-blend-multiply" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+      {orders.length === 0 ? (
+        <div className={`p-8 border border-dashed text-center font-mono text-xs opacity-50 ${isDark ? 'border-white/10' : 'border-black/10'}`}>
+          [ NO_ORDERS_FOUND ]
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4">
+          {orders.map(order => (
+            <OrderHistoryItem key={order.id} order={order} isDark={isDark} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

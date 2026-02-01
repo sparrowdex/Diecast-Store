@@ -1,59 +1,65 @@
 "use client";
-
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function JournalMediaDisplay({ imageUrl, videoUrl, altText }) {
-  const [mediaError, setMediaError] = useState(false);
+export default function JournalMediaDisplay({ imageUrl, videoUrl, autoPlay: forceAutoPlay = false }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
+  const videoRef = useRef(null);
+  const shouldPlay = forceAutoPlay || isHovered;
 
-  const activeMedia = videoUrl ? { url: videoUrl, type: 'video' } : imageUrl ? { url: imageUrl, type: 'image' } : null;
-  const isVideo = activeMedia?.type === 'video';
-
+  // Ensure video plays when visibility/hover changes
   useEffect(() => {
-    setMediaError(false);
-  }, [imageUrl, videoUrl]);
-
-  const handleMediaError = () => {
-    setMediaError(true);
-  };
-
-  if (!activeMedia) return null;
+    if (videoRef.current) {
+      if (shouldPlay) {
+        videoRef.current.play().catch(err => console.warn("Video playback interrupted:", err));
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  }, [shouldPlay]);
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center">
-      <AnimatePresence mode="wait">
-        {mediaError ? (
-          <div className="flex flex-col items-center justify-center w-full h-full text-gray-500 min-h-[200px] bg-gray-100 rounded-lg">
-            <svg className="w-16 h-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            <p className="text-sm font-mono text-center">Failed to load media.<br/>Please check your connection.</p>
-          </div>
-        ) : isVideo ? (
+    <div 
+      className="relative w-full h-full flex items-center justify-center overflow-hidden bg-black group"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <AnimatePresence>
+        {/* Video Overaly: Triggers on Hover */}
+        {videoUrl && (
           <motion.video
-            key={activeMedia.url}
-            src={activeMedia.url}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full rounded-lg shadow-lg"
+            key={`vid-${videoUrl}`}
+            ref={videoRef}
+            src={videoUrl}
+            onCanPlay={() => setVideoReady(true)}
+            loop muted playsInline
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onError={handleMediaError}
+            transition={{ duration: 0.7 }}
           />
-        ) : (
+        )}
+
+        {/* Static Cover with Grayscale filter */}
+        {imageUrl && (
           <motion.img
-            key={activeMedia.url}
-            src={activeMedia.url}
-            alt={altText}
-            className="w-full rounded-lg shadow-lg"
+            key={`img-${imageUrl}`}
+            src={imageUrl}
+            className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onError={handleMediaError}
+            animate={{ 
+              opacity: (shouldPlay && videoUrl && videoReady) ? 0 : 1,
+              scale: (shouldPlay && videoUrl && videoReady) ? 1.1 : 1
+            }}
+            transition={{ duration: 0.8 }}
           />
         )}
       </AnimatePresence>
+      
+      {/* Telemetry Scanlines Overlay */}
+      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.01),rgba(0,255,0,0.01),rgba(0,0,255,0.01))] bg-[length:100%_2px,3px_100%] opacity-20" />
     </div>
   );
 }

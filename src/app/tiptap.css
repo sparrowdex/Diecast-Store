@@ -1,48 +1,67 @@
-/* Basic Tiptap Editor Styling */
+/* Add this at the very top to link your theme configuration */
+@reference "./globals.css"; 
 
-.tiptap {
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
-  min-height: 150px;
+.ProseMirror {
+  @apply outline-none font-geist;
 }
 
-.tiptap > .ProseMirror:focus {
-  outline: none;
+/* 1. Typography Overrides (WYSIWYG) */
+.tiptap-content h1, 
+.ProseMirror h1 {
+  /* This will now work because Tailwind can reference 'font-black' from globals */
+  @apply text-4xl font-black italic uppercase tracking-tighter mb-6 mt-8 text-white;
+  border-left: 4px solid #FF8700;
+  padding-left: 1.5rem;
 }
 
-.tiptap p.is-editor-empty:first-child::before {
-  color: #adb5bd;
+.tiptap-content h2, 
+.ProseMirror h2 {
+  @apply text-2xl font-black italic uppercase tracking-tighter mb-4 mt-6 text-white/90;
+}
+
+.tiptap-content p, 
+.ProseMirror p {
+  @apply text-base leading-relaxed mb-4 text-white/70;
+  font-family: 'Geist', sans-serif;
+}
+
+/* 2. List Styling */
+.tiptap-content ul, 
+.ProseMirror ul {
+  @apply list-disc list-inside mb-6 space-y-2 text-white/60;
+}
+
+.tiptap-content ol, 
+.ProseMirror ol {
+  @apply list-decimal list-inside mb-6 space-y-2 text-white/60;
+}
+
+/* 3. Formatting Accents */
+.tiptap-content strong, 
+.ProseMirror strong {
+  @apply text-white font-bold;
+}
+
+.tiptap-content em, 
+.ProseMirror em {
+  @apply italic text-[#FF8700]; /* High-vis orange for emphasis */
+}
+
+/* 4. Editor UI States */
+.ProseMirror-focused {
+  @apply ring-0 outline-none;
+}
+
+/* Placeholder Styling */
+.ProseMirror p.is-editor-empty:first-child::before {
+  @apply font-geist-mono text-[10px] uppercase tracking-[0.3em] opacity-20 italic;
   content: attr(data-placeholder);
   float: left;
   height: 0;
   pointer-events: none;
 }
 
-.menu-bar {
-  border: 1px solid #ccc;
-  border-bottom: none;
-  border-radius: 0.5rem 0.5rem 0 0;
-  padding: 0.5rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.menu-bar button {
-  font-weight: bold;
-  border: 1px solid transparent;
-  border-radius: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  background-color: #f1f3f5;
-  transition: all 0.2s;
-}
-
-.menu-bar button:hover {
-  background-color: #e9ecef;
-}
-
-.menu-bar button.is-active {
-  background-color: #343a40;
-  color: white;
+/* Selection Color */
+.ProseMirror ::selection {
+  background: rgba(255, 135, 0, 0.3); /* Transparent Brand Orange */
 }
