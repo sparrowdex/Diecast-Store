@@ -62,6 +62,9 @@ export default function JournalPage() {
       
       <div className="bg-white border-b border-black/5 pt-32 pb-12 px-6 md:px-12 mb-16">
         <div className="container mx-auto">
+          <Link href="/" className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-gray-400 hover:text-black transition-colors mb-8">
+            <span className="text-xs">←</span> [ RETURN_TO_MAIN ]
+          </Link>
           <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic mb-4">
             The_Journal
           </h1>

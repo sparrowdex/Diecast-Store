@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from 'react';
+import Link from 'next/link';
 import CatalogCard from '@/components/CatalogCard';
 
 const FILTER_VISIBLE_LIMIT = 10; // How many filter tiles to show before hiding the rest
@@ -93,6 +94,9 @@ export default function Catalog({ cars }) {
       {/* 1. Header */}
       <div className="bg-white border-b border-black/5 pt-32 pb-12 px-4 sm:px-6 md:px-12 mb-10">
         <div className="container mx-auto text-center md:text-left">
+          <Link href="/" className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-gray-400 hover:text-black transition-colors mb-8">
+            <span className="text-xs">←</span> [ RETURN_TO_MAIN ]
+          </Link>
           <h1 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter uppercase italic mb-4">
             The_Catalog
           </h1>

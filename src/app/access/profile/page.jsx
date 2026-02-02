@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
-import { ShieldCheck, User, Zap, Camera, Terminal } from 'lucide-react';
+import { ShieldCheck, User, Zap, Camera, Terminal, Target, MapPin, BadgeCheck } from 'lucide-react';
 
 const TerminalLoader = ({ isDark }) => {
   const lines = [
@@ -130,7 +130,27 @@ export default function ProfileSettingsPage() {
         </section>
 
         {/* INPUT GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="space-y-3">
+            <label className="flex items-center gap-2 font-geist-mono text-[10px] font-black uppercase opacity-40 tracking-widest">
+                <BadgeCheck size={12} className={accentColor} /> ID_Prefix
+            </label>
+            <div className="relative">
+                <select 
+                value={profile.idPrefix || 'COLLECTOR'}
+                onChange={e => setProfile({...profile, idPrefix: e.target.value})}
+                className={`w-full bg-transparent border-b-2 p-3 font-black italic text-sm focus:outline-none appearance-none cursor-pointer uppercase ${isDark ? 'border-white/10 bg-zinc-900' : 'border-black/10 bg-white'}`}
+                >
+                <option value="COLLECTOR">COLLECTOR</option>
+                <option value="AGENT">AGENT</option>
+                <option value="PILOT">PILOT</option>
+                <option value="ARCHIVIST">ARCHIVIST</option>
+                <option value="OPERATIVE">OPERATIVE</option>
+                </select>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-30">▼</div>
+            </div>
+          </div>
+
           <div className="space-y-3">
             <label className="flex items-center gap-2 font-geist-mono text-[10px] font-black uppercase opacity-40 tracking-widest">
                 <User size={12} className={accentColor} /> Collector_Alias
@@ -163,19 +183,39 @@ export default function ProfileSettingsPage() {
           </div>
         </div>
 
-        {/* MISSION STATEMENT */}
-        <div className="space-y-3">
-          <label className="font-geist-mono text-[10px] font-black uppercase opacity-40 tracking-widest block">Manifesto_Biography</label>
-          <div className="relative group">
-            <textarea 
-                maxLength={160}
-                rows={3}
-                value={profile.bio || ''}
-                onChange={e => setProfile({...profile, bio: e.target.value})}
-                className={`w-full bg-transparent border-2 p-5 font-geist-mono text-xs focus:outline-none resize-none ${isDark ? 'border-white/5 focus:border-yellow-500/50 bg-white/[0.02]' : 'border-black/5 focus:border-orange-600/50 bg-black/[0.02]'}`}
-                placeholder="Declare your collection mission..."
+        {/* SPECIALIZATION & SECTOR */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-3">
+            <label className="flex items-center gap-2 font-geist-mono text-[10px] font-black uppercase opacity-40 tracking-widest">
+                <Target size={12} className={accentColor} /> Collector_Specialization
+            </label>
+            <div className="relative">
+                <select 
+                value={profile.specialization || 'GENERALIST'}
+                onChange={e => setProfile({...profile, specialization: e.target.value})}
+                className={`w-full bg-transparent border-b-2 p-3 font-black italic text-sm focus:outline-none appearance-none cursor-pointer uppercase ${isDark ? 'border-white/10 bg-zinc-900' : 'border-black/10 bg-white'}`}
+                >
+                <option value="GENERALIST">GENERAL_COLLECTOR</option>
+                <option value="OPEN_WHEEL">OPEN_WHEEL_SPECIALIST</option>
+                <option value="ENDURANCE">ENDURANCE_COLLECTOR</option>
+                <option value="GT_SPECIALIST">GT_SPECIALIST</option>
+                <option value="VINTAGE">VINTAGE_HUNTER</option>
+                <option value="PROTOTYPE">PROTOTYPE_ARCHIVIST</option>
+                </select>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-30">▼</div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <label className="flex items-center gap-2 font-geist-mono text-[10px] font-black uppercase opacity-40 tracking-widest">
+                <MapPin size={12} className={accentColor} /> Deployment_Sector
+            </label>
+            <input 
+              value={profile.sector || ''}
+              onChange={e => setProfile({...profile, sector: e.target.value})}
+              className={`w-full bg-transparent border-b-2 p-3 font-black italic text-xl focus:outline-none ${isDark ? 'border-white/10 focus:border-yellow-500' : 'border-black/10 focus:border-orange-600'}`}
+              placeholder="e.g. SECTOR_07"
             />
-            <div className={`absolute top-0 right-0 h-2 w-2 border-t-2 border-r-2 ${isDark ? 'border-white/10' : 'border-black/10'}`} />
           </div>
         </div>
 

@@ -11,7 +11,7 @@ const CollectorIDCard = ({ profile }) => {
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`relative overflow-hidden rounded-xl border-2 p-8 transition-all duration-500 isolate ${
+      className={`relative overflow-hidden rounded-xl border-2 p-8 transition-all duration-500 isolate h-full ${
         isDark ? 'bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 border-white/20 text-white shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]' : 'bg-white border-black text-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]'
       }`}
     >
@@ -65,9 +65,17 @@ const CollectorIDCard = ({ profile }) => {
             </p>
           </div>
           
-          <p className="font-mono text-sm opacity-70 leading-tight mb-4 max-w-md">
-            {profile.bio || "NO_BIO_AVAILABLE // ACCESS_PROFILE_TO_UPDATE"}
-          </p>
+          {/* System Metadata Block */}
+          <div className="grid grid-cols-2 gap-6 mb-6 max-w-xs border-y border-current/5 py-4">
+            <div className="space-y-1">
+              <span className="block text-[8px] font-bold opacity-30 uppercase tracking-[0.2em]">Member_Since</span>
+              <span className="block font-mono text-xs opacity-80 italic">{profile.memberSince}</span>
+            </div>
+            <div className="space-y-1">
+              <span className="block text-[8px] font-bold opacity-30 uppercase tracking-[0.2em]">Last_Activity</span>
+              <span className="block font-mono text-xs opacity-80 italic">{profile.lastSync}</span>
+            </div>
+          </div>
 
           <div className="flex gap-6 font-mono text-[10px] opacity-40">
             <div>

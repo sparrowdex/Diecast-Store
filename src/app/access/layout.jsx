@@ -43,6 +43,9 @@ export default async function AccessLayout({ children }) {
         
         {/* MOBILE COMPACT HEADER */}
         <div className="lg:hidden mb-4 border-b pb-4 border-current/10">
+          <Link href="/" className="font-geist-mono text-[9px] uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity flex items-center gap-2 mb-4">
+            <span className="text-xs">←</span> [ RETURN_TO_MAIN ]
+          </Link>
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-black italic tracking-tighter uppercase">THE_VAULT</h1>
             <UserButton afterSignOutUrl="/" />
@@ -65,6 +68,9 @@ export default async function AccessLayout({ children }) {
         {/* DESKTOP HEADER */}
         <div className={`hidden lg:flex justify-between items-end mb-12 border-b-4 pb-6 ${isDark ? 'border-white/10' : 'border-black'}`}>
           <div className="w-full">
+            <Link href="/" className="font-geist-mono text-[9px] uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity flex items-center gap-2 mb-4">
+              <span className="text-xs">←</span> [ RETURN_TO_MAIN ]
+            </Link>
             <h1 className="text-6xl font-black uppercase italic tracking-tighter leading-none">The_Vault</h1>
             <p className="font-geist-mono text-[9px] uppercase tracking-[0.3em] opacity-40 mt-2">// Authorized_Collector_Access</p>
           </div>

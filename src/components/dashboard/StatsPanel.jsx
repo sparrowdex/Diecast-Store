@@ -8,7 +8,7 @@ const StatsPanel = ({ stats, theme }) => {
   
   const items = [
     { label: 'Total Models', value: stats.totalModels, color: isDark ? 'text-white' : 'text-black' },
-    { label: 'Rare Editions', value: stats.rareEditions, color: 'text-yellow-500' },
+    { label: 'Rare Editions', value: stats.rareEditions, color: 'text-orange-500' },
   ];
 
   return (

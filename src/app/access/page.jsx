@@ -35,33 +35,44 @@ export default async function AccessDashboardPage() {
     rareEditions: allItems.filter(item => item.product?.isRare).length,
   };
 
-  const allProducts = await prisma.product.findMany({ select: { category: true } });
-  const categories = [...new Set(allItems.map(item => item.product?.category).filter(Boolean))].map(cat => {
-    const total = allProducts.filter(p => p.category === cat).length;
-    const owned = allItems.filter(item => item.product?.category === cat).length;
+  const allProducts = await prisma.product.findMany({ select: { id: true, genre: true } });
+  const categories = [...new Set(allItems.map(item => item.product?.genre).filter(Boolean))].map(genre => {
+    const totalInGenre = allProducts.filter(p => p.genre === genre).length;
+    const ownedUniqueInGenre = new Set(allItems.filter(item => item.product?.genre === genre).map(item => item.productId)).size;
     return {
-      name: cat,
-      percentage: total > 0 ? Math.round((owned / total) ? 100 : 0) : 0,
+      name: genre.replace(/_/g, ' '),
+      percentage: totalInGenre > 0 ? Math.min(Math.round((ownedUniqueInGenre / totalInGenre) * 100), 100) : 0,
     };
   });
 
   const isDark = userProfile.theme === 'dark';
 
+  const profileData = {
+    ...userProfile,
+    imageUrl: user?.imageUrl,
+    memberSince: new Date(userProfile.createdAt).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.'),
+    lastSync: orders[0] ? new Date(orders[0].createdAt).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.') : 'NEVER'
+  };
+
   return (
     <div className="space-y-12">
       <header className={`border-b-2 pb-4 ${isDark ? 'border-white/10' : 'border-black'}`}>
+        <div className="flex justify-end items-center mb-4">
+          <Link href="/access/collection" className="font-geist-mono text-[9px] hover:underline opacity-50 uppercase">[ Full_Archive ]</Link>
+        </div>
         <div className="flex justify-between items-end">
           <h2 className="text-2xl md:text-4xl font-black italic tracking-tighter uppercase leading-none">Collector_Dashboard</h2>
-          <Link href="/access/collection" className="font-geist-mono text-[9px] hover:underline mb-1 opacity-50 uppercase">[ Full_Archive ]</Link>
         </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-          <CollectorIDCard profile={{ ...userProfile, imageUrl: user?.imageUrl }} />
+        <div className="lg:col-span-2 h-full">
+          <CollectorIDCard profile={profileData} />
         </div>
-        <div className="lg:col-span-1 space-y-6">
+        <div className="lg:col-span-1 h-full">
           <StatsPanel stats={stats} theme={userProfile.theme} />
+        </div>
+        <div className="lg:col-span-3 pt-4">
           <ProgressPanel categories={categories} theme={userProfile.theme} />
         </div>
       </div>
