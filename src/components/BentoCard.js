@@ -25,10 +25,12 @@ const OutOfStockStamp = () => (
 // --- UPDATED BENTO CARD ---
 export default function BentoCard({ car, layout = 'side', setHoverState, setCursorBlocked, isPreview = false, forceHover = false }) {
   const [isHovered, setIsHovered] = useState(false);
-  const { addToCart } = useCart();
+  const { cart, addToCart } = useCart();
   const router = useRouter();
 
   const effectiveHover = forceHover || isHovered;
+  const cartItem = cart?.find(item => item.id === car.id);
+  const quantityInVault = Number(cartItem?.quantity || 0);
 
   const handleClick = () => {
     if (!isPreview) {
@@ -95,12 +97,12 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
            {!effectiveHover ? (
              <motion.img 
                layoutId={isPreview ? null : `car-image-${car.id}`}
-               key="img" src={images[0]} className="w-full h-full object-cover"
+               key="img" src={images[0]} className="w-full h-full object-contain"
                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
              />
            ) : (
              <motion.div key="vid" className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-300 font-mono text-xs">
-               {car.video ? <video src={car.video} autoPlay muted loop playsInline className="w-full h-full object-cover opacity-80" /> : <span>[VIDEO_PREVIEW]</span>}
+               {car.video ? <video src={car.video} autoPlay muted loop playsInline className="w-full h-full object-contain opacity-80" /> : <span>[VIDEO_PREVIEW]</span>}
              </motion.div>
            )}
         </AnimatePresence>
@@ -129,7 +131,10 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
         </div>
         
         <div className="flex items-center justify-between border-t border-gray-100 pt-6">
-           <div>
+           <div className="relative">
+             {quantityInVault > 0 && (
+               <span className="absolute -top-4 left-0 text-[8px] font-bold text-green-600 uppercase">In Vault: {quantityInVault}</span>
+             )}
              <p className="text-[8px] uppercase text-gray-400 tracking-widest mb-1">Acquisition</p>
              <p className="text-xl font-black italic text-black">₹{car.price}</p>
            </div>

@@ -32,17 +32,25 @@ export function CartProvider({ children }) {
   const addToCart = (product, quantity = 1) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.id === product.id);
+      const stockLimit = product.stock ?? 999;
+
       if (existing) {
+        const newQuantity = Math.min(existing.quantity + quantity, stockLimit);
         return prev.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
+          item.id === product.id ? { ...item, quantity: newQuantity } : item
         );
       }
       // Create a standardized cart item
       const cartItem = {
         id: product.id,
         name: product.name,
-        price: product.price,
-        quantity: quantity,
+        price: typeof product.price === 'string' 
+          ? parseInt(product.price.replace(/[^\d]/g, "")) 
+          : product.price,
+        brand: product.brand,
+        scale: product.scale,
+        stock: stockLimit,
+        quantity: Math.min(quantity, stockLimit),
         // Ensure a consistent image property for the cart
         image: (product.images && product.images.length > 0) ? product.images[0] : '/placeholder.png'
       };
@@ -57,11 +65,12 @@ export function CartProvider({ children }) {
   };
 
   // Update quantity for an existing item
-  const updateQuantity = (id, delta) => {
+  const updateQuantity = (id, newQuantity) => {
+    const qty = Number(newQuantity);
     setCart((prev) => 
       prev.map((item) => 
         item.id === id 
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) } 
+          ? { ...item, quantity: Math.max(1, Math.min(qty, item.stock ?? 999)) } 
           : item
       )
     );
@@ -74,8 +83,8 @@ export function CartProvider({ children }) {
 
   // Calculate total price
   const cartTotal = cart.reduce((total, item) => {
-    const priceNumber = parseInt(String(item.price).replace(/[^\d]/g, "")); // Remove '₹' and ','
-    return total + (isNaN(priceNumber) ? 0 : priceNumber * item.quantity);
+    const price = typeof item.price === 'number' ? item.price : parseInt(String(item.price).replace(/[^\d]/g, "")) || 0;
+    return total + (price * item.quantity);
   }, 0);
 
   return (

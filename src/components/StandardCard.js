@@ -31,7 +31,8 @@ const OutOfStockStamp = () => (
 
 export default function StandardCard({ car, isPreview = false }) {
     const router = useRouter();
-    const { addToCart } = useCart(); 
+    const { cart, addToCart } = useCart(); 
+    const cartItem = cart?.find(item => item.id === car.id);
     const [isHovered, setIsHovered] = useState(false);
     const [currentImage, setCurrentImage] = useState(0);
 
@@ -126,6 +127,11 @@ export default function StandardCard({ car, isPreview = false }) {
           <div className="absolute top-2 right-2 z-10 flex flex-col items-end gap-1">
             {car.collectionStatus === 'NEW_ARRIVAL' && car.featured && <Tag text="Featured" colorClass="bg-black text-white" />}
             {car.collectionStatus === 'NEW_ARRIVAL' && !car.featured && <Tag text="New" colorClass="bg-white text-black border border-gray-200" />}
+            {cartItem && (
+              <div className="bg-green-600 text-white text-[7px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                Vaulted x{Number(cartItem.quantity || 1)}
+              </div>
+            )}
           </div>
 
           {/* Bottom Left: Model Year */}

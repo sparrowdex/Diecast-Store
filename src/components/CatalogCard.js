@@ -4,11 +4,12 @@
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 
-export default function CatalogCard({ car }) {
-  const { addToCart } = useCart();
+export default function CatalogCard({ car, isPreview = false }) {
+  const { cart, addToCart } = useCart();
+  const cartItem = cart?.find(item => item.id === car.id);
 
-  return (
-    <Link href={`/product/${car.id}`} className="group block h-full">
+  const CardContent = (
+    <div className="group block h-full">
       <div className="h-full bg-white rounded-xl overflow-hidden border border-gray-100 hover:border-black/10 hover:shadow-xl transition-all duration-500 flex flex-col relative">
         
         {/* Image Container with Zoom Effect */}
@@ -29,21 +30,35 @@ export default function CatalogCard({ car }) {
                 {car.modelYear}
               </span>
             )}
+            {car.collectionStatus && car.collectionStatus !== 'ARCHIVE_CATALOG' && (
+              <span className={`inline-block backdrop-blur-sm rounded px-1.5 py-0.5 text-[8px] font-mono font-bold uppercase tracking-widest text-white ${
+                car.collectionStatus === 'NEW_ARRIVAL' ? 'bg-blue-600/90' : 'bg-amber-500/90'
+              }`}>
+                {car.collectionStatus.replace('_', ' ')}
+              </span>
+            )}
+            {cartItem && (
+              <span className="inline-block bg-green-600 text-white rounded px-1.5 py-0.5 text-[8px] font-mono font-bold uppercase tracking-widest">
+                In Vault: {Number(cartItem.quantity || 1)}
+              </span>
+            )}
           </div>
 
           {/* Quick Add Overlay Button */}
-          <button
-            onClick={(e) => {
-              e.preventDefault(); // Stop navigation
-              addToCart(car);
-            }}
-            className="absolute bottom-3 right-3 w-8 h-8 bg-black text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600 hover:scale-110 shadow-lg translate-y-2 group-hover:translate-y-0"
-            title="Quick Add to Vault"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-          </button>
+          {!isPreview && (
+            <button
+              onClick={(e) => {
+                e.preventDefault(); // Stop navigation
+                addToCart(car);
+              }}
+              className="absolute bottom-3 right-3 w-8 h-8 bg-black text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600 hover:scale-110 shadow-lg translate-y-2 group-hover:translate-y-0"
+              title="Quick Add to Vault"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+            </button>
+          )}
         </div>
 
         {/* Details Section */}
@@ -62,7 +77,7 @@ export default function CatalogCard({ car }) {
           
           <div className="mt-auto flex justify-between items-end">
             <p className="text-lg font-black italic tracking-tighter">
-              ₹{car.price}
+              ₹{car.price?.toLocaleString()}
             </p>
             <span className="text-[8px] font-bold uppercase text-green-600 bg-green-50 px-2 py-1 rounded-full border border-green-100">
               In Stock
@@ -70,6 +85,16 @@ export default function CatalogCard({ car }) {
           </div>
         </div>
       </div>
+    </div>
+  );
+
+  if (isPreview) {
+    return <div className="h-full cursor-default">{CardContent}</div>;
+  }
+
+  return (
+    <Link href={`/product/${car.id}`} className="group block h-full">
+      {CardContent}
     </Link>
   );
 }

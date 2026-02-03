@@ -21,7 +21,7 @@ export default function JournalMediaDisplay({ imageUrl, videoUrl, autoPlay: forc
 
   return (
     <div 
-      className="relative w-full h-full flex items-center justify-center overflow-hidden bg-black group"
+      className="relative w-full h-auto aspect-video md:aspect-auto md:h-full flex items-center justify-center overflow-hidden bg-black group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

@@ -4,7 +4,7 @@ import { useCart } from "@/context/CartContext";
 import Link from "next/link"; // NEW: Import Link for navigation
 
 export default function CartDrawer() {
-  const { cart, isCartOpen, setIsCartOpen, removeFromCart, cartTotal } = useCart();
+  const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, cartTotal } = useCart();
 
   return (
     <AnimatePresence>
@@ -41,7 +41,9 @@ export default function CartDrawer() {
                   <p className="text-xs font-mono uppercase tracking-widest">Vault is Empty</p>
                 </div>
               ) : (
-                cart.map((item) => (
+                cart.map((item) => {
+                  const currentQty = Number(item.quantity || 1);
+                  return (
                   <div key={item.id} className="flex gap-4 group">
                     <div className="w-16 h-16 bg-gray-100 rounded-sm p-2 flex-shrink-0 border border-black/5">
                       <img 
@@ -53,18 +55,50 @@ export default function CartDrawer() {
                     <div className="flex-1">
                       <div className="flex justify-between items-start">
                         <h3 className="text-xs font-bold uppercase tracking-tight">{item.name}</h3>
-                        <p className="text-xs font-mono">{item.price}</p>
+                        <p className="text-xs font-mono">
+                          ₹{(Number(String(item.price).replace(/[^\d]/g, "")) * currentQty).toLocaleString()}
+                        </p>
                       </div>
                       <p className="text-[10px] text-gray-400 font-mono mt-1 uppercase">{item.brand} • Scale {item.scale}</p>
-                      <button 
-                        onClick={() => removeFromCart(item.id)}
-                        className="text-[9px] text-red-500 underline mt-2 hover:no-underline uppercase tracking-wider"
-                      >
-                        Remove_Item
-                      </button>
+                      
+                      <div className="flex justify-between items-center mt-3">
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center border border-black/10 rounded-sm overflow-hidden">
+                            <button 
+                              type="button"
+                              onClick={() => updateQuantity(item.id, currentQty - 1)}
+                              disabled={currentQty <= 1}
+                              className="px-2 py-1 text-[10px] hover:bg-gray-100 transition-colors border-r border-black/10 disabled:opacity-30 disabled:cursor-not-allowed"
+                            >
+                              -
+                            </button>
+                            <span className="px-3 py-1 text-[10px] font-mono bg-gray-50 w-8 text-center">
+                              {currentQty}
+                            </span>
+                            <button 
+                              type="button"
+                              onClick={() => updateQuantity(item.id, currentQty + 1)}
+                              disabled={currentQty >= (item.stock || 999)}
+                              className="px-2 py-1 text-[10px] hover:bg-gray-100 transition-colors border-l border-black/10 disabled:opacity-30 disabled:cursor-not-allowed"
+                            >
+                              +
+                            </button>
+                          </div>
+                          {currentQty >= (item.stock || 999) && (
+                            <span className="text-[7px] font-bold text-orange-600 uppercase tracking-tighter">Max Stock</span>
+                          )}
+                        </div>
+                        <button 
+                          onClick={() => removeFromCart(item.id)}
+                          className="text-[9px] text-red-500 underline hover:no-underline uppercase tracking-wider"
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
                   </div>
-                ))
+                  );
+                })
               )}
             </div>
 

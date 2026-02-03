@@ -224,7 +224,7 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
   onCanPlay={() => console.log('Video can play for src:', activeMedia.url)}
   onStalled={() => console.log('Video stalled for src:', activeMedia.url)}
   onLoadStart={() => console.log('Video load start for src:', activeMedia.url)}
-/> ) : ( <motion.img key={activeMedia ? activeMedia.url : 'placeholder'} src={activeMedia ? activeMedia.url : '/cars/maybach.jpg'} className="w-[70%] h-[70%] p-8 object-contain drop-shadow-2xl" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} /> )}</AnimatePresence>
+/> ) : ( <motion.img key={activeMedia ? activeMedia.url : 'placeholder'} src={activeMedia ? activeMedia.url : '/cars/maybach.jpg'} className="w-full h-full p-8 object-contain drop-shadow-2xl" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} /> )}</AnimatePresence>
                     {/* Media Gallery Management */}
                     {media.length > 1 && (
                       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 bg-white/50 backdrop-blur-sm p-2 rounded-full z-10">
@@ -265,7 +265,14 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
                     </div>
                     <div className="mt-4 pt-4 border-t border-black/5 sticky bottom-0 bg-white/95 backdrop-blur">
                         <div className="flex justify-between items-end mb-2"><span className="text-[10px] uppercase text-gray-400 tracking-widest">Valuation</span><span className="text-2xl font-black italic tracking-tighter">₹{formData.price || "0"}</span></div>
-                        <button disabled className="w-full bg-gray-300 text-gray-500 py-3 font-black text-xs uppercase tracking-[0.3em] rounded-md">Acquire Exhibit</button>
+                        <div className="flex gap-2">
+                          <div className="flex items-center border border-black/10 rounded-md px-3 bg-gray-50">
+                            <span className="text-[10px] font-mono text-gray-400 mr-2">QTY</span>
+                            <span className="text-xs font-bold">1</span>
+                          </div>
+                          <button disabled className="flex-1 bg-gray-300 text-gray-500 py-3 font-black text-xs uppercase tracking-[0.3em] rounded-md">Acquire Exhibit</button>
+                        </div>
+                        <p className="text-[8px] text-center text-gray-400 mt-2 uppercase font-mono tracking-widest">Preview Mode: Acquisition Disabled</p>
                     </div>
                 </motion.section>
             </div>
@@ -307,10 +314,10 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
 
         {/* CATALOG CARD PREVIEW */}
         <div>
-            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Catalog Card Preview</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Master Catalog (Dictionary) Preview</h3>
             <div className="rounded-lg p-8 bg-white flex justify-center items-center">
                 <div className="w-full max-w-xs">
-                  <CatalogCard car={previewCar} />
+                  <CatalogCard car={previewCar} isPreview={true} />
                 </div>
             </div>
         </div>

@@ -5,9 +5,7 @@ export default async function CatalogPage() {
   let cars = [];
   try {
     cars = await prisma.product.findMany({
-      where: {
-        collectionStatus: "ARCHIVE_CATALOG",
-      },
+      // No 'where' clause for collectionStatus means it fetches all products (The Master Dictionary)
       orderBy: {
         createdAt: 'desc'
       }

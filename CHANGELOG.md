@@ -1,5 +1,35 @@
 # Changelog - Diecast Store Refactor
 
+## [2026-02-03] - Master Catalog Dictionary & Collector Achievements
+
+### Added
+- **Master Catalog Dictionary**: Transformed the `/catalog` route into a comprehensive "Dictionary" of all collections, including Featured Exhibits and New Arrivals.
+- **Status-Aware Catalog Cards**: Updated `CatalogCard` to dynamically render `NEW ARRIVAL` and `FEATURED EXHIBIT` badges within the general grid.
+- **Genre Verification System**: Implemented a logic gate in `badgeLogic.js` that unlocks visual "Verification Stamps" for Collector IDs upon 100% completion of a specific series.
+- **Series Completion UI**: Added `GenreBadgeGrid` to the profile configuration to track collection progress (e.g., 3/5) and display earned stamps.
+- **Admin Catalog Preview**: Integrated a "Master Catalog Preview" into the Admin HUD to verify grid appearance for all exhibit types.
+- **Vault Stock Awareness**: Added "Max Stock" indicators and disabled increment controls in the `CartDrawer` when available inventory is reached.
+
+### Changed
+- **Vault Logic Overhaul**: Refactored `CartContext.js` to use absolute quantity updates, fixing a critical bug where items would increment exponentially.
+- **Featured Media Scaling**: Switched `BentoCard` media from `object-cover` to `object-contain` to ensure diecast models are never cropped regardless of screen size.
+- **Journal Mobile Optimization**: Reduced image-to-text ratios on mobile and enhanced `prose` typography for better long-form readability.
+- **System Boot Loader**: Refactored the boot sequence to support a high-contrast "Laboratory White" theme for Light Mode compatibility.
+- **Identity Streamlining**: Removed manual `ID_Prefix` selection in favor of the earned Verification Stamp system.
+
+### Fixed
+- **Quantity "Jumping" Bug**: Resolved an issue where clicking the decrement button in the Vault would cause the quantity to increase due to relative delta addition.
+- **Theme Synchronization**: Fixed a bug where the `SystemBootLoader` on the profile page would default to Dark Mode even when the user's preference was set to Light.
+- **API Filter Resilience**: Updated the product API to correctly handle `ALL` status requests for the new Dictionary view.
+- **Price Formatting**: Standardized `.toLocaleString()` across all catalog views for professional currency rendering.
+
+### Challenges Faced
+- **State Delta Conflict**: Encountered a challenge where passing relative deltas (+1/-1) to the cart state caused string concatenation and incorrect math. Solved by moving to absolute value replacement and strict number casting.
+- **Bento Grid Cropping**: Balancing the high-impact "fill" look of the Bento grid with the need to see the entire diecast model. Resolved by implementing dynamic `object-contain` logic within the relative containers.
+- **Hydration Theme Sync**: Managing the "System Boot" visual state before the user's profile theme had fully loaded from the database. Solved by passing the profile theme prop directly to the shared loader component.
+
+---
+
 ## [2026-02-01] - Journal Cinematic Overhaul & Production Resilience
 
 ### Added

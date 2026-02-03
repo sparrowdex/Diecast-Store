@@ -14,11 +14,13 @@ export async function GET(request) {
   try {
     const products = await prisma.product.findMany({
       where: {
-        // Redundancy Fix: The 'featured' boolean is now only used to sub-filter New Arrivals.
-        // Homepage exhibits are determined by collectionStatus: "FEATURED_EXHIBIT".
-        featured: (collectionStatus === 'NEW_ARRIVAL' && featured === 'true') ? true : undefined,
+        // If collectionStatus is missing, null, or 'ALL', we set it to undefined 
+        // so Prisma doesn't filter by it at all.
+        collectionStatus: (collectionStatus && collectionStatus !== 'ALL' && collectionStatus !== 'null') 
+          ? collectionStatus 
+          : undefined,
+        featured: featured === 'true' ? true : undefined,
         genre: genre || undefined,
-        collectionStatus: collectionStatus || undefined,
         modelYear: isNaN(parsedYear) ? undefined : parsedYear,
         OR: query ? [
           { name: { contains: query, mode: 'insensitive' } },

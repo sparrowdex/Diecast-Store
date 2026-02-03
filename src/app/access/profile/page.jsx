@@ -5,58 +5,29 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
-import { ShieldCheck, User, Zap, Camera, Terminal, Target, MapPin, BadgeCheck } from 'lucide-react';
+import { ShieldCheck, User, Zap, Camera, Target, MapPin, BadgeCheck } from 'lucide-react';
+import SystemBootLoader from '@/components/SystemBootLoader';
+import GenreBadgeGrid from '@/components/GenreBadgeGrid';
 
-const TerminalLoader = ({ isDark }) => {
-  const lines = [
-    "CHECKING_HARDWARE_INTEGRITY",
-    "MOUNTING_ENCRYPTED_VAULT",
-    "SYNCING_COLLECTOR_ID",
-    "INITIALIZING_INTERFACE"
-  ];
-
-  return (
-    <div className={`min-h-screen flex flex-col items-center justify-center p-6 font-geist-mono ${isDark ? 'bg-[#050505] text-white' : 'bg-zinc-100 text-black'}`}>
-      <div className="w-full max-w-xs space-y-4">
-        <div className="flex items-center gap-2 mb-2 opacity-40">
-           <Terminal size={14} />
-           <span className="text-[10px] uppercase tracking-[0.3em]">System_Boot</span>
-        </div>
-        {lines.map((text, i) => (
-          <motion.div
-            key={text}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.4 }}
-            className="flex items-center gap-3"
-          >
-            <div className={`h-1 w-1 rounded-full animate-pulse ${isDark ? 'bg-yellow-500' : 'bg-orange-600'}`} />
-            <span className="text-[10px] tracking-widest uppercase opacity-60 italic">{text}...</span>
-          </motion.div>
-        ))}
-        <motion.div 
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 2, ease: "easeInOut" }}
-          className={`h-[2px] w-full origin-left mt-4 ${isDark ? 'bg-yellow-500' : 'bg-orange-600'}`} 
-        />
-      </div>
-    </div>
-  );
-};
 
 export default function ProfileSettingsPage() {
   const [profile, setProfile] = useState(null);
+  const [userCollection, setUserCollection] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const { user } = useUser();
   const router = useRouter();
 
   useEffect(() => {
-    fetch('/api/user/dashboard-data')
-      .then(res => res.json())
-      .then(data => {
-        setProfile(data.profile);
+    Promise.all([
+      fetch('/api/user/dashboard-data').then(res => res.json()),
+      fetch('/api/products').then(res => res.json())
+    ])
+      .then(([dashboardData, productsData]) => {
+        setProfile(dashboardData.profile);
+        setUserCollection(dashboardData.collection || []);
+        setAllProducts(productsData || []);
         setLoading(false);
       })
       .catch(err => console.error("Data fetch failed", err));
@@ -80,7 +51,7 @@ export default function ProfileSettingsPage() {
 
   const isDark = profile?.theme === 'dark';
 
-  if (loading) return <TerminalLoader isDark={true} />;
+  if (loading) return <SystemBootLoader isDark={isDark} />;
 
   const accentColor = isDark ? 'text-yellow-500' : 'text-orange-600';
 
@@ -129,28 +100,15 @@ export default function ProfileSettingsPage() {
           </div>
         </section>
 
-        {/* INPUT GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="space-y-3">
-            <label className="flex items-center gap-2 font-geist-mono text-[10px] font-black uppercase opacity-40 tracking-widest">
-                <BadgeCheck size={12} className={accentColor} /> ID_Prefix
-            </label>
-            <div className="relative">
-                <select 
-                value={profile.idPrefix || 'COLLECTOR'}
-                onChange={e => setProfile({...profile, idPrefix: e.target.value})}
-                className={`w-full bg-transparent border-b-2 p-3 font-black italic text-sm focus:outline-none appearance-none cursor-pointer uppercase ${isDark ? 'border-white/10 bg-zinc-900' : 'border-black/10 bg-white'}`}
-                >
-                <option value="COLLECTOR">COLLECTOR</option>
-                <option value="AGENT">AGENT</option>
-                <option value="PILOT">PILOT</option>
-                <option value="ARCHIVIST">ARCHIVIST</option>
-                <option value="OPERATIVE">OPERATIVE</option>
-                </select>
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-30">▼</div>
-            </div>
-          </div>
+        {/* GENRE BADGE GRID */}
+        <GenreBadgeGrid 
+          userCollection={userCollection} 
+          allProducts={allProducts} 
+          isDark={isDark} 
+        />
 
+        {/* INPUT GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-3">
             <label className="flex items-center gap-2 font-geist-mono text-[10px] font-black uppercase opacity-40 tracking-widest">
                 <User size={12} className={accentColor} /> Collector_Alias

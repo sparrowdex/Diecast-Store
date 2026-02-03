@@ -64,7 +64,7 @@ const RichTextEditor = ({ content, onUpdate }) => {
       StarterKit,
       Image.configure({
         HTMLAttributes: {
-          class: 'rounded-lg border border-white/10 max-w-full h-auto my-8 mx-auto block shadow-2xl',
+          class: 'rounded-lg border border-white/10 max-w-[92%] md:max-w-full h-auto my-6 md:my-12 mx-auto block shadow-2xl transition-all duration-500',
         },
       }),
     ],
@@ -82,7 +82,7 @@ const RichTextEditor = ({ content, onUpdate }) => {
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-invert max-w-none min-h-[400px] p-8 focus:outline-none bg-[#0a0a0a] text-white/90 font-geist selection:bg-[#FF8700]/40',
+        class: 'prose prose-base md:prose-lg prose-invert max-w-none min-h-[400px] p-6 md:p-16 focus:outline-none bg-[#0a0a0a] text-white/90 font-geist selection:bg-[#FF8700]/40 leading-relaxed md:leading-loose',
       },
     }
   });
