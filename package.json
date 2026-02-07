@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "prisma generate && next dev",
+    "dev": "npx dotenv-cli -e .env.local -- prisma generate && next dev",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
@@ -13,8 +13,9 @@
     "@clerk/nextjs": "^6.36.5",
     "@heroicons/react": "^2.2.0",
     "@neondatabase/serverless": "^1.0.2",
-    "@prisma/adapter-neon": "^7.3.0",
-    "@prisma/client": "^7.3.0",
+    "@prisma/adapter-neon": "6.19.2",
+    "@prisma/client": "6.19.2",
+    "@tailwindcss/typography": "^0.5.16",
     "@tiptap/extension-image": "^2.27.2",
     "@tiptap/react": "^2.4.0",
     "@tiptap/starter-kit": "^2.4.0",
@@ -23,9 +24,9 @@
     "framer-motion": "^12.23.26",
     "geist": "^1.5.1",
     "html2canvas": "^1.4.1",
-    "jspdf": "2.5.2",
+    "jspdf": "4.1.0",
     "lucide-react": "^0.563.0",
-    "next": "16.1.1",
+    "next": "16.1.6",
     "razorpay": "^2.9.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -39,19 +40,16 @@
     "babel-plugin-react-compiler": "1.0.0",
     "dotenv": "^16.4.5",
     "eslint": "^9",
-    "eslint-config-next": "16.1.1",
-    "prisma": "^7.3.0",
+    "eslint-config-next": "16.1.6",
+    "prisma": "6.19.2",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "typescript": "5.9.3"
-  },
-  "prisma": {
-    "seed": "ts-node --compiler-options '{\\\"module\\\":\\\"CommonJS\\\"}' prisma/seed.ts"
   },
   "overrides": {
     "effect": "3.18.4",
     "dompurify": "3.2.4",
     "lodash": "^4.17.21",
-    "jspdf": "2.5.2"
+    "jspdf": "4.1.0"
   }
 }

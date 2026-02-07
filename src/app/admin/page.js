@@ -1,9 +1,19 @@
 import prisma from "@/lib/prisma";
 import AdminDashboard from "./Dashboard";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+import { checkRole } from "@/lib/roles";
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
+  const { userId } = await auth();
+  const isAdmin = await checkRole("admin");
+
+  if (!userId || !isAdmin) {
+    redirect("/admin/welcome");
+  }
+
   let cars = [];
   let orders = [];
   let errorState = false;

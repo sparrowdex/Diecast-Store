@@ -2,17 +2,19 @@
  * Logic gate to determine unlocked Genre Badges.
  * A badge is unlocked when the user owns all exhibits within a specific genre.
  */
-export const getGenreCompletion = (userCollection, allProducts) => {
-  const genres = [
-    'CLASSIC_VINTAGE',
-    'RACE_COURSE',
-    'CITY_LIFE',
-    'SUPERPOWERS',
-    'LUXURY_REDEFINED',
-    'OFF_ROAD',
-    'FUTURE_PROOF'
-  ];
 
+export const GENRE_METADATA = {
+  CLASSIC_VINTAGE: { label: "Classic & Vintage", badge: "🏆", description: "Master of the Golden Era" },
+  RACE_COURSE: { label: "Race Course", badge: "🏁", description: "Track Day Specialist" },
+  CITY_LIFE: { label: "City Life", badge: "🏙️", description: "Urban Commuter" },
+  SUPERPOWERS: { label: "Superpowers", badge: "⚡", description: "Exotic Performance" },
+  LUXURY_REDEFINED: { label: "Luxury Redefined", badge: "💎", description: "The Executive Suite" },
+  OFF_ROAD: { label: "Off-Road", badge: "⛰️", description: "All-Terrain Explorer" },
+  FUTURE_PROOF: { label: "Future Proof", badge: "🚀", description: "Next-Gen Visionary" }
+};
+
+export const getGenreCompletion = (userCollection, allProducts) => {
+  const genres = Object.keys(GENRE_METADATA);
   const ownedIds = new Set(userCollection.map(item => item.productId));
 
   return genres.map(genre => {

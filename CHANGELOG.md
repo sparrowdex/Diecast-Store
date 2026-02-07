@@ -1,5 +1,38 @@
 # Changelog - Diecast Store Refactor
 
+## [2026-02-06] - Production Hardening & Configuration Standards
+
+### Added
+- **Prisma Configuration File**: Migrated Prisma settings from `package.json` to a dedicated `prisma.config.ts` to align with Prisma 6/7 standards.
+- **API Role Verification**: Implemented internal admin checks in `POST /api/journal` using Clerk `sessionClaims` to prevent unauthorized entries.
+- **Dashboard Data API**: Created `GET /api/user/dashboard-data` to provide real-time collection stats and genre-based completion progress.
+- **Products API**: Implemented `GET` (with filtering) and `POST` (with admin protection) for the master catalog.
+- **Collector Activity Tracking**: Added `lastActivity` telemetry to the dashboard data for real-time engagement monitoring.
+
+### Changed
+- **Middleware Expansion**: Updated `middleware.js` to include `/api/journal(.*)` as a public route, enabling guest access to the journal feed.
+- **Journal API Refactor**: Cleaned up `route.js` syntax, removing unreachable code and nested function declarations.
+- **Genre Metadata Centralization**: Moved genre labels and icons to `GENRE_METADATA` in `badgeLogic.js` for a single source of truth.
+- **Schema Cleanup**: Removed the legacy `category` field from the `Product` model in `schema.prisma` to enforce `Genre` enum usage.
+
+### Fixed
+- **Middleware Syntax Error**: Resolved `Identifier 'isPublicRoute' has already been declared` by consolidating route matchers.
+- **API 404 Errors**: Fixed "Failed to fetch stories" by ensuring the API endpoint was not being intercepted/blocked by Clerk.
+- **Prisma Deprecation Warnings**: Silenced warnings regarding `package.json#prisma` by adopting the new configuration pattern.
+- **Gamification Sync**: Resolved mismatch between profile badges and dashboard progress by aligning both with the `Genre` enum.
+- **Collector ID Date Logic**: Fixed chronological inconsistencies where "Member Since" appeared after "Last Activity" by calculating dates based on the earliest and latest known interactions (orders vs. profile creation).
+
+### Challenges Faced
+- **Middleware vs. API Logic**: Balancing the need for a public `GET` request with a protected `POST` request on the same endpoint. Solved by making the route public in middleware and adding manual role checks in the API handler.
+- **Prototype to Production Transition**: Encountered "Additive Complexity" where security and standardization requirements began to outpace simple feature development.
+
+### What We Learnt
+- **Security is Layered**: Middleware is the first line of defense, but internal API checks (RBAC) are the "armor" that protects the database.
+- **Standardization Matters**: Moving configuration to dedicated files (`prisma.config.ts`) improves maintainability and IDE support.
+- **Production Resilience**: Transitioning to production requires moving beyond the "Happy Path" to handle edge cases, error logging, and strict data validation.
+
+---
+
 ## [2026-02-03] - Master Catalog Dictionary & Collector Achievements
 
 ### Added

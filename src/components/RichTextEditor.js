@@ -61,7 +61,7 @@ const RichTextEditor = ({ content, onUpdate }) => {
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure(),
       Image.configure({
         HTMLAttributes: {
           class: 'rounded-lg border border-white/10 max-w-[92%] md:max-w-full h-auto my-6 md:my-12 mx-auto block shadow-2xl transition-all duration-500',
@@ -91,6 +91,11 @@ const RichTextEditor = ({ content, onUpdate }) => {
   const addImage = () => {
     const url = window.prompt('Enter Image URL:');
     if (url) {
+      // Basic validation to prevent XSS via malicious protocols
+      if (url.toLowerCase().startsWith('javascript:')) {
+        alert('Invalid URL protocol detected.');
+        return;
+      }
       editor.chain().focus().setImage({ src: url }).run();
     }
   };

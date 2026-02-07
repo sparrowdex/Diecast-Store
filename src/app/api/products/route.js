@@ -1,87 +1,58 @@
 import prisma from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request) {
-  const { searchParams } = new URL(request.url);
-  const featured = searchParams.get('featured');
-  const genre = searchParams.get('genre');
-  const collectionStatus = searchParams.get('collectionStatus');
-  const modelYear = searchParams.get('modelYear');
-  const query = searchParams.get('q');
-
-  const parsedYear = modelYear ? parseInt(modelYear, 10) : undefined;
-
   try {
+    const { searchParams } = new URL(request.url);
+    const genre = searchParams.get("genre");
+    const status = searchParams.get("status");
+    const query = searchParams.get("q");
+
+    const where = {};
+    if (genre && genre !== "ALL") where.genre = genre;
+    if (status && status !== "ALL") where.collectionStatus = status;
+    if (query) {
+      where.OR = [
+        { name: { contains: query, mode: 'insensitive' } },
+        { brand: { contains: query, mode: 'insensitive' } },
+      ];
+    }
+
     const products = await prisma.product.findMany({
-      where: {
-        // If collectionStatus is missing, null, or 'ALL', we set it to undefined 
-        // so Prisma doesn't filter by it at all.
-        collectionStatus: (collectionStatus && collectionStatus !== 'ALL' && collectionStatus !== 'null') 
-          ? collectionStatus 
-          : undefined,
-        featured: featured === 'true' ? true : undefined,
-        genre: genre || undefined,
-        modelYear: isNaN(parsedYear) ? undefined : parsedYear,
-        OR: query ? [
-          { name: { contains: query, mode: 'insensitive' } },
-          { brand: { contains: query, mode: 'insensitive' } },
-          { description: { contains: query, mode: 'insensitive' } },
-        ] : undefined,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      where,
+      orderBy: { createdAt: 'desc' },
     });
-    return NextResponse.json(products, { status: 200 });
+
+    return NextResponse.json(products);
   } catch (error) {
-    console.error("Error fetching products:", error);
-    return new NextResponse("Error fetching products", { status: 500 });
+    console.error("PRODUCTS_FETCH_ERROR:", error);
+    return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
   }
 }
 
 export async function POST(request) {
-  const data = await request.json();
-
-  if (data.modelYear) {
-    data.modelYear = parseInt(data.modelYear, 10);
-    if (isNaN(data.modelYear)) {
-      return new NextResponse("Invalid modelYear: must be a number", { status: 400 });
-    }
-  }
-
-  // Enum Validation for collectionStatus
-  const VALID_STATUSES = ['ARCHIVE_CATALOG', 'NEW_ARRIVAL', 'FEATURED_EXHIBIT'];
-  if (data.collectionStatus && !VALID_STATUSES.includes(data.collectionStatus)) {
-    return new NextResponse(`Invalid collectionStatus. Expected one of: ${VALID_STATUSES.join(', ')}`, { status: 400 });
-  }
-
-  // Data Integrity: 'featured' boolean is only relevant for NEW_ARRIVAL
-  if (data.collectionStatus !== 'NEW_ARRIVAL') {
-    data.featured = false;
-  }
-
-  // Enum Validation for genre (Identity System)
-  const VALID_GENRES = [
-    'CLASSIC_VINTAGE',
-    'RACE_COURSE',
-    'CITY_LIFE',
-    'SUPERPOWERS',
-    'LUXURY_REDEFINED',
-    'OFF_ROAD',
-    'FUTURE_PROOF'
-  ];
-  if (data.genre && !VALID_GENRES.includes(data.genre)) {
-    return new NextResponse(`Invalid genre. Expected one of: ${VALID_GENRES.join(', ')}`, { status: 400 });
-  }
-
   try {
-    const newProduct = await prisma.product.create({
-      data: data,
+    const { sessionClaims } = await auth();
+    if (sessionClaims?.metadata?.role !== 'admin') {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const data = await request.json();
+    
+    // Data Normalization
+    if (data.modelYear) data.modelYear = parseInt(data.modelYear);
+    if (data.stock) data.stock = parseInt(data.stock);
+
+    const product = await prisma.product.create({
+      data,
     });
 
-    return NextResponse.json(newProduct, { status: 201 });
+    return NextResponse.json(product, { status: 201 });
   } catch (error) {
-    console.error("Error creating product:", error);
-    return new NextResponse("Error creating product", { status: 500 });
+    console.error("PRODUCT_CREATE_ERROR:", error);
+    return NextResponse.json({ error: "Failed to create product" }, { status: 500 });
   }
 }
