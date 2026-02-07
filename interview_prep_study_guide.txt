@@ -1,0 +1,79 @@
+That is a great question. In technical terms, a Framework (like Next.js) isn't a "module"—it’s the foundation or the "skeleton" that everything else hangs on.
+
+Think of it like building a house:
+
+The Framework (Next.js): Is the foundation, the plumbing, and the electrical wiring. It decides how things move from room to room.
+
+The Modules: Are the rooms (Kitchen, Bedroom, Garage). They have specific purposes (Payments, Database, UI).
+
+ISR/SSR: These are the features or "rules" of the framework.
+
+To help you make those comprehensive, interview-ready notes, let's group everything into 4 Main Pillars. If you understand these four, you can answer 90% of system design questions.
+
+Pillar 1: The Framework (The Foundation)
+Primary Topic: Next.js (App Router).
+
+Key Concepts to Note:
+
+Rendering Patterns: SSR (Server-Side), SSG (Static), and ISR (Incremental Static Regeneration). Know when to use which.
+
+Hydration: How a static page becomes an interactive React app.
+
+Routing: How the file structure in /app creates the URL paths.
+
+Server vs. Client Components: Why we keep the "Collector's ID" calculations on the server but the "Buy" button on the client.
+
+Pillar 2: The Data Layer (The Memory)
+Primary Tech: PostgreSQL (via Neon) & Prisma ORM.
+
+Key Concepts to Note:
+
+SQL vs. NoSQL: Why a store needs relational data (PostgreSQL) instead of loose documents.
+
+Database Normalization: How tables like Users, Products, and Orders are linked by IDs.
+
+Migrations: How Prisma keeps your database schema in sync with your code.
+
+Neon Features: Branching and Autoscaling.
+
+Pillar 3: External Integrations (The Services)
+Primary Tech: Razorpay (Payments), Shiprocket (Logistics), Clerk (Auth).
+
+Key Concepts to Note:
+
+Webhooks: The most important interview topic! How external services talk back to your server.
+
+API Authentication: How you use "Secret Keys" and "API Keys" to talk to Razorpay/Shiprocket securely.
+
+Idempotency: A fancy word for ensuring that if a user clicks "Pay" twice, they don't get charged twice.
+
+Pillar 4: DevOps & Performance (The Polish)
+Primary Tech: Docker, Vercel, Zod (Validation).
+
+Key Concepts to Note:
+
+Containerization (Docker): Packaging your app so it runs the same on any computer.
+
+Data Validation (Zod): Ensuring the data a user types into the search bar isn't malicious code.
+
+Caching: Using revalidate tags in Next.js to make the store lightning-fast.
+
+
+#Why use ISR :
+
+SSR vs. ISR for E-commerce
+For an e-commerce site like diecast-store, ISR is almost always superior to SSR for product and category pages. Here is why:
+
+Performance (TTFB): SSR fetches data on every request, which means the user waits for the database query every time. ISR serves a pre-rendered static HTML page from the edge (CDN), resulting in near-instant load times.
+The "Sleeping Database" Problem: Your DATABASE_SCALING.md highlights that your Neon database "sleeps" to save costs.
+In SSR, the first user to visit after a period of inactivity triggers the "wake-up" delay (several seconds).
+In ISR, the "wake-up" delay only happens in the background during regeneration. The user always sees the previous static version of the page immediately, while Next.js updates the cache in the background.
+SEO: Both are great for SEO, but the faster response time of ISR can slightly improve your search rankings.
+Is your codebase ready?
+To switch to ISR, you need to ensure your data fetching logic follows these patterns:
+
+Product/Category Pages: These are perfect for ISR. You define a revalidate period (e.g., 60 seconds or 1 hour).
+Dynamic Content (Price/Stock): If your prices or stock levels change by the second, you have two choices:
+Use a very low ISR revalidation timer (e.g., revalidate = 10).
+Use ISR for the page structure and fetch the "live" price/stock on the client side using a hook like useSWR or react-query.
+Personalized Pages: Keep SSR or Client-side rendering for the Cart, Checkout, and User Profile pages. ISR cannot be used for pages that show user-specific data.
