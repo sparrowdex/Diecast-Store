@@ -1,137 +1,32 @@
-// 'use client';
 
-// import { Check, Package, Truck, Ship, MapPin } from 'lucide-react';
-
-// const getStatusDetails = (status) => {
-//   const allStatuses = [
-//     { name: 'PENDING', icon: Package, date: 'JAN 28, 2026', description: 'Order confirmed, awaiting warehouse processing.' },
-//     { name: 'SHIPPED', icon: Ship, date: 'JAN 29, 2026', description: 'Your package has left our facility.' },
-//     { name: 'IN_TRANSIT', icon: Truck, date: 'JAN 30, 2026', description: 'Moving through the carrier network.' },
-//     { name: 'DELIVERED', icon: MapPin, date: 'FEB 01, 2026', description: 'Your exhibit has arrived.' }
-//   ];
-
-//   const currentIndex = allStatuses.findIndex(s => s.name === status);
-//   return allStatuses.map((s, index) => ({
-//     ...s,
-//     isCompleted: index <= currentIndex,
-//     isCurrent: index === currentIndex,
-//     progressPercent: index < currentIndex ? 100 : (index === currentIndex ? 50 : 0)
-//   }));
-// };
-
-// const DeliveryTracker = ({ status, trackingNumber, isDark }) => {
-//   const timeline = getStatusDetails(status);
-//   const currentStatusIndex = timeline.findIndex(item => item.isCurrent);
-//   // Calculate total progress for the top bar
-//   const totalProgress = ((currentStatusIndex) / (timeline.length - 1)) * 100;
-
-//   return (
-//     <div className={`p-8 border-t-4 ${isDark ? 'border-yellow-500 bg-[#0c0c0c]' : 'border-black bg-white'} shadow-2xl`}>
-//       {/* Header Section */}
-//       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
-//         <div>
-//           <p className="font-mono text-[10px] uppercase tracking-[0.3em] opacity-50 mb-1">Logistics Serial</p>
-//           <h3 className="font-black text-3xl italic tracking-tighter uppercase leading-none">
-//             {trackingNumber || 'UNASSIGNED_ID'}
-//           </h3>
-//         </div>
-//         <div className={`px-4 py-2 border font-mono text-xs font-bold uppercase tracking-widest ${isDark ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-black text-white border-black'}`}>
-//           Status: {status.replace(/_/g, ' ')}
-//         </div>
-//       </div>
-      
-//       {/* Visual Timeline Bar */}
-//       <div className="relative w-full max-w-4xl mx-auto mb-20 px-4">
-//         {/* Background Track */}
-//         <div className={`absolute left-0 top-1/2 -translate-y-1/2 h-[2px] w-full ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
-        
-//         {/* Active Progress Track */}
-//         <div 
-//           className="absolute left-0 top-1/2 -translate-y-1/2 h-[2px] bg-yellow-500 transition-all duration-1000 ease-in-out" 
-//           style={{ width: `${totalProgress}%` }}
-//         />
-        
-//         <div className="relative flex justify-between items-center w-full">
-//           {timeline.map((item) => {
-//             const Icon = item.icon;
-//             return (
-//               <div key={item.name} className="flex flex-col items-center group">
-//                 <div 
-//                   className={`relative z-10 flex items-center justify-center h-10 w-10 border-2 transition-all duration-500 ${
-//                     item.isCompleted 
-//                       ? 'bg-yellow-500 border-yellow-500 text-black scale-110 shadow-[0_0_15px_rgba(234,179,8,0.3)]' 
-//                       : (isDark ? 'bg-zinc-900 border-white/20 text-white/30' : 'bg-white border-black/20 text-black/30')
-//                   }`}
-//                 >
-//                   {item.isCompleted && !item.isCurrent ? <Check size={18} strokeWidth={3} /> : <Icon size={18} />}
-                  
-//                   {/* Pulse for Current Status */}
-//                   {item.isCurrent && (
-//                     <span className="absolute inset-0 h-full w-full animate-ping rounded-none bg-yellow-500/30 -z-10" />
-//                   )}
-//                 </div>
-//                 <span className={`absolute -bottom-8 font-mono text-[9px] font-bold uppercase tracking-tighter transition-opacity ${item.isCompleted ? 'opacity-100' : 'opacity-0'}`}>
-//                   {item.name.split('_')[0]}
-//                 </span>
-//               </div>
-//             );
-//           })}
-//         </div>
-//       </div>
-
-//       {/* Detailed Log Section */}
-//       <div className="grid grid-cols-1 gap-1 border-t border-dashed border-white/10 pt-8">
-//         {timeline.map((item) => (
-//           <div 
-//             key={item.name} 
-//             className={`group relative overflow-hidden p-6 transition-all duration-300 border ${
-//               item.isCurrent 
-//                 ? (isDark ? 'bg-white/5 border-white/20' : 'bg-black/5 border-black/20')
-//                 : 'border-transparent'
-//             } ${item.isCompleted ? 'opacity-100' : 'opacity-20'}`}
-//           >
-//             {/* Sidebar indicator */}
-//             <div className={`absolute left-0 top-0 h-full w-1 transition-all ${item.isCurrent ? 'bg-yellow-500' : 'bg-transparent'}`} />
-
-//             <div className="flex flex-col md:flex-row md:items-center gap-4 relative z-10">
-//               <div className="min-w-[120px]">
-//                 <p className="font-mono text-[10px] tracking-widest opacity-50">{item.date}</p>
-//               </div>
-              
-//               <div className="flex-grow">
-//                 <h4 className={`text-lg font-black uppercase tracking-tight italic ${item.isCurrent ? 'text-yellow-500' : ''}`}>
-//                   {item.name.replace(/_/g, ' ')}
-//                 </h4>
-//                 <p className="text-sm font-medium opacity-60 max-w-xl">{item.description}</p>
-//               </div>
-
-//               {item.isCurrent && (
-//                 <div className="font-mono text-[10px] animate-pulse text-yellow-500">
-//                   [ ACTIVE_NODE ]
-//                 </div>
-//               )}
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default DeliveryTracker;
 'use client';
 
-import { Check, Package, Truck, Ship, MapPin, Search, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
+import { Check, Package, Truck, Ship, MapPin, Search, ChevronRight, Copy } from 'lucide-react';
 
 const getStatusDetails = (status) => {
+  // Mapping Shiprocket/System statuses to UI phases (0-3)
+  const statusMap = {
+    'PENDING': 0,
+    'PAID': 0,
+    'NEW': 0,
+    'PROCESSING': 0,
+    'READY_TO_SHIP': 1,
+    'PICKUP_SCHEDULED': 1,
+    'SHIPPED': 1,
+    'IN_TRANSIT': 2,
+    'OUT_FOR_DELIVERY': 2,
+    'DELIVERED': 3
+  };
+
   const allStatuses = [
-    { name: 'PENDING', icon: Package, date: 'JAN 28, 2026', description: 'Order confirmed, awaiting warehouse processing.' },
-    { name: 'SHIPPED', icon: Ship, date: 'JAN 29, 2026', description: 'Your package has left our facility.' },
-    { name: 'IN_TRANSIT', icon: Truck, date: 'JAN 30, 2026', description: 'Moving through the carrier network.' },
-    { name: 'DELIVERED', icon: MapPin, date: 'FEB 01, 2026', description: 'Your exhibit has arrived.' }
+    { id: 'PENDING', name: 'CONFIRMED', icon: Package, date: 'JAN 28, 2026', description: 'Order confirmed, awaiting warehouse processing.' },
+    { id: 'SHIPPED', name: 'SHIPPED', icon: Ship, date: 'JAN 29, 2026', description: 'Your package has left our facility.' },
+    { id: 'IN_TRANSIT', name: 'IN TRANSIT', icon: Truck, date: 'JAN 30, 2026', description: 'Moving through the carrier network.' },
+    { id: 'DELIVERED', name: 'DELIVERED', icon: MapPin, date: 'FEB 01, 2026', description: 'Your exhibit has arrived.' }
   ];
 
-  const currentIndex = allStatuses.findIndex(s => s.name === status);
+  const currentIndex = statusMap[status] ?? 0;
   return allStatuses.map((s, index) => ({
     ...s,
     isCompleted: index <= currentIndex,
@@ -140,6 +35,15 @@ const getStatusDetails = (status) => {
 };
 
 const DeliveryTracker = ({ status, trackingNumber, isDark }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    if (!trackingNumber || trackingNumber === 'UNASSIGNED_ID') return;
+    navigator.clipboard.writeText(trackingNumber);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const timeline = getStatusDetails(status);
   const currentStatusIndex = timeline.findIndex(item => item.isCurrent);
   const totalProgress = ((currentStatusIndex) / (timeline.length - 1)) * 100;
@@ -163,8 +67,17 @@ const DeliveryTracker = ({ status, trackingNumber, isDark }) => {
             <Search size={14} className={`transition-colors ${isDark ? 'text-yellow-500' : 'text-orange-600'}`} />
             <p className="font-mono text-[10px] uppercase tracking-[0.4em] opacity-50">Logistics Node ID</p>
           </div>
-          <h3 className="font-black text-4xl italic tracking-tighter uppercase leading-none">
+          <h3 className="font-black text-4xl italic tracking-tighter uppercase leading-none flex items-center gap-4">
             {trackingNumber || 'UNASSIGNED_ID'}
+            {trackingNumber && trackingNumber !== 'UNASSIGNED_ID' && (
+              <button 
+                onClick={handleCopy}
+                className={`p-2 rounded-full transition-all ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/5'}`}
+                title="Copy Tracking ID"
+              >
+                {copied ? <Check size={18} className="text-green-500" /> : <Copy size={18} className="opacity-30 hover:opacity-100" />}
+              </button>
+            )}
           </h3>
         </div>
         

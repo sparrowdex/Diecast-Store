@@ -1,15 +1,18 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import Link from "next/link";
+import FulfillmentCard from '@/components/FulfillmentCard';
 
 export default function OrderDetailPage({ params }) {
+  const resolvedParams = use(params);
+  const id = resolvedParams.id;
   const [order, setOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        const response = await fetch(`/api/orders/${params.id}`);
+        const response = await fetch(`/api/orders/${id}`);
         if (response.ok) {
           const data = await response.json();
           setOrder(data);
@@ -21,7 +24,7 @@ export default function OrderDetailPage({ params }) {
       }
     };
     fetchOrder();
-  }, [params.id]);
+  }, [id]);
 
   if (isLoading) {
     return (
@@ -48,7 +51,7 @@ export default function OrderDetailPage({ params }) {
       <Link href="/admin/orders" className="text-[10px] font-mono text-gray-400 hover:text-black">
         ← BACK_TO_ORDERS
       </Link>
-      <h1 className="text-2xl font-black italic uppercase mt-4">Order #{order.id.slice(0, 8)}</h1>
+      <h1 className="text-2xl font-black italic uppercase mt-4">Order #{id.slice(0, 8)}</h1>
 
       <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* LEFT: ORDER ITEMS */}
@@ -83,11 +86,12 @@ export default function OrderDetailPage({ params }) {
               <p>{order.country}</p>
            </div>
 
-            <h3 className="text-xs font-bold uppercase tracking-widest mb-4 mt-8">Order Status</h3>
-             <div className="bg-white p-4 border border-black/5">
-                <p className="text-xs font-mono">Current Status: <strong>{order.status}</strong></p>
-                {/* Status update functionality to be added later */}
-             </div>
+            <div className="mt-8">
+              <FulfillmentCard 
+                order={order} 
+                onUpdate={(trackingNumber) => setOrder(prev => ({ ...prev, trackingNumber, status: 'SHIPPED' }))}
+              />
+            </div>
         </div>
       </div>
     </div>

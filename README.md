@@ -1,36 +1,105 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🏎️ Pit Wall Telemetry — Diecast Exhibit Store
 
-## Getting Started
+A high-performance e-commerce platform for diecast collectors, inspired by F1 telemetry and automotive precision. This application manages the entire lifecycle of high-value exhibits, from acquisition in the "Vault" to real-time logistics tracking.
 
-First, run the development server:
+## 🛠️ Tech Stack
 
+- **Framework**: Next.js 16 (App Router)
+- **Database**: Prisma with Neon (PostgreSQL)
+- **Authentication**: Clerk (RBAC for Admin/Collector roles)
+- **Payments**: Razorpay (Mock/Production hybrid)
+- **Styling**: Tailwind CSS v4 & Framer Motion
+- **Logistics**: Shiprocket (Mocked Service Layer)
+- **Documents**: jsPDF for Technical Manifestos
+
+## 🚀 Key Features
+
+### 🏁 Collector Experience
+- **Digital Collector ID**: Personalized F1-inspired identity cards with verification stamps and collection stats.
+- **The Vault**: A stock-aware cart system with `localStorage` persistence and real-time inventory locking.
+- **Cinematic Journal**: A hybrid media feed featuring grayscale-to-video transitions for exhibit storytelling.
+- **Delivery Telemetry**: A visual "Race Track" progress bar (GRID_POSITION → PIT_LANE → ON_TRACK → CHECKERED_FLAG) for real-time order tracking.
+- **Technical Manifesto**: Automated PDF generation for acquisition documents upon successful purchase.
+
+### 🛠️ Admin "Pit Wall" Telemetry
+- **Fleet Management**: Master catalog control with Genre-based filtering (Classic, Race Course, etc.).
+- **Logistics Action Center**: Integrated fulfillment card for package metrics, AWB generation, and label printing.
+- **SLA Monitoring**: Priority-based order sorting (Critical, Urgent, New) to ensure fulfillment speed.
+- **Critical Fuel Alerts**: Real-time stock monitoring to prevent "Decommissioned Exhibits" (Out of Stock).
+
+## 📦 Getting Started
+
+### 1. Clone & Install
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd diecast-store
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Environment Configuration
+Create a `.env` file in the root directory:
+```env
+# Database
+DATABASE_URL="your-postgresql-url"
+DATABASE_URL_UNPOOLED="your-direct-postgresql-url"
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+# Clerk Auth
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Razorpay
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
 
-## Learn More
+# App Mode
+NEXT_PUBLIC_PAYMENT_MODE="mock" # or "production"
 
-To learn more about Next.js, take a look at the following resources:
+# Shiprocket
+SHIPROCKET_EMAIL=
+SHIPROCKET_PASSWORD=
+NEXT_PUBLIC_SHIPMENT_MODE="mock" # or "production"
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3. Database Setup
+```bash
+npx prisma generate
+npx prisma db push
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 4. Run Development
+```bash
+npm run dev
+```
 
-## Deploy on Vercel
+## 🗺️ Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `/src/app`: Next.js App Router (Routes & Server Actions)
+- `/src/components`: Reusable UI components (DeliveryTracker, FulfillmentCard, etc.)
+- `/src/lib`: Core logic (Shiprocket Mock, Prisma Client, Payment Utils)
+- `/prisma`: Database schema and configuration
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📜 Documentation
+
+For detailed internal workflows, refer to:
+- ORDER_FLOW_GUIDE.md: End-to-end acquisition and logistics logic.
+- CHANGELOG.md: Detailed history of production hardening and feature releases.
+- TODO.md: Current roadmap and database resilience tasks.
+
+## ⚖️ License
+
+This project is bootstrapped with `create-next-app`. All custom F1-inspired UI components and telemetry logic are proprietary to the Diecast Store project.
+
+---
+*Last Updated: February 2026*
+```
+
+### Why this is better:
+1.  **Branding**: It uses the "Pit Wall Telemetry" and "Vault" terminology found in your `CHANGELOG.md` and `ORDER_FLOW_GUIDE.md`.
+2.  **Tech Transparency**: It explicitly mentions **Next.js 15**, **Tailwind v4**, and **Clerk**, which are critical for anyone (including your client) looking at the repo.
+3.  **Feature Highlights**: It explains the "Race Track" progress bar and "Cinematic Journal," which are high-value custom features you've built.
+4.  **Operational Clarity**: It points to the `ORDER_FLOW_GUIDE.md` so that developers understand the distinction between Reference IDs and Tracking IDs.
+5.  **Environment Setup**: It includes the `NEXT_PUBLIC_PAYMENT_MODE` toggle, which is vital for your current mock workflow.
+
+<!--
+[PROMPT_SUGGESTION]Create a 'CONTRIBUTING.md' file to explain the coding standards for the F1-inspired UI components.[/PROMPT_SUGGESTION]
+[PROMPT_SUGGESTION]Generate a visual directory tree structure for the README to help navigate the project.[/PROMPT_SUGGESTION]
