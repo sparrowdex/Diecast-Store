@@ -4,12 +4,28 @@ import { Clock, AlertCircle, ChevronRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminOrdersPage() {
+export default async function AdminOrdersPage({ searchParams }) {
+  // In Next.js 16, searchParams is a Promise
+  const resolvedSearchParams = await searchParams;
+  const filter = resolvedSearchParams.filter || 'ALL_EXHIBITS';
+
   let orders = [];
   let dbError = false;
 
   try {
+    // Define DB-level filtering for accuracy across the entire fleet
+    const where = {};
+    if (filter === 'PAID') where.paymentStatus = 'PAID';
+    if (filter === 'SHIPPED') where.status = 'SHIPPED';
+    if (filter === 'DELIVERED') where.status = 'DELIVERED';
+    if (filter === 'CRITICAL_ONLY') {
+      where.status = { not: 'DELIVERED' };
+      where.createdAt = { lt: new Date(Date.now() - 172800000) }; // Older than 48h
+    }
+
+    // Fetch filtered orders directly from DB
     orders = await prisma.order.findMany({
+      where,
       select: {
         id: true,
         firstName: true,
@@ -36,12 +52,17 @@ export default async function AdminOrdersPage() {
     dbError = true;
   }
 
-  // Calculate HUD Stats
+  // Calculate HUD Stats using aggregate/count for global accuracy
+  const totalCount = await prisma.order.count();
+  const newCount = await prisma.order.count({ where: { createdAt: { gt: new Date(Date.now() - 3600000) } } });
+  const criticalCount = await prisma.order.count({ where: { status: { not: 'DELIVERED' }, createdAt: { lt: new Date(Date.now() - 172800000) } } });
+  const valuation = await prisma.order.aggregate({ _sum: { total: true } });
+
   const stats = {
-    total: orders.length,
-    new: orders.filter(o => (new Date() - new Date(o.createdAt)) < 3600000).length,
-    critical: orders.filter(o => (new Date() - new Date(o.createdAt)) > 172800000 && o.status !== 'DELIVERED').length,
-    valuation: orders.reduce((acc, o) => acc + o.total, 0)
+    total: totalCount,
+    new: newCount,
+    critical: criticalCount,
+    valuation: valuation._sum.total || 0
   };
 
   // SLA Priority Logic
@@ -92,13 +113,16 @@ export default async function AdminOrdersPage() {
 
       {/* Filter Bar */}
       <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-        {['ALL_EXHIBITS', 'PAID', 'SHIPPED', 'DELIVERED', 'CRITICAL_ONLY'].map((filter) => (
-          <button 
-            key={filter}
-            className="px-4 py-2 bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all whitespace-nowrap"
+        {['ALL_EXHIBITS', 'PAID', 'SHIPPED', 'DELIVERED', 'CRITICAL_ONLY'].map((f) => (
+          <Link 
+            key={f}
+            href={`/admin/orders?filter=${f}`}
+            className={`px-4 py-2 border border-white/10 text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+              filter === f ? 'bg-white text-black' : 'bg-white/5 text-white hover:bg-white/10'
+            }`}
           >
-            {filter}
-          </button>
+            {f}
+          </Link>
         ))}
       </div>
 

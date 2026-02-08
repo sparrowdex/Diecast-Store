@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Truck, Package, Printer, CheckCircle2, Loader2, AlertCircle, Clock } from 'lucide-react';
 import { shiprocketMock } from '@/lib/shiprocket-mock';
-import { updateOrderFulfillment } from '@/lib/actions/orders';
 
 const FulfillmentCard = ({ order, onUpdate }) => {
   const [loading, setLoading] = useState(false);
@@ -26,42 +25,16 @@ const FulfillmentCard = ({ order, onUpdate }) => {
 
   const handleCreateShipment = async () => {
     setLoading(true);
-    try {
-      // 1. Simulate Shiprocket API
-      const shipment = await shiprocketMock.createShipment(order);
-      const awb = await shiprocketMock.generateAWB(shipment.shipment_id);
-      
-      // 2. Persist to Database via Server Action
-      await updateOrderFulfillment(order.id, awb.awb_code, shipment.shipment_id);
-
-      setStep(3);
-      if (onUpdate) onUpdate(awb.awb_code, shipment.shipment_id);
-    } catch (err) {
-      console.error("Fulfillment Error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePrintLabel = async () => {
-    const response = await shiprocketMock.generateLabel(order.shipmentId || 12345);
-    if (response.success) {
-      window.open(response.label_url, '_blank');
-    }
-  };
-
-  const handleManifestPickup = async () => {
-    setLoading(true);
-    try {
-      const response = await shiprocketMock.manifestPickup(order.shipmentId || 12345);
-      if (response.success) {
-        alert(`PICKUP_MANIFESTED\nAgent: ${response.courier_agent}\nWindow: ${response.pickup_window}`);
-      }
-    } catch (err) {
-      console.error("Manifest Error:", err);
-    } finally {
-      setLoading(false);
-    }
+    // Simulate API call to Shiprocket
+    const shipment = await shiprocketMock.createShipment(order);
+    const awb = await shiprocketMock.generateAWB(shipment.shipment_id);
+    
+    // In a real app, you would save awb.awb_code to your database here
+    console.log("Generated AWB:", awb.awb_code);
+    
+    setStep(3);
+    setLoading(false);
+    if (onUpdate) onUpdate(awb.awb_code);
   };
 
   return (

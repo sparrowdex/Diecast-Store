@@ -36,6 +36,16 @@ export const shiprocketMock = {
     };
   },
 
+  // 5. Manifest Pickup (Courier Handshake)
+  manifestPickup: async (shipmentId: string | number) => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return {
+      success: true,
+      courier_agent: "Vikram Singh (+91 98765 43210)",
+      pickup_window: "14:00 - 18:00 Today"
+    };
+  },
+
   // 4. Mock Tracking Status
   getTrackingStatus: (status: string) => {
     // Maps Shiprocket numeric/string codes to our UI phases

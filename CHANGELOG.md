@@ -1,5 +1,40 @@
 # Changelog - Diecast Store Refactor
 
+## [2026-02-08] - Logistics Intelligence & Next.js 16 Hardening
+
+### Added
+- **Shiprocket Mock Service**: Created a dedicated service layer in `src/lib/shiprocket-mock.ts` to simulate AWB generation and shipment tracking.
+- **SLA Priority System**: Implemented logic to flag orders as `NEW`, `URGENT`, or `CRITICAL` based on fulfillment duration (24/48h thresholds).
+- **Telemetry HUD**: Added a real-time KPI dashboard to the Admin Order Log showing fleet size, critical alerts, and circuit valuation.
+- **Git Command Manual**: Created `study-notes/git-commands.md` to document modern branch management and stashing workflows.
+- **Shipment ID Persistence**: Updated `schema.prisma` to store internal logistics IDs, ensuring the database is ready for production API keys.
+
+### Changed
+- **Admin Order Log Redesign**: Overhauled the list view with a "Pit Wall" aesthetic, including faded grid lines, SLA pings, and action-oriented navigation.
+- **Delivery Tracker Evolution**: Updated the UI to map technical Shiprocket statuses (e.g., `READY_TO_SHIP`) to the F1-themed timeline and added "Copy Node ID" functionality.
+- **Fulfillment Workflow**: Transformed the Admin fulfillment UI into a multi-step "Action Center" (Metrics -> Label Generation -> Manifest).
+- **README Overhaul**: Rebranded the project documentation to focus on "Pit Wall Telemetry" and technical precision.
+- **Checkout Robustness**: Documented the "Lock-and-Verify" pattern to prevent overselling and ensure payment idempotency.
+
+### Fixed
+- **Next.js 16 Params Promise**: Resolved `P1012` and `sync-dynamic-apis` errors by unwrapping `params` as a Promise in both Client Components (`use()`) and API routes (`await`).
+- **Prisma 6 Config Conflict**: Fixed environment variable loading issues caused by `prisma.config.ts` by utilizing `dotenv-cli` to bridge `.env.local` with the Prisma CLI.
+- **Server Action Validation**: Corrected non-async exported functions in `'use server'` files to satisfy the Next.js compiler.
+- **Prisma Import Syntax**: Resolved named export errors by switching to default imports for the Prisma client utility.
+- **Database Sync**: Successfully migrated the schema to include `shipmentId` using a professional migration history approach.
+
+### Challenges Faced
+- **Next.js 15/16 Transition**: Adapting to the new asynchronous nature of `params` and `searchParams` required a systematic refactor of dynamic routes.
+- **Prisma 6 Strictness**: Prisma 6's new validation for `directUrl` and its behavior of skipping `.env` files when a config file is present created initial migration friction.
+- **Logistics Mapping**: Translating technical courier statuses into a simplified, high-impact visual timeline for collectors.
+
+### What We Learnt
+- **ID Distinction is Key**: Separating the "Digital Receipt" (Order ID) from the "Physical Passport" (AWB) is crucial for professional e-commerce operations.
+- **Async Everything**: In Next.js 15+, even simple helper functions in Server Action files must be `async` to avoid compilation errors.
+- **Telemetry as UX**: Providing the Admin with "Urgency" indicators (SLA Status) transforms a static table into a functional logistics tool.
+
+---
+
 ## [2026-02-06] - Production Hardening & Configuration Standards
 
 ### Added
