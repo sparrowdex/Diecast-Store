@@ -1,5 +1,35 @@
 # Changelog - Diecast Store Refactor
 
+## [2026-02-13] - Shiprocket Integration Refactor & Architectural Alignment
+
+### Added
+- **`src/lib/actions/shiprocket.ts`**: Created a new server action file to handle all Shiprocket-related logic, mirroring the structure of `razorpay.ts`. This includes creating shipments, generating labels, and manifesting pickups.
+- **`src/app/api/webhook/shiprocket/route.ts`**: Implemented a new webhook endpoint to receive real-time shipment status updates from Shiprocket.
+- **Standardized Response Objects**: The new Shiprocket actions now return a standardized response object (`{ success: boolean, data?: any, error?: string }`) for consistency with the Razorpay implementation.
+- **`zod` for Validation**: Added `zod` to the project and used it to validate the dimensions and weight of the package before creating a shipment.
+
+### Changed
+- **`FulfillmentCard.js` Refactor**: The `FulfillmentCard` component has been completely refactored to use the new server actions in `shiprocket.ts`. The logic for creating shipments has been moved to the server, and the component now handles loading and error states based on the server's response.
+- **Architectural Alignment**: The Shiprocket integration now follows the same "Server Action -> Verification -> Webhook" pattern as the Razorpay integration, making the codebase more consistent and maintainable.
+
+### Fixed
+- **Removed Direct API Calls from Component**: The `FulfillmentCard` component no longer makes direct calls to the Shiprocket mock API. All communication with the Shiprocket service is now handled through server actions.
+- **Centralized Logic**: The Shiprocket logic is now centralized in `src/lib/actions/shiprocket.ts`, making it easier to manage and switch to the real Shiprocket API in the future.
+
+### Removed
+- **`src/lib/shiprocket-mock.ts`**: The old mock file has been deleted as its logic has been moved to the new `shiprocket.ts` file.
+
+### Challenges Faced
+- **Refactoring UI Logic to Server Actions**: The main challenge was to carefully extract the shipment creation logic from the `FulfillmentCard` component and move it to a server action, ensuring that the UI remains responsive and provides clear feedback to the user.
+- **Ensuring Consistency**: A key focus was to ensure that the new Shiprocket integration is architecturally consistent with the existing Razorpay integration. This required careful planning and a deep understanding of the existing codebase.
+
+### What We Learnt
+- **The Power of Parallel Architectures**: By mirroring the Razorpay implementation, we were able to refactor the Shiprocket integration quickly and efficiently. This approach also makes the codebase easier to understand and maintain.
+- **Server Actions for Cleaner Components**: Moving complex logic from components to server actions makes the components cleaner, more focused on the UI, and easier to test.
+- **The Importance of a "Consistency Checklist"**: The checklist we created for the Shiprocket integration was instrumental in ensuring that the new implementation is consistent with the rest of the codebase.
+
+---
+
 ## [2026-02-08] - Logistics Intelligence & Next.js 16 Hardening
 
 ### Added
