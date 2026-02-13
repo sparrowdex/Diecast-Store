@@ -14,6 +14,7 @@ interface CartItem {
   quantity: number;
   image?: string;
   images?: string[];
+  sku?: string;
 }
 
 interface RazorpayResponse {
@@ -44,9 +45,9 @@ const formSchema = z.object({
   shippingMethod: z.string(),
 });
 
-export async function createOrder(items: CartItem[], rawFormData: FormData) {
+export async function createOrder(items: CartItem[], rawFormData: FormData, passedUserId?: string | null) {
   const authData = await auth();
-  const userId = authData?.userId || null;
+  const userId = passedUserId || authData?.userId || null;
 
   const formData = Object.fromEntries(rawFormData.entries());
 
@@ -99,6 +100,7 @@ export async function createOrder(items: CartItem[], rawFormData: FormData) {
             price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
             quantity: item.quantity,
             image: item.image || (Array.isArray(item.images) ? item.images[0] : "/placeholder-car.png"),
+            sku: item.sku || null,
             product: { 
               connect: { id: item.id }
             },
@@ -143,11 +145,8 @@ export async function verifyPayment(response: RazorpayResponse) {
 
       // 2. Deduct stock for each item purchased
       for (const item of order.items) {
-        // We assume the item name or a hidden ID field connects back to the Product
-        // If you have the product ID in OrderItem, use that. 
-        // For now, we'll match by name as a fallback.
-        await tx.product.updateMany({
-          where: { name: item.name },
+        await tx.product.update({
+          where: { id: item.productId },
           data: { stock: { decrement: item.quantity } }
         });
       }

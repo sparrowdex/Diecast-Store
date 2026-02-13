@@ -3,6 +3,9 @@ import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 // 1. NEW IMPORT: Import Clerk
 import { ClerkProvider } from '@clerk/nextjs';
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+import { ourFileRouter } from "@/app/api/uploadthing/core";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,6 +30,13 @@ export default function RootLayout({ children }) {
         <body
           className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
         >
+          <NextSSRPlugin
+            /**
+             * The `extractRouterConfig` will extract the route config
+             * from your `ourFileRouter` and paste it into the html.
+             */
+            routerConfig={extractRouterConfig(ourFileRouter)}
+          />
           <CartProvider>
             {children}
           </CartProvider>

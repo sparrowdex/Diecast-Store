@@ -66,7 +66,9 @@ const OrderHistoryItem = ({ order, isDark }) => {
               <h4 className="font-black text-sm md:text-base uppercase italic tracking-tight opacity-90 line-clamp-1">
                 {item.name}
               </h4>
-              <p className="font-mono text-[10px] opacity-40 uppercase">Serial: {item.sku || 'N/A'}</p>
+              <p className="font-mono text-[9px] opacity-40 uppercase tracking-tighter">
+                PART_REF: {item.sku || `UNIT-${item.productId.slice(-8).toUpperCase()}`}
+              </p>
             </div>
 
             {/* Unit Price */}

@@ -14,6 +14,7 @@ model Product {
   brand       String
   scale       String
   price       String
+  sku         String?
 
   // THE KEY CHANGE: We store a list of URLs, not just one
   images      String[] 
@@ -87,6 +88,7 @@ model OrderItem {
   price     Float
   quantity  Int
   image     String
+  sku       String?
   order     Order  @relation(fields: [orderId], references: [id])
   orderId   String
 

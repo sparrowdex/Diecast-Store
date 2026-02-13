@@ -1,5 +1,38 @@
 # Changelog - Diecast Store Refactor
 
+## [2026-02-13] - Inventory Integrity & Order Consolidation
+
+### Added
+- **Schema Evolution**: Integrated `sku` (Stock Keeping Unit) and `stock` fields into the `Product` and `OrderItem` models to support real-time inventory tracking.
+- **Atomic Transactions**: Implemented `prisma.$transaction` in the checkout flow to ensure that order creation and stock decrement happen as a single, unbreakable operation.
+- **Telemetry Fallbacks**: Added logic to generate `PART_REF` identifiers from `productId` slices in the UI when a manual SKU is not assigned.
+
+### Changed
+- **Order Consolidation**: Refactored the checkout logic from multiple individual orders to a single `Order` with nested `OrderItem` creates. This ensures all items purchased together appear in one "Order Manifest" box.
+- **Mobile UI Hardening**:
+    - Updated `OrderHistoryItem` to use `flex-col-reverse` on mobile, preventing metadata overflow.
+    - Implemented `line-clamp-1` on product names to maintain card uniformity on small screens.
+    - Switched to `toLocaleString` for more compact, mobile-friendly date rendering.
+- **Prisma 6 Configuration**: Updated `prisma.config.ts` to manually load `.env.local` using `dotenv` to satisfy Prisma 6's new configuration requirements.
+
+### Fixed
+- **Merge Conflict Deadlock**: Resolved the `MERGE_HEAD` error by manually reconciling `README.md` conflicts and completing the merge commit.
+- **Prisma 6 Environment Bug (P1012)**: Fixed the "Environment variable not found" error caused by Prisma 6 skipping `.env` files when a `prisma.config.ts` is present.
+- **Client Generation Lock (EPERM)**: Resolved file permission errors during `prisma generate` by identifying and closing processes (Next.js dev server) holding the query engine binary.
+- **Inventory Overselling**: Added a logic gate to throw an error and rollback transactions if a purchase would result in negative stock.
+
+### Challenges Faced
+- **Windows File Locking**: Encountered `EPERM` errors where the OS prevented Prisma from updating its client while the Next.js runtime was active.
+- **Prisma 6 Config Strictness**: Navigating the shift in how Prisma 6 handles environment variables compared to previous versions.
+- **UI Grouping Logic**: Solving the "separate boxes" issue required a fundamental shift in how data is written to the database during the checkout handshake.
+
+### What We Learnt
+- **The "One-to-Many" Rule**: Learnt that UI grouping issues are almost always a reflection of database normalization; one checkout must equal one Order record.
+- **Prisma 6 Manual Loading**: Discovered that using `defineConfig` in Prisma 6 requires manual `dotenv` integration for local development environments.
+- **Atomic Operations**: Understood that `decrement` operations must be wrapped in transactions to prevent race conditions in high-traffic "Vault" acquisitions.
+
+---
+
 ## [2026-02-13] - Shiprocket Integration Refactor & Architectural Alignment
 
 ### Added
