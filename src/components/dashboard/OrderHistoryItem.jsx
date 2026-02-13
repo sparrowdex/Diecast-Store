@@ -63,7 +63,7 @@ const OrderHistoryItem = ({ order, isDark }) => {
                   <span className={`font-black text-[9px] italic ${statusColor}`}>{item.scale} SCALE</span>
                 )}
               </div>
-              <h4 className="font-black text-sm md:text-base uppercase italic tracking-tight opacity-90">
+              <h4 className="font-black text-sm md:text-base uppercase italic tracking-tight opacity-90 line-clamp-1">
                 {item.name}
               </h4>
               <p className="font-mono text-[10px] opacity-40 uppercase">Serial: {item.sku || 'N/A'}</p>
@@ -80,33 +80,35 @@ const OrderHistoryItem = ({ order, isDark }) => {
 
       {/* 3. ACTION FOOTER */}
       <div className={`
-        flex flex-row-reverse gap-2 p-4 pt-0
+        flex flex-col-reverse md:flex-row-reverse gap-4 p-6 pt-0
       `}>
-        <Link 
-          href={`/access/orders/${order.id}`}
-          className={`
-            px-8 py-3 text-[10px] font-black uppercase italic tracking-widest
-            transition-all duration-200
-            ${isDark ? 'bg-white text-black hover:bg-zinc-300' : 'bg-black text-white hover:bg-zinc-800'}
-          `}
-        >
-          Inspect Details
-        </Link>
-        <Link 
-          href={`/access/orders/track/${order.id}`}
-          className={`
-            px-8 py-3 text-[10px] font-black uppercase italic tracking-widest border-2
-            transition-all duration-200
-            ${isDark 
-              ? 'border-white/10 text-white hover:border-yellow-500 hover:text-yellow-500' 
-              : 'border-black/10 text-black hover:border-orange-600 hover:text-orange-600'
-            }
-          `}
-        >
-          Track Shipment
-        </Link>
-        <div className="grow flex items-center px-4 font-mono text-[9px] opacity-30 italic">
-          Logged: {new Date(order.createdAt).toUTCString()}
+        <div className="flex flex-col sm:flex-row-reverse gap-2 w-full md:w-auto">
+          <Link 
+            href={`/access/orders/${order.id}`}
+            className={`
+              px-8 py-3 text-[10px] text-center font-black uppercase italic tracking-widest
+              transition-all duration-200
+              ${isDark ? 'bg-white text-black hover:bg-zinc-300' : 'bg-black text-white hover:bg-zinc-800'}
+            `}
+          >
+            Inspect Details
+          </Link>
+          <Link 
+            href={`/access/orders/track/${order.id}`}
+            className={`
+              px-8 py-3 text-[10px] text-center font-black uppercase italic tracking-widest border-2
+              transition-all duration-200
+              ${isDark 
+                ? 'border-white/10 text-white hover:border-yellow-500 hover:text-yellow-500' 
+                : 'border-black/10 text-black hover:border-orange-600 hover:text-orange-600'
+              }
+            `}
+          >
+            Track Shipment
+          </Link>
+        </div>
+        <div className="grow flex items-center font-mono text-[8px] md:text-[9px] opacity-30 italic uppercase tracking-wider border-t md:border-t-0 border-white/5 pt-4 md:pt-0">
+          Telemetry_Log: {new Date(order.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
         </div>
       </div>
     </div>

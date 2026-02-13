@@ -31,8 +31,8 @@ export default async function OrdersHistoryPage() {
   return (
     <div className={`p-6 md:p-12 transition-colors duration-500 ${isDark ? 'bg-[#0a0a0a] text-white' : 'bg-[#f4f4f4] text-black'}`}>
       <header className={`mb-12 border-b pb-4 transition-colors duration-500 ${isDark ? 'border-white/10' : 'border-black'}`}>
-        <div className="flex justify-between items-end">
-          <h2 className="text-4xl font-black italic tracking-tighter uppercase">Order_History</h2>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2">
+          <h2 className="text-3xl md:text-4xl font-black italic tracking-tighter uppercase">Order_History</h2>
           <Link href="/access" className="font-mono text-[10px] hover:underline mb-1 opacity-50">
             [ RETURN_TO_DASHBOARD ]
           </Link>
