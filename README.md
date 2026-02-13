@@ -91,15 +91,3 @@ This project is bootstrapped with `create-next-app`. All custom F1-inspired UI c
 
 ---
 *Last Updated: February 2026*
-```
-
-### Why this is better:
-1.  **Branding**: It uses the "Pit Wall Telemetry" and "Vault" terminology found in your `CHANGELOG.md` and `ORDER_FLOW_GUIDE.md`.
-2.  **Tech Transparency**: It explicitly mentions **Next.js 15**, **Tailwind v4**, and **Clerk**, which are critical for anyone (including your client) looking at the repo.
-3.  **Feature Highlights**: It explains the "Race Track" progress bar and "Cinematic Journal," which are high-value custom features you've built.
-4.  **Operational Clarity**: It points to the `ORDER_FLOW_GUIDE.md` so that developers understand the distinction between Reference IDs and Tracking IDs.
-5.  **Environment Setup**: It includes the `NEXT_PUBLIC_PAYMENT_MODE` toggle, which is vital for your current mock workflow.
-
-<!--
-[PROMPT_SUGGESTION]Create a 'CONTRIBUTING.md' file to explain the coding standards for the F1-inspired UI components.[/PROMPT_SUGGESTION]
-[PROMPT_SUGGESTION]Generate a visual directory tree structure for the README to help navigate the project.[/PROMPT_SUGGESTION]
