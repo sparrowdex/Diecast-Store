@@ -74,7 +74,7 @@ const Footer = () => {
                         </a>
 
                         {/* Phone Row */}
-                        <div className="group relative flex flex-col gap-1 text-gray-400 hover:text-white transition-all">
+                        <a href="tel:123-456-7890" className="group relative flex flex-col gap-1 text-gray-400 hover:text-white transition-all">
                             <span className="text-[10px] text-gray-500 uppercase tracking-tighter">Direct_Line</span>
                             <div className="flex items-center gap-2">
                                 <span className="tech-bracket">[</span>
@@ -84,7 +84,7 @@ const Footer = () => {
                                 </span>
                                 <span className="tech-bracket">]</span>
                             </div>
-                        </div>
+                        </a>
 
                     </div>
                 </div>

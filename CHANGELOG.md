@@ -1,5 +1,19 @@
 # Changelog - Diecast Store Refactor
 
+## [2026-02-15] - Public Access & UI Accessibility
+
+### Changed
+- **Middleware Whitelisting**: Updated `proxy.ts` to include legal and policy routes (`/terms-of-service`, `/privacy-policy`, `/refund-policy`) as public routes, ensuring they are accessible to guests without authentication.
+- **Footer Accessibility**: Refactored the `Direct_Line` contact in `Footer.js` from a static `div` to a functional `tel:` anchor tag to enable click-to-call functionality on mobile devices.
+
+### Fixed
+- **Auth Gate Logic**: Resolved an issue where guest users were being redirected to the Clerk login page when attempting to access the Terms of Service or Privacy Policy from the footer.
+
+### What We Learnt
+- **Public Route Scope**: Whitelisting routes in middleware is essential for legal compliance pages to ensure they remain accessible even when the rest of the application is protected.
+
+---
+
 ## [2026-02-13] - Inventory Integrity & Order Consolidation
 
 ### Added
