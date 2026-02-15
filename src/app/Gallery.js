@@ -57,6 +57,7 @@ const Select = ({ value, onChange, options, placeholder }) => (
 
 // --- MAIN PAGE COMPONENT ---
 export default function Gallery({ featuredExhibits, newArrivals, featuredLayout = 'hero' }) {
+    const [focusedExhibit, setFocusedExhibit] = useState(null);
     const [isCursorBlocked, setCursorBlocked] = useState(false);
     const [hoverState, setHoverState] = useState(false);
     const { isSignedIn, isLoaded } = useUser();
@@ -134,18 +135,96 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
               </nav>
             </header>
       
-            <section className="mb-32">
-              <div className="flex items-center gap-6 mb-10">
-                <h2 className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.3em]">Featured_Exhibits</h2>
+            {/* SIGNATURE GALLERY SECTION */}
+            <section className="mb-20 relative">
+              {/* Blueprint Grid Overlay */}
+              <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+                   style={{ backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`, size: '40px 40px' }} />
+              
+              <div className="relative z-10 flex items-center gap-6 mb-10">
+                <h2 className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.3em]">Signature_Gallery</h2>
                 <div className="h-px flex-1 bg-linear-to-r from-black/10 to-transparent" />
               </div>
+
               <BentoGrid
                   cars={featuredExhibits}
-                  layout={featuredLayout}
+                  layout="signature" // New fixed layout
                   setHoverState={setHoverState}
                   setCursorBlocked={setCursorBlocked}
+                  onExhibitClick={(car) => setFocusedExhibit(car)}
               />
             </section>
+
+            {/* TECHNICAL STRIP (Marquee) */}
+            <div className="w-full overflow-hidden bg-black text-white py-3 mb-32 rotate-[-2deg] scale-105 shadow-2xl relative z-10 flex">
+                <motion.div 
+                    initial={{ x: 0 }}
+                    animate={{ x: "-50%" }}
+                    transition={{ duration: 300, repeat: Infinity, ease: "linear" }}
+                    className="flex whitespace-nowrap font-mono text-[10px] tracking-widest uppercase"
+                >
+                    {[...Array(20)].map((_, i) => (
+                        <span key={i} className="mx-8">
+                            System_Status: <span className="text-green-500">Optimal</span> // 
+                            Telemetry_Active // 
+                            Vault_Secured // 
+                            Precision_Engineered_Models
+                        </span>
+                    ))}
+                </motion.div>
+            </div>
+
+            {/* FOCUS MODE OVERLAY */}
+            <AnimatePresence>
+                {focusedExhibit && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-12">
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setFocusedExhibit(null)}
+                            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                        />
+                        <motion.div 
+                            layoutId={`card-${focusedExhibit.id}`}
+                            className="relative w-full max-w-5xl aspect-video bg-[#111] border border-white/10 rounded-lg overflow-hidden shadow-2xl flex flex-col md:flex-row"
+                        >
+                            <div className="w-full md:w-2/3 h-full bg-black">
+                                {focusedExhibit.video ? (
+                                    <video src={focusedExhibit.video} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                                ) : (
+                                    <img src={focusedExhibit.images?.[0]} className="w-full h-full object-contain" />
+                                )}
+                            </div>
+                            <div className="w-full md:w-1/3 p-8 text-white font-mono flex flex-col justify-between relative overflow-hidden bg-linear-to-br from-[#111] via-[#111] to-black/50">
+                                {/* Petroleum Gloss Bubble Animation */}
+                                <motion.div
+                                    initial={{ x: "-100%", y: "-100%", opacity: 0 }}
+                                    animate={{
+                                        x: ["-20%", "40%", "10%", "30%"],
+                                        y: ["-10%", "20%", "50%", "10%"],
+                                        opacity: [0, 0.8, 0.5, 0],
+                                        scale: [1, 2.5, 1.8, 3.5],
+                                        borderRadius: ["30% 70% 70% 30% / 30% 30% 70% 70%", "50% 50% 20% 80% / 25% 80% 20% 75%", "80% 20% 50% 50% / 30% 50% 50% 70%", "30% 70% 70% 30% / 30% 30% 70% 70%"]
+                                    }}
+                                    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
+                                    className="absolute inset-0 w-full h-full bg-radial from-teal-300/40 via-transparent to-transparent pointer-events-none blur-2xl"
+                                />
+
+                                <div className="relative z-10">
+                                    <h2 className="text-3xl font-black italic tracking-tighter mb-4 uppercase">{focusedExhibit.name}</h2>
+                                    <div className="space-y-2 text-[10px] text-gray-400 uppercase">
+                                        <p>Manufacturer: <span className="text-white">{focusedExhibit.brand}</span></p>
+                                        <p>Material: <span className="text-white">{focusedExhibit.material}</span></p>
+                                        <p>Scale: <span className="text-white">{focusedExhibit.scale}</span></p>
+                                    </div>
+                                </div>
+                                <button onClick={() => setFocusedExhibit(null)} className="relative z-10 mt-8 border border-white/20 py-2 hover:bg-white hover:text-black transition-all uppercase text-xs font-bold">Close_View</button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
       
             <section className="mb-20">
                <div className="flex flex-wrap justify-between items-end gap-6 mb-12">

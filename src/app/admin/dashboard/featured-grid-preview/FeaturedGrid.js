@@ -21,7 +21,7 @@ export default function FeaturedGrid() {
     <>
       <BentoGrid
         cars={featuredExhibits}
-        layout="hero" // Assuming 'hero' is the layout for featured items
+        layout="signature" // Pivot to fixed signature layout
         setHoverState={setHoverState}
         setCursorBlocked={setCursorBlocked}
       />

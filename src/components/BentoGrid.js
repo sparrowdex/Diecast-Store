@@ -49,18 +49,30 @@ const layouts = {
     "md:col-span-7 md:row-span-2",
     "md:col-span-5 md:row-span-1",
     "md:col-span-5 md:row-span-1",
+  ],
+  // --- THE NEW SIGNATURE LAYOUT ---
+  signature: [
+    "md:col-span-8 md:row-span-2", // Slot 1: The Spotlight (Hero)
+    "md:col-span-4 md:row-span-1", // Slot 2: Supporting Exhibit 1
+    "md:col-span-4 md:row-span-1", // Slot 3: Supporting Exhibit 2
   ]
 };
 
-
-export default function BentoGrid({ cars, layout = 'hero', setCursorBlocked, setHoverState, isPreview = false }) {
+export default function BentoGrid({ 
+  cars, 
+  layout = 'hero', 
+  setCursorBlocked, 
+  setHoverState, 
+  isPreview = false,
+  onExhibitClick // New prop for Focus Mode interaction
+}) {
   const bentoLayout = layouts[layout] || layouts.hero;
   
   // We only render as many cars as the layout supports
   const carsToRender = cars.slice(0, bentoLayout.length);
 
   return (
-    <div className={`grid grid-cols-1 md:grid-cols-12 gap-4 auto-rows-[200px]`}>
+    <div className={`grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[300px] ${layout === 'signature' ? 'signature-grid' : ''}`}>
       {carsToRender.map((car, index) => (
         <BentoCard 
           key={`${car.id}-${index}`}
@@ -69,6 +81,7 @@ export default function BentoGrid({ cars, layout = 'hero', setCursorBlocked, set
           setHoverState={setHoverState} 
           setCursorBlocked={setCursorBlocked}
           isPreview={isPreview}
+          onFocusClick={onExhibitClick ? () => onExhibitClick(car) : null}
         />
       ))}
     </div>

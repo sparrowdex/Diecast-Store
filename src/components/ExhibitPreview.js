@@ -215,7 +215,7 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
                     <AnimatePresence mode="wait">{isVideo ? ( <motion.video
   key={activeMedia.url}
   src={activeMedia.url}
-  className="w-full h-full object-contain"
+  className="w-full h-full object-cover" // Pivot to cover
   autoPlay
   loop
   muted
@@ -280,14 +280,14 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
 
         {formData.collectionStatus === 'FEATURED_EXHIBIT' && (
             <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 my-4">Featured Exhibit Hover Preview</h3>
-                <div className="rounded-lg p-8 bg-[#1B1B1B] grid grid-cols-1 md:grid-cols-2 gap-8">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 my-4">Signature Gallery Preview</h3>
+                <div className="rounded-lg p-8 bg-[#f8f8f8] border border-black/5 grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
-                        <p className="text-sm text-center text-gray-400 mb-4 font-mono">Default State</p>
+                        <p className="text-sm text-center text-gray-400 mb-4 font-mono">Spotlight Slot</p>
                         <BentoCard car={previewCar} layout="aspect-video" isPreview={true} />
                     </div>
                     <div>
-                        <p className="text-sm text-center text-gray-400 mb-4 font-mono">Hover State</p>
+                        <p className="text-sm text-center text-gray-400 mb-4 font-mono">Supporting Slot</p>
                         <BentoCard car={previewCar} layout="aspect-video" isPreview={true} forceHover={true} />
                     </div>
                 </div>

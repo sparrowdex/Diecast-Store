@@ -23,7 +23,15 @@ const OutOfStockStamp = () => (
 );
 
 // --- UPDATED BENTO CARD ---
-export default function BentoCard({ car, layout = 'side', setHoverState, setCursorBlocked, isPreview = false, forceHover = false }) {
+export default function BentoCard({ 
+  car, 
+  layout = 'side', 
+  setHoverState, 
+  setCursorBlocked, 
+  isPreview = false, 
+  forceHover = false,
+  onFocusClick // New prop for Focus Mode
+}) {
   const [isHovered, setIsHovered] = useState(false);
   const { cart, addToCart } = useCart();
   const router = useRouter();
@@ -33,7 +41,11 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
   const quantityInVault = Number(cartItem?.quantity || 0);
 
   const handleClick = () => {
-    if (!isPreview) {
+    if (isPreview) return;
+    
+    if (onFocusClick) {
+      onFocusClick();
+    } else {
       router.push(`/product/${car.id}`);
     }
   };
@@ -69,6 +81,8 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
     );
   }
 
+  const isSmallCard = layout.includes('col-span-4') || layout.includes('col-span-2');
+
   // Determine sidebar width based on card size
   let sidebarWidth = 'w-1/2';
   if (layout.includes('col-span-12')) {
@@ -78,31 +92,31 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
   } else if (layout.includes('col-span-6')) {
     sidebarWidth = 'w-2/5'; // Narrower for medium cards
   } else if (layout.includes('col-span-4')) {
-    sidebarWidth = 'w-1/3'; // Even narrower for smaller cards
+    sidebarWidth = 'w-1/2'; // Halfway as requested
   } else if (layout.includes('col-span-2')) {
     sidebarWidth = 'w-1/4'; // Narrowest for very small cards
   }
 
   return (
     <motion.div
+      layoutId={isPreview ? null : `card-${car.id}`}
       onClick={handleClick}
       onMouseEnter={forceHover ? undefined : handleMouseEnter}
       onMouseLeave={forceHover ? undefined : handleMouseLeave}
-      className={`relative ${layoutClass} rounded-2xl overflow-hidden bg-white border border-gray-100 group shadow-sm hover:shadow-2xl transition-all duration-700 cursor-pointer`}
+      className={`relative ${layoutClass} rounded-2xl overflow-hidden bg-white group shadow-sm hover:shadow-2xl transition-all duration-700 cursor-pointer`}
     >
-      <div className="absolute inset-0 flex items-center justify-center bg-[#fdfdfd] p-8">
+      <div className={`absolute inset-0 flex items-center justify-center p-8 transition-colors duration-500 ${effectiveHover ? 'bg-black' : 'bg-white'}`}>
         {car.stock === 0 && <OutOfStockStamp />}
         
         <AnimatePresence mode="wait">
            {!effectiveHover ? (
              <motion.img 
-               layoutId={isPreview ? null : `car-image-${car.id}`}
                key="img" src={images[0]} className="w-full h-full object-contain"
                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
              />
            ) : (
-             <motion.div key="vid" className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-300 font-mono text-xs">
-               {car.video ? <video src={car.video} autoPlay muted loop playsInline className="w-full h-full object-contain opacity-80" /> : <span>[VIDEO_PREVIEW]</span>}
+             <motion.div key="vid" className="w-full h-full flex items-center justify-center text-gray-300 font-mono text-xs">
+               {car.video ? <video src={car.video} autoPlay muted loop playsInline className="w-full h-full object-cover opacity-80" /> : <span>[VIDEO_PREVIEW]</span>}
              </motion.div>
            )}
         </AnimatePresence>
@@ -112,7 +126,7 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
         initial={{ x: "100%" }}
         animate={{ x: effectiveHover ? "0%" : "100%" }}
         transition={{ type: "spring", damping: 25, stiffness: 120 }}
-        className={`absolute top-0 right-0 ${sidebarWidth} h-full bg-white/95 backdrop-blur-xl border-l border-black/5 p-8 flex flex-col justify-between z-10`}
+        className={`absolute top-0 right-0 ${sidebarWidth} h-full bg-white/95 backdrop-blur-xl border-l border-black/5 ${isSmallCard ? 'p-4' : 'p-8'} flex flex-col justify-between z-10 overflow-hidden`}
       >
         {/* F1 Checkered Border Effect */}
         <div 
@@ -123,14 +137,14 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
           }}
         />
 
-        <div>
+        <div className="relative z-10">
           <span className="text-[10px] text-gray-400 font-mono tracking-widest uppercase">{car.brand} / {car.scale} {car.modelYear && `/ ${car.modelYear}`}</span>
           {car.genre && <div className="text-[9px] text-red-600 font-bold uppercase mt-1 tracking-tighter">{car.genre.replace(/_/g, ' ')}</div>}
-          <h3 className="text-3xl font-black italic uppercase tracking-tighter leading-none mt-2 text-black">{car.name}</h3>
-          <p className="text-xs text-gray-500 font-light mt-6 leading-relaxed line-clamp-3">{car.description}</p>
+          <h3 className={`${isSmallCard ? 'text-lg' : 'text-3xl'} font-black italic uppercase tracking-tighter leading-none mt-2 text-black`}>{car.name}</h3>
+          <p className={`${isSmallCard ? 'text-[10px] mt-2' : 'text-xs mt-6'} text-gray-500 font-light leading-relaxed line-clamp-3`}>{car.description}</p>
         </div>
         
-        <div className="flex items-center justify-between border-t border-gray-100 pt-6">
+        <div className={`relative z-10 flex items-center justify-between border-t border-gray-100 ${isSmallCard ? 'pt-3' : 'pt-6'}`}>
            <div className="relative">
              {quantityInVault > 0 && (
                <span className="absolute -top-4 left-0 text-[8px] font-bold text-green-600 uppercase">In Vault: {quantityInVault}</span>
@@ -146,7 +160,7 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
              disabled={isPreview || car.stock === 0}
              whileHover={{ scale: 1.05 }}
              whileTap={{ scale: 0.98 }}
-             className="group/btn relative overflow-hidden bg-black text-white px-8 py-3 font-black text-[10px] uppercase tracking-widest transition-all disabled:bg-gray-300 disabled:text-gray-500"
+             className={`group/btn relative overflow-hidden bg-linear-to-b from-zinc-800 to-black border border-white/10 shadow-2xl text-white ${isSmallCard ? 'px-4 py-2' : 'px-8 py-3'} font-black text-[10px] uppercase tracking-widest transition-all disabled:bg-gray-300 disabled:text-gray-500`}
            >
              {/* Hidden text to maintain button width */}
              <span className="invisible block">{car.stock === 0 ? 'Sold Out' : 'Acquire'}</span>

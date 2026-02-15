@@ -15,6 +15,7 @@ const isPublicRoute = createRouteMatcher([
   '/journal(.*)', 
   '/api/journal(.*)', 
   '/api/uploadthing',
+  '/product/(.*)',
   '/terms-of-service',
   '/privacy-policy',
   '/refund-policy'
