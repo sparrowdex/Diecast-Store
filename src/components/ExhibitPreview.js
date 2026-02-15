@@ -215,7 +215,7 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
                     <AnimatePresence mode="wait">{isVideo ? ( <motion.video
   key={activeMedia.url}
   src={activeMedia.url}
-  className="w-full h-full object-cover" // Pivot to cover
+  className="w-full h-full object-contain"
   autoPlay
   loop
   muted

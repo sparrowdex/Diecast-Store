@@ -191,7 +191,7 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
                         >
                             <div className="w-full md:w-2/3 h-full bg-black">
                                 {focusedExhibit.video ? (
-                                    <video src={focusedExhibit.video} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                                    <video src={focusedExhibit.video} autoPlay loop muted playsInline className="w-full h-full object-contain" />
                                 ) : (
                                     <img src={focusedExhibit.images?.[0]} className="w-full h-full object-contain" />
                                 )}
