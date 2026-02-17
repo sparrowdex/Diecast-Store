@@ -1,5 +1,35 @@
 # Changelog - Diecast Store Refactor
 
+## [2026-02-17] - Genre Telemetry & Specialized Achievements
+
+### Added
+- **Dynamic Genre Palette**: Implemented a custom hex-based color system for all car genres (e.g., `#D4AF37` for Luxury, `#FF4500` for Race Course) to enhance visual identity.
+- **Specialized Rank System**: Replaced generic badge names with specialized titles like `TRACK_LEGEND`, `VINTAGE_CONNOISSEUR`, and `URBAN_ELITE` that "stamp" onto the UI upon 100% completion.
+- **Collapsible Progress Panel**: Added a "Smart Collapse" feature to the dashboard that limits the initial view to the top 3 series, reducing vertical clutter.
+- **Priority Sorting Logic**: Implemented an automated sorting algorithm that bubbles up series with active progress or completion to the top of the dashboard.
+- **Stamp Animations**: Integrated `framer-motion` animations that trigger a "physical stamp" effect when a user unlocks a series verification.
+
+### Changed
+- **ProgressRing Refactor**: Updated the component to support hybrid styling—using Tailwind for standard tracks and inline styles for dynamic hex-code progress fills.
+- **Metadata Centralization**: Consolidated all genre labels, colors, and rank names into `GENRE_METADATA` within `badgeLogic.js` to serve as a single source of truth.
+- **Badge Grid Synchronization**: Updated `GenreBadgeGrid` to dynamically pull colors and labels from metadata, ensuring consistency between the dashboard and profile stamps.
+
+### Fixed
+- **Dashboard Crash (TypeError)**: Resolved a critical error where `.replace()` was called on undefined IDs in the `ProgressPanel`.
+- **Prop Naming Mismatch**: Fixed a bug where the UI was looking for `cat.name` instead of the `cat.id` returned by the logic layer.
+- **React Key Warnings**: Resolved "Unique Key" warnings in the dashboard grid by implementing robust fallback keys.
+- **NaN Percentage Guard**: Added safety checks to prevent `NaN` display in progress rings for genres with zero total products.
+
+### Challenges Faced
+- **Dynamic Hex vs. Tailwind**: Navigated the limitations of Tailwind's JIT compiler regarding dynamic hex codes by implementing a style-injection pattern in the `ProgressRing`.
+- **Layout Animation Deadlocks**: Balancing `AnimatePresence` with array slicing in the collapsible panel required careful layout prop management to prevent UI "jumping" during expansion.
+
+### What We Learnt
+- **The Psychology of Ranks**: Moving from generic "Elite" tags to specialized titles like `GRAND_EXECUTIVE` significantly improves the "Curator" user experience and provides higher motivation for collection completion.
+- **Resilient UI Patterns**: Using optional chaining and fallback strings in metadata lookups is essential when dealing with dynamic data that might not have a 1:1 mapping at all times.
+
+---
+
 ## [2026-02-15] - Public Access & UI Accessibility
 
 ### Changed

@@ -1,18 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import ProgressRing from './ProgressRing';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { GENRE_METADATA } from '../badgeLogic';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const ProgressPanel = ({ categories, theme = 'dark' }) => {
-  const getGenreColor = (name) => {
-    const n = name.toLowerCase();
-    if (n.includes('f1')) return 'stroke-red-600 dark:stroke-red-500';
-    if (n.includes('gt')) return 'stroke-blue-600 dark:stroke-blue-500';
-    if (n.includes('classic')) return 'stroke-amber-600 dark:stroke-amber-500';
-    if (n.includes('hyper')) return 'stroke-purple-600 dark:stroke-purple-500';
-    if (n.includes('off')) return 'stroke-emerald-600 dark:stroke-emerald-500';
-    return 'stroke-orange-600 dark:stroke-orange-500';
-  };
+  const [isExpanded, setIsExpanded] = useState(false);
 
   if (!categories || categories.length === 0) {
     return (
@@ -21,6 +16,16 @@ const ProgressPanel = ({ categories, theme = 'dark' }) => {
       </div>
     );
   }
+
+  // Sort categories: Completed or in-progress series first, then empty ones.
+  const sortedCategories = [...categories].sort((a, b) => {
+    const progressA = a.total > 0 ? a.owned / a.total : 0;
+    const progressB = b.total > 0 ? b.owned / b.total : 0;
+    return progressB - progressA;
+  });
+
+  const hasMore = sortedCategories.length > 3;
+  const displayedCategories = isExpanded ? sortedCategories : sortedCategories.slice(0, 3);
 
   return (
     <div className="relative p-2 transition-colors isolate">
@@ -33,24 +38,41 @@ const ProgressPanel = ({ categories, theme = 'dark' }) => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-4 py-2">
-            {categories.map((cat, index) => (
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    key={cat.name}
-                >
-                  <ProgressRing
-                      label={cat.name.replace(/_/g, ' ')}
-                      percentage={cat.percentage}
-                      theme={theme}
-                      size={80}
-                      strokeWidth={8}
-                      color={getGenreColor(cat.name)}
-                  />
-                </motion.div>
-            ))}
+            <AnimatePresence mode="popLayout">
+                {displayedCategories.map((cat, index) => (
+                    <motion.div
+                        layout
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ delay: isExpanded ? 0 : index * 0.1 }}
+                        key={cat.id || `genre-${index}`}
+                    >
+                      <ProgressRing
+                          id={cat.id}
+                          label={GENRE_METADATA[cat.id]?.label || cat.id?.replace(/_/g, ' ') || 'Unknown_Series'}
+                          percentage={cat.total > 0 ? (cat.owned / cat.total) * 100 : 0}
+                          theme={theme}
+                          size={80}
+                          strokeWidth={8}
+                          color={GENRE_METADATA[cat.id]?.color}
+                      />
+                    </motion.div>
+                ))}
+            </AnimatePresence>
         </div>
+
+        {hasMore && (
+          <motion.button
+            layout
+            onClick={() => setIsExpanded(!isExpanded)}
+            className={`mt-6 w-full py-3 border border-dashed flex items-center justify-center gap-2 font-mono text-[9px] uppercase tracking-[0.2em] transition-all
+              ${theme === 'dark' ? 'border-white/10 hover:bg-white/5 text-white/40 hover:text-white' : 'border-black/10 hover:bg-black/5 text-black/40 hover:text-black'}`}
+          >
+            {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+            {isExpanded ? 'Collapse_Archive' : `Expand_Full_Archive [ +${categories.length - 3} ]`}
+          </motion.button>
+        )}
     </div>
   );
 };

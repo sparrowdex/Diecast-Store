@@ -5,6 +5,7 @@ import CollectorIDCard from "@/components/dashboard/CollectorIDCard";
 import StatsPanel from "@/components/dashboard/StatsPanel";
 import OrderCard from "@/components/dashboard/OrderCard";
 import ProgressPanel from "@/components/dashboard/ProgressPanel";
+import { getGenreCompletion } from "@/components/badgeLogic";
 
 export default async function AccessDashboardPage() {
   const { userId } = await auth();
@@ -36,14 +37,8 @@ export default async function AccessDashboardPage() {
   };
 
   const allProducts = await prisma.product.findMany({ select: { id: true, genre: true } });
-  const categories = [...new Set(allItems.map(item => item.product?.genre).filter(Boolean))].map(genre => {
-    const totalInGenre = allProducts.filter(p => p.genre === genre).length;
-    const ownedUniqueInGenre = new Set(allItems.filter(item => item.product?.genre === genre).map(item => item.productId)).size;
-    return {
-      name: genre.replace(/_/g, ' '),
-      percentage: totalInGenre > 0 ? Math.min(Math.round((ownedUniqueInGenre / totalInGenre) * 100), 100) : 0,
-    };
-  });
+  // Use the centralized logic to get completion stats for all genres
+  const categories = getGenreCompletion(allItems, allProducts);
 
   const isDark = userProfile.theme === 'dark';
 
