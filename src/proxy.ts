@@ -8,7 +8,7 @@ interface CustomJwtPayload {
   };
 }
 
-const isPublicRoute = createRouteMatcher(['/', '/admin/welcome', '/catalog(.*)', '/journal(.*)', '/api/journal(.*)']);
+const isPublicRoute = createRouteMatcher(['/', '/admin/welcome', '/catalog(.*)', '/journal(.*)', '/api/journal(.*)', '/api/uploadthing(.*)']);
 const isAdminRoute = createRouteMatcher(['/admin(.*)']);
 
 export default clerkMiddleware(async (auth, request: NextRequest) => {

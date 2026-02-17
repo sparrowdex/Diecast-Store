@@ -13,6 +13,7 @@ const isMediaVideo = (media) => {
 export default function NewExhibitPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
+  const [isUploading, setIsUploading] = useState(false);
   
   // Form State
   const [formData, setFormData] = useState({
@@ -51,7 +52,7 @@ export default function NewExhibitPage() {
   const handleMediaUpload = (res) => {
     if (!res) return;
 
-    const newMediaObjects = res.map(file => ({ url: file.ufsUrl, type: file.type }));
+    const newMediaObjects = res.map(file => ({ url: file.ufsUrl || file.url, type: file.type }));
     
     setReorderedImages(prev => {
       const newImages = newMediaObjects.filter(f => !isMediaVideo(f));
@@ -165,7 +166,7 @@ export default function NewExhibitPage() {
            <div>
              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Scale</label>
              <select name="scale" value={formData.scale} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white">
-               {['1:64', '1:43', '1:24', '1:18', '1:12'].map(s => (
+               {['1:64', '1:32', '1:24', '1:18'].map(s => (
                  <option key={s} value={s} className="bg-[#111]">{s}</option>
                ))}
              </select>
@@ -173,10 +174,20 @@ export default function NewExhibitPage() {
            <InputField name="modelYear" label="Model Year" type="number" value={formData.modelYear} onChange={handleChange} placeholder="e.g., 2023" />
            
            <div className="md:col-span-2">
-             <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Media (Images & Video)</label>
+             <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
+               Media (Images & Video) {isUploading && <span className="text-yellow-500 animate-pulse ml-2">— UPLOADING...</span>}
+             </label>
              <UploadButton 
                 endpoint="mediaUploader" 
-                onClientUploadComplete={handleMediaUpload} 
+                onUploadBegin={() => setIsUploading(true)}
+                onClientUploadComplete={(res) => {
+                  setIsUploading(false);
+                  handleMediaUpload(res);
+                }} 
+                onUploadError={(error) => {
+                  setIsUploading(false);
+                  alert(`Upload Failed: ${error.message}`);
+                }}
              />
              <p className="text-xs text-gray-500 mt-2">
                 {imageCount} image(s) and {videoCount} video uploaded.
