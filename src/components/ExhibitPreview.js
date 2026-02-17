@@ -211,11 +211,11 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
         <div className="bg-white text-black rounded-lg overflow-hidden">
             <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 p-4 bg-gray-50 border-b border-gray-100"> Product Page Preview</h3>
             <div className="h-[40vh] bg-white flex flex-col md:flex-row overflow-hidden relative selection:bg-black selection:text-white">
-                <motion.section layout className="w-full md:w-[60%] h-full relative bg-[#f8f8f8] flex items-center justify-center">
+                <motion.section layout className="w-full md:w-[60%] h-full relative flex items-start justify-start">
                     <AnimatePresence mode="wait">{isVideo ? ( <motion.video
   key={activeMedia.url}
   src={activeMedia.url}
-  className="w-full h-full object-contain"
+  className="w-full h-full object-cover"
   autoPlay
   loop
   muted
@@ -224,7 +224,7 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
   onCanPlay={() => console.log('Video can play for src:', activeMedia.url)}
   onStalled={() => console.log('Video stalled for src:', activeMedia.url)}
   onLoadStart={() => console.log('Video load start for src:', activeMedia.url)}
-/> ) : ( <motion.img key={activeMedia ? activeMedia.url : 'placeholder'} src={activeMedia ? activeMedia.url : '/cars/maybach.jpg'} className="w-full h-full p-8 object-contain drop-shadow-2xl" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} /> )}</AnimatePresence>
+/> ) : ( <motion.img key={activeMedia ? activeMedia.url : 'placeholder'} src={activeMedia ? activeMedia.url : '/cars/maybach.jpg'} className="w-full h-full object-cover drop-shadow-2xl" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} /> )}</AnimatePresence>
                     {/* Media Gallery Management */}
                     {media.length > 1 && (
                       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 bg-white/50 backdrop-blur-sm p-2 rounded-full z-10">
