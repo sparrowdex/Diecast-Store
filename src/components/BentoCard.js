@@ -90,19 +90,19 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
       onMouseLeave={forceHover ? undefined : handleMouseLeave}
       className={`relative ${layoutClass} rounded-2xl overflow-hidden bg-white border border-gray-100 group shadow-sm hover:shadow-2xl transition-all duration-700 cursor-pointer`}
     >
-      <div className="absolute inset-0 flex items-center justify-center bg-[#fdfdfd] p-8">
+      <div className="absolute inset-0 flex items-start justify-start">
         {car.stock === 0 && <OutOfStockStamp />}
         
         <AnimatePresence mode="wait">
            {!effectiveHover ? (
              <motion.img 
                layoutId={isPreview ? null : `car-image-${car.id}`}
-               key="img" src={images[0]} className="w-full h-full object-contain"
+               key="img" src={images[0]} className="w-full h-full object-cover"
                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
              />
            ) : (
-             <motion.div key="vid" className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-300 font-mono text-xs">
-               {car.video ? <video src={car.video} autoPlay muted loop playsInline className="w-full h-full object-contain opacity-80" /> : <span>[VIDEO_PREVIEW]</span>}
+             <motion.div key="vid" className="w-full h-full flex items-start justify-start text-gray-300 font-mono text-xs">
+               {car.video ? <video src={car.video} autoPlay muted loop playsInline className="w-full h-full object-cover opacity-80" /> : <span>[VIDEO_PREVIEW]</span>}
              </motion.div>
            )}
         </AnimatePresence>
