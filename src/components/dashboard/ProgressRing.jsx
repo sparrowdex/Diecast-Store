@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { GENRE_METADATA } from '../badgeLogic';
 
-// NEW SYNC: Since we skip the 'Hiss', the impact is almost instant
+// SYNC: We skip the "Hiss" on replay, so the visual impact is almost instant (0.1s)
 const IMPACT_DELAY = 0.1; 
 
 const ProgressRing = ({ percentage, label, size = 100, strokeWidth = 4, theme = 'dark', color, id }) => {
@@ -11,33 +11,32 @@ const ProgressRing = ({ percentage, label, size = 100, strokeWidth = 4, theme = 
   const isComplete = visualPercentage === 100;
   const metadata = GENRE_METADATA[id];
   
-  const [status, setStatus] = useState('loading'); 
-  const [replayKey, setReplayKey] = useState(0);   
+  const [status, setStatus] = useState('loading'); // 'loading' | 'settled' | 'animating'
+  const [replayKey, setReplayKey] = useState(0);   // Forces Re-render
   const audioRef = useRef(null);
 
-  // --- 1. INITIAL LOAD ---
+  // --- 1. INITIAL LOAD CHECK ---
   useEffect(() => {
     if (isComplete) {
       const hasSeen = localStorage.getItem(`badge_seen_${id}`);
       if (hasSeen) {
-        setStatus('settled');
+        setStatus('settled'); // Silent Load
       } else {
-        setStatus('animating');
-        // Full unlock still plays from start (0s) for the drama
+        setStatus('animating'); // First Time Drama
         triggerAudio('full');
       }
     }
   }, [isComplete, id]);
 
-  // --- 2. AUDIO TRIGGER ---
+  // --- 2. AUDIO TRIGGER LOGIC ---
   const triggerAudio = (type) => {
     const audio = audioRef.current;
     if (!audio) return;
 
     try {
       if (type === 'replay') {
-        // --- REPLAY LOGIC (Snappy) ---
-        // Start from Second 1 (Skip the Hiss)
+        // --- REPLAY: SNAPPY & MECHANICAL ---
+        // Start at 1.0s (Skip the "Hiss")
         audio.currentTime = 1.0; 
         audio.volume = 1.0;
         
@@ -46,19 +45,23 @@ const ProgressRing = ({ percentage, label, size = 100, strokeWidth = 4, theme = 
           playPromise.catch(e => console.warn("Audio blocked:", e));
         }
 
-        // Play for 2 seconds (1.0s -> 3.0s) then cut
+        // Play for exactly 2 seconds (cuts off at 3.0s total)
         setTimeout(() => {
           audio.pause();
           audio.currentTime = 0;
         }, 2000); 
 
       } else {
-        // --- FULL UNLOCK (Dramatic) ---
-        // Play from 0s to get the full buildup
+        // --- FULL UNLOCK: DRAMATIC ---
+        // Play from 0.0s (Includes the "Hiss" buildup)
         audio.currentTime = 0;
         audio.volume = 1.0;
         audio.play();
+        
+        // Mark as seen
         localStorage.setItem(`badge_seen_${id}`, 'true');
+        
+        // Settle after full clip
         setTimeout(() => setStatus('settled'), 4000); 
       }
     } catch (e) {
@@ -66,18 +69,18 @@ const ProgressRing = ({ percentage, label, size = 100, strokeWidth = 4, theme = 
     }
   };
 
-  // --- 3. CLICK HANDLER ---
+  // --- 3. CLICK HANDLER (LATENCY FREE) ---
   const handleReplay = () => {
     if (status === 'animating') return; 
 
-    // 1. Play Audio (Starts at 1.0s)
+    // 1. Play Audio Immediately
     triggerAudio('replay');
 
-    // 2. Trigger Visuals
+    // 2. Trigger Visual Animation
     setStatus('animating');
     setReplayKey(prev => prev + 1);
 
-    // 3. Reset after animation
+    // 3. Reset State after animation
     setTimeout(() => setStatus('settled'), 2000);
   };
 
@@ -90,6 +93,7 @@ const ProgressRing = ({ percentage, label, size = 100, strokeWidth = 4, theme = 
 
   return (
     <div className="flex flex-col items-center justify-center group font-sans">
+      {/* Preload Auto ensures instant playback */}
       <audio ref={audioRef} src="/sounds/hydraulic.mp3" preload="auto" />
 
       <div className="relative isolate">
@@ -125,21 +129,22 @@ const ProgressRing = ({ percentage, label, size = 100, strokeWidth = 4, theme = 
                 {visualPercentage}%
               </motion.span>
             ) : (
+              // --- THE BADGE ---
               <motion.div
                 key={`${id}-${replayKey}`}
                 
-                // 1. LOOMING STATE
+                // 1. LOOMING STATE (Before Impact)
                 initial={status === 'settled' ? {
                   scale: 1, opacity: 1, rotate: -5, filter: "blur(0px)"
                 } : {
-                  // Replay starts huge but snaps down fast
+                  // Replay starts huge
                   scale: 2.5, 
                   opacity: 0, 
                   rotate: -15, 
                   filter: "blur(5px) brightness(1.5)"
                 }}
 
-                // 2. IMPACT STATE
+                // 2. IMPACT STATE (The Slam)
                 animate={{ 
                   scale: 1, 
                   opacity: 1, 
@@ -147,14 +152,13 @@ const ProgressRing = ({ percentage, label, size = 100, strokeWidth = 4, theme = 
                   filter: "blur(0px) brightness(1)",
                 }}
 
-                // 3. HEAVY METAL PHYSICS
+                // 3. DEAD-WEIGHT PHYSICS (No Bounce)
                 transition={status === 'settled' ? { duration: 0 } : {
-                  // Wait 0.1s (Tiny sync delay)
                   delay: IMPACT_DELAY, 
                   type: "spring", 
-                  stiffness: 800, // Very snappy
-                  damping: 60,    // No bounce
-                  mass: 3         // Heavy feel
+                  stiffness: 800, // Very Fast
+                  damping: 60,    // Stops Instantly
+                  mass: 3         // Feels Heavy
                 }}
 
                 className="absolute flex items-center justify-center px-3 py-1 border border-white/40 shadow-xl z-30"

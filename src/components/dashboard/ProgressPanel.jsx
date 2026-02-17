@@ -17,7 +17,7 @@ const ProgressPanel = ({ categories, theme = 'dark' }) => {
     );
   }
 
-  // Sort categories: Completed or in-progress series first, then empty ones.
+  // Sort categories: Completed/In-progress first
   const sortedCategories = [...categories].sort((a, b) => {
     const progressA = a.total > 0 ? a.owned / a.total : 0;
     const progressB = b.total > 0 ? b.owned / b.total : 0;
@@ -39,26 +39,39 @@ const ProgressPanel = ({ categories, theme = 'dark' }) => {
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-4 py-2">
             <AnimatePresence mode="popLayout">
-                {displayedCategories.map((cat, index) => (
-                    <motion.div
-                        layout
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        transition={{ delay: isExpanded ? 0 : index * 0.1 }}
-                        key={cat.id || `genre-${index}`}
-                    >
-                      <ProgressRing
-                          id={cat.id}
-                          label={GENRE_METADATA[cat.id]?.label || cat.id?.replace(/_/g, ' ') || 'Unknown_Series'}
-                          percentage={cat.total > 0 ? (cat.owned / cat.total) * 100 : 0}
-                          theme={theme}
-                          size={80}
-                          strokeWidth={8}
-                          color={GENRE_METADATA[cat.id]?.color}
-                      />
-                    </motion.div>
-                ))}
+                {displayedCategories.map((cat, index) => {
+                    // FIX 1: Fallback ID to prevent 'undefined' collisions
+                    // We use the index if cat.id is missing, ensuring uniqueness
+                    const uniqueId = cat.id || `series_${index}`;
+                    
+                    return (
+                        <motion.div
+                            layout
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            transition={{ delay: isExpanded ? 0 : index * 0.1 }}
+                            key={uniqueId} // Use uniqueId for React Key
+                        >
+                          <ProgressRing
+                              // FIX 2: Pass the guaranteed unique ID
+                              id={uniqueId}
+                              
+                              // Visual Props
+                              label={GENRE_METADATA[cat.id]?.label || cat.id?.replace(/_/g, ' ') || 'Unknown Series'}
+                              percentage={cat.total > 0 ? (cat.owned / cat.total) * 100 : 0}
+                              theme={theme}
+                              size={80}
+                              strokeWidth={8}
+                              color={GENRE_METADATA[cat.id]?.color}
+                              
+                              // FIX 3: Stagger the start time slightly (0ms, 200ms, 400ms)
+                              // This prevents "Audio Fighting" if multiple unlock at once
+                              delay={index * 0.2}
+                          />
+                        </motion.div>
+                    );
+                })}
             </AnimatePresence>
         </div>
 
