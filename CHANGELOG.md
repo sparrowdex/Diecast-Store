@@ -1,8 +1,14 @@
 # Changelog - Diecast Store Refactor
 
-## [2026-02-17] - Genre Telemetry & Specialized Achievements
+## [2026-02-17] - v1.2.0 - The "Heavy Metal" Stamp Update
 
 ### Added
+- **Industrial Unlock Animation**: Replaced the standard progress ring completion with a "Hydraulic Stamp" effect. The badge starts at Scale 3.5 (huge/blurry) and slams down to Scale 1.0.
+- **Looming Shadow & Thermal Flash**: Implemented `brightness` filters to simulate hot metal cooling down upon impact and `linear-gradient` with `box-shadow` to emulate a brushed aluminum surface.
+- **Audio-Haptic Sync**: Integrated `hydraulic.mp3` for the unlock sequence with smart trimming (skipping the initial 1s hiss) and a 0.1s visual delay to ensure the impact feels synchronized with the sound.
+- **Replayability**: Added a manual trigger for the "Re-Verification" animation when clicking a completed series ring.
+- **3D Thermal Stamp**: Integrated React Three Fiber and Framer Motion 3D to create a hydraulic "branding" effect when a series is completed.
+- **Audio-Visual Sync**: Synchronized the 3D impact animation with the `airlock_stamp` audio file, triggering a thermal flash at the 0.4s mark.
 - **Dynamic Genre Palette**: Implemented a custom hex-based color system for all car genres (e.g., `#D4AF37` for Luxury, `#FF4500` for Race Course) to enhance visual identity.
 - **Specialized Rank System**: Replaced generic badge names with specialized titles like `TRACK_LEGEND`, `VINTAGE_CONNOISSEUR`, and `URBAN_ELITE` that "stamp" onto the UI upon 100% completion.
 - **Collapsible Progress Panel**: Added a "Smart Collapse" feature to the dashboard that limits the initial view to the top 3 series, reducing vertical clutter.
@@ -15,6 +21,9 @@
 - **Badge Grid Synchronization**: Updated `GenreBadgeGrid` to dynamically pull colors and labels from metadata, ensuring consistency between the dashboard and profile stamps.
 
 ### Fixed
+- **Audio Blocked Error**: Resolved hydration mismatches and LCP warnings by moving from `new Audio()` in `useEffect` to a native `<audio preload="auto" />` tag in the JSX.
+- **CSS Property Conflict**: Fixed React warnings by decoupling `backgroundImage` gradients from animated filters like `brightness()`.
+- **Animation Stagnation**: Implemented the **Key-Remount Pattern** (`key={`${id}-${replayKey}`}`) to force React to restart "Entry" animations on every click.
 - **Dashboard Crash (TypeError)**: Resolved a critical error where `.replace()` was called on undefined IDs in the `ProgressPanel`.
 - **Prop Naming Mismatch**: Fixed a bug where the UI was looking for `cat.name` instead of the `cat.id` returned by the logic layer.
 - **React Key Warnings**: Resolved "Unique Key" warnings in the dashboard grid by implementing robust fallback keys.
@@ -25,6 +34,9 @@
 - **Layout Animation Deadlocks**: Balancing `AnimatePresence` with array slicing in the collapsible panel required careful layout prop management to prevent UI "jumping" during expansion.
 
 ### What We Learnt
+- **Perceived Sync**: Visual animations need a tiny delay (0.1s) after audio starts to feel naturally "caused" by the sound.
+- **Physics Tuning**: Moved to **Critical Damping** (`mass: 3`, `stiffness: 800`, `damping: 60`) to make UI elements feel "Heavy" and solid without bouncing.
+- **React Key Prop**: Confirmed that changing the `key` prop is the most reliable way to replay complex mount animations in Framer Motion.
 - **The Psychology of Ranks**: Moving from generic "Elite" tags to specialized titles like `GRAND_EXECUTIVE` significantly improves the "Curator" user experience and provides higher motivation for collection completion.
 - **Resilient UI Patterns**: Using optional chaining and fallback strings in metadata lookups is essential when dealing with dynamic data that might not have a 1:1 mapping at all times.
 
@@ -379,7 +391,7 @@
 ## Pending Tasks (To-Do)
 
 ### 1. Data Re-tagging
-- [ ] **Manual Update**: Since the migration dropped the `category` column, existing products need to be manually assigned a `collectionStatus` and `genre` via the Admin Panel or Prisma Studio.
+- [X] **Manual Update**: Since the migration dropped the `category` column, existing products need to be manually assigned a `collectionStatus` and `genre` via the Admin Panel or Prisma Studio.
 
 ---
 *End of Log*
