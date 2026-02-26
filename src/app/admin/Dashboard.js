@@ -25,7 +25,7 @@ export default function AdminDashboard({ initialCars, initialOrders = [], dbErro
 
   // The Podium (Top 3 by Price/Value)
   const podium = [...cars].sort((a, b) => 
-    parseInt(b.price.replace(/[^\d]/g, "")) - parseInt(a.price.replace(/[^\d]/g, ""))
+    parseInt(String(b.price).replace(/[^\d]/g, "")) - parseInt(String(a.price).replace(/[^\d]/g, ""))
   ).slice(0, 3);
 
   return (

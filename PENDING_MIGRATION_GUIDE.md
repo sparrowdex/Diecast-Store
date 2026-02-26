@@ -14,6 +14,7 @@ When ready to convert `price` from `String` to `Float`:
 1. Update `Product` and `OrderItem` models in `schema.prisma` to use `price Float`.
 2. Update `src/app/api/products/route.js` to use `parseFloat(data.price)`.
 3. Update `src/app/admin/inventory/new/page.js` to use `parseFloat(formData.price) || 0`.
+4. Update `src/lib/actions/razorpay.ts` to remove the `String()` wrapper and use numeric values.
 
 ## Step 2: Execute Migration
 Run the following command in your terminal:

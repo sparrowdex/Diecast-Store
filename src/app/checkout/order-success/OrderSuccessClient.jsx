@@ -5,8 +5,6 @@ import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import confetti from "canvas-confetti";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
 
 export default function OrderSuccessClient() {
   const searchParams = useSearchParams();
@@ -51,38 +49,6 @@ export default function OrderSuccessClient() {
     frameId = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(frameId);
   }, [isScanning]);
-
-  // --- PDF DOWNLOAD LOGIC ---
-  const downloadManifesto = async () => {
-    if (blueprintRef.current === null) return;
-
-    try {
-      const element = blueprintRef.current;
-      // Capture the blueprint area as a high-quality canvas
-      const canvas = await html2canvas(element, {
-        scale: 2, 
-        backgroundColor: "#ffffff",
-        logging: false,
-        useCORS: true // Helps if you eventually use external images
-      });
-      
-      const imgData = canvas.toDataURL("image/png");
-      
-      // Initialize A4 PDF in portrait mode
-      const pdf = new jsPDF("p", "mm", "a4");
-      
-      // Calculate scaling to fit the A4 page width (210mm)
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-      // Add the image to the PDF
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`THE_DIECAST_STORE_MANIFESTO_${displayId.substring(0, 8)}.pdf`);
-    } catch (err) {
-      console.error("PDF Generation failed:", err);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-[#fafafa] flex items-center justify-center p-6 font-sans selection:bg-black selection:text-white overflow-hidden relative">
@@ -183,15 +149,6 @@ export default function OrderSuccessClient() {
                   <div className="absolute inset-0 bg-[#FF1E1E] translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                 </Link>
 
-                <button 
-                  onClick={downloadManifesto}
-                  className="flex items-center gap-3 font-mono text-[10px] font-bold tracking-widest uppercase text-gray-400 hover:text-black transition-colors"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Download_Technical_Manifesto.pdf
-                </button>
               </div>
             </motion.div>
           )}
