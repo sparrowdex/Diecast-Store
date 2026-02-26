@@ -13,6 +13,7 @@ const isMediaVideo = (media) => {
 export default function NewExhibitPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   
   // Form State
@@ -106,7 +107,9 @@ export default function NewExhibitPage() {
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
+    if (isSubmitting) return;
 
+    setIsSubmitting(true);
     const images = reorderedImages.filter(media => !isMediaVideo(media)).map(m => m.url);
     const videoObj = reorderedImages.find(media => isMediaVideo(media));
     const video = videoObj ? videoObj.url : "";
@@ -115,6 +118,7 @@ export default function NewExhibitPage() {
       ...formData,
       images,
       video,
+      price: String(formData.price),
       stock: parseInt(formData.stock, 10) || 0,
     };
     
@@ -128,14 +132,21 @@ export default function NewExhibitPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Something went wrong');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Something went wrong');
       }
+
+      // Force Next.js to refresh server-side data so the new exhibit 
+      // appears in the inventory list immediately.
+      router.refresh();
 
       router.push("/admin/inventory");
 
     } catch (error) {
       console.error("Failed to create exhibit:", error);
-      alert("Failed to create exhibit. Check the console for more details.");
+      alert(`Failed to create exhibit: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
@@ -162,7 +173,7 @@ export default function NewExhibitPage() {
         <form onSubmit={(e) => { e.preventDefault(); handleNext(); }} className="bg-[#111] border border-white/5 rounded-lg p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
            <InputField name="name" label="Exhibit Name" value={formData.name} onChange={handleChange} placeholder="e.g., Red Bull RB19" required />
            <InputField name="brand" label="Brand" value={formData.brand} onChange={handleChange} placeholder="e.g., Bburago" required />
-           <InputField name="price" label="Price" value={formData.price} onChange={handleChange} placeholder="e.g., 1400" required />
+           <InputField name="price" label="Price" type="number" value={formData.price} onChange={handleChange} placeholder="e.g., 1400" required />
            <div>
              <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Scale</label>
              <select name="scale" value={formData.scale} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white">
@@ -304,7 +315,13 @@ export default function NewExhibitPage() {
           {/* Navigation */}
           <div className="flex justify-end gap-4 pt-4 border-t border-white/10">
              <button onClick={handlePrev} className="text-gray-400 px-6 py-3 font-bold text-xs uppercase tracking-widest hover:text-white transition-colors">Back to Edit</button>
-             <button onClick={handleSubmit} className="bg-white text-black px-8 py-3 font-black text-xs uppercase tracking-widest hover:bg-gray-200 transition-colors rounded">Create Exhibit</button>
+             <button 
+                onClick={handleSubmit} 
+                disabled={isSubmitting || isUploading}
+                className="bg-white text-black px-8 py-3 font-black text-xs uppercase tracking-widest hover:bg-gray-200 transition-colors rounded disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "Creating..." : isUploading ? "Uploading Media..." : "Create Exhibit"}
+             </button>
           </div>
         </div>
       )}

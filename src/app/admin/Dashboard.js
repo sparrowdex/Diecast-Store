@@ -7,7 +7,7 @@ export default function AdminDashboard({ initialCars, initialOrders = [], dbErro
   const [cars, setCars] = useState(initialCars);
 
   // Stats Calculation
-  const totalValue = cars.reduce((acc, car) => acc + parseInt(car.price.replace(/[^\d]/g, "")), 0);
+  const totalValue = cars.reduce((acc, car) => acc + parseInt(String(car.price).replace(/[^\d]/g, "")), 0);
   const featuredCount = cars.filter(c => c.featured).length;
   const lowStockCars = cars.filter(c => c.stock < 3 && c.stock > 0);
   const outOfStockCount = cars.filter(c => c.stock === 0).length;
