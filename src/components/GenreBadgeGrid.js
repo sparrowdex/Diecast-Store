@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { getGenreCompletion } from "./badgeLogic";
+import { getGenreCompletion, GENRE_METADATA } from "./badgeLogic";
 import { ShieldCheck, Lock } from "lucide-react";
 
 /**
@@ -11,16 +11,6 @@ import { ShieldCheck, Lock } from "lucide-react";
 export default function GenreBadgeGrid({ userCollection, allProducts, isDark = true }) {
   const completionStats = getGenreCompletion(userCollection, allProducts);
   
-  const genreLabels = {
-    'CLASSIC_VINTAGE': 'Heritage',
-    'RACE_COURSE': 'Apex',
-    'CITY_LIFE': 'Urban',
-    'SUPERPOWERS': 'Hyper',
-    'LUXURY_REDEFINED': 'Elite',
-    'OFF_ROAD': 'Trek',
-    'FUTURE_PROOF': 'Neon'
-  };
-
   return (
     <div className="mt-8">
       <h3 className={`text-[10px] font-black uppercase tracking-[0.3em] mb-6 ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>
@@ -29,7 +19,9 @@ export default function GenreBadgeGrid({ userCollection, allProducts, isDark = t
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {completionStats.map((stat) => {
           const isUnlocked = stat.isComplete;
-          const label = genreLabels[stat.id];
+          const metadata = GENRE_METADATA[stat.id];
+          const label = isUnlocked ? (metadata?.rankName || metadata?.label) : (metadata?.label || stat.id);
+          const genreColor = metadata?.color || (isDark ? "#eab308" : "#ea580c");
 
           return (
             <motion.div
@@ -38,9 +30,14 @@ export default function GenreBadgeGrid({ userCollection, allProducts, isDark = t
               animate={isUnlocked ? { scale: 1, opacity: 1 } : {}}
               className={`relative p-4 border rounded-sm flex flex-col items-center justify-center gap-2 transition-all duration-500 ${
                 isUnlocked 
-                  ? (isDark ? "bg-zinc-900 border-yellow-500/50 text-yellow-500" : "bg-orange-50 border-orange-500/50 text-orange-600")
+                  ? (isDark ? "bg-zinc-900" : "bg-white")
                   : (isDark ? "bg-black/40 border-zinc-800 text-zinc-700 opacity-40" : "bg-zinc-50 border-zinc-100 text-zinc-300 opacity-50")
               }`}
+              style={isUnlocked ? { 
+                borderColor: genreColor, 
+                color: genreColor,
+                boxShadow: `0 0 20px ${genreColor}15`
+              } : {}}
             >
               {isUnlocked ? (
                 <ShieldCheck size={20} className="mb-1" />
@@ -50,11 +47,14 @@ export default function GenreBadgeGrid({ userCollection, allProducts, isDark = t
                     <span className="text-[7px] font-mono opacity-60">{stat.owned}/{stat.total}</span>
                 </div>
               )}
-              <span className="text-[9px] font-black uppercase tracking-widest leading-none">
+              <span className="text-[9px] font-black uppercase tracking-widest leading-none text-center">
                 {label}
               </span>
               {isUnlocked && (
-                <div className={`absolute -top-1 -right-1 w-2 h-2 rounded-full animate-pulse ${isDark ? "bg-yellow-500" : "bg-orange-600"}`} />
+                <div 
+                  className="absolute -top-1 -right-1 w-2 h-2 rounded-full animate-pulse" 
+                  style={{ backgroundColor: genreColor }}
+                />
               )}
             </motion.div>
           );

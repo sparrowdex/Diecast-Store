@@ -4,10 +4,12 @@ import { useRouter } from "next/navigation";
 import Script from "next/script";
 import { createOrder, verifyPayment } from "@/lib/actions/razorpay";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@clerk/nextjs";
 
 // This is the new component for Razorpay
 export default function CheckoutForm({ cart, cartTotal }) {
   const router = useRouter();
+  const { userId } = useAuth();
   const { clearCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
@@ -21,8 +23,18 @@ export default function CheckoutForm({ cart, cartTotal }) {
       const form = e.currentTarget;
       const formData = new FormData(form);
 
+      // Map cart items to ensure ID and SKU are passed correctly to the manifest
+      const orderItems = cart.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        image: item.image || (item.images && item.images[0]),
+        sku: item.sku
+      }));
+
       // 1. Create order on the server
-      const result = await createOrder(cart, formData);
+      const result = await createOrder(orderItems, formData, userId);
 
       if (!result.success) {
         if (result.details) {
@@ -116,7 +128,7 @@ export default function CheckoutForm({ cart, cartTotal }) {
           <h3 className="text-xs font-bold uppercase tracking-widest mb-4">
             Shipping_Address
           </h3>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <input
               type="text"
               name="firstName"

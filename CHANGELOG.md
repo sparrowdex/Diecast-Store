@@ -1,5 +1,102 @@
 # Changelog - Diecast Store Refactor
 
+## [2026-02-17] - v1.2.0 - The "Heavy Metal" Stamp Update
+
+### Added
+- **Industrial Unlock Animation**: Replaced the standard progress ring completion with a "Hydraulic Stamp" effect. The badge starts at Scale 3.5 (huge/blurry) and slams down to Scale 1.0.
+- **Looming Shadow & Thermal Flash**: Implemented `brightness` filters to simulate hot metal cooling down upon impact and `linear-gradient` with `box-shadow` to emulate a brushed aluminum surface.
+- **Audio-Haptic Sync**: Integrated `hydraulic.mp3` for the unlock sequence with smart trimming (skipping the initial 1s hiss) and a 0.1s visual delay to ensure the impact feels synchronized with the sound.
+- **Replayability**: Added a manual trigger for the "Re-Verification" animation when clicking a completed series ring.
+- **3D Thermal Stamp**: Integrated React Three Fiber and Framer Motion 3D to create a hydraulic "branding" effect when a series is completed.
+- **Audio-Visual Sync**: Synchronized the 3D impact animation with the `airlock_stamp` audio file, triggering a thermal flash at the 0.4s mark.
+- **Dynamic Genre Palette**: Implemented a custom hex-based color system for all car genres (e.g., `#D4AF37` for Luxury, `#FF4500` for Race Course) to enhance visual identity.
+- **Specialized Rank System**: Replaced generic badge names with specialized titles like `TRACK_LEGEND`, `VINTAGE_CONNOISSEUR`, and `URBAN_ELITE` that "stamp" onto the UI upon 100% completion.
+- **Collapsible Progress Panel**: Added a "Smart Collapse" feature to the dashboard that limits the initial view to the top 3 series, reducing vertical clutter.
+- **Priority Sorting Logic**: Implemented an automated sorting algorithm that bubbles up series with active progress or completion to the top of the dashboard.
+- **Stamp Animations**: Integrated `framer-motion` animations that trigger a "physical stamp" effect when a user unlocks a series verification.
+
+### Changed
+- **ProgressRing Refactor**: Updated the component to support hybrid styling—using Tailwind for standard tracks and inline styles for dynamic hex-code progress fills.
+- **Metadata Centralization**: Consolidated all genre labels, colors, and rank names into `GENRE_METADATA` within `badgeLogic.js` to serve as a single source of truth.
+- **Badge Grid Synchronization**: Updated `GenreBadgeGrid` to dynamically pull colors and labels from metadata, ensuring consistency between the dashboard and profile stamps.
+
+### Fixed
+- **Audio Blocked Error**: Resolved hydration mismatches and LCP warnings by moving from `new Audio()` in `useEffect` to a native `<audio preload="auto" />` tag in the JSX.
+- **CSS Property Conflict**: Fixed React warnings by decoupling `backgroundImage` gradients from animated filters like `brightness()`.
+- **Animation Stagnation**: Implemented the **Key-Remount Pattern** (`key={`${id}-${replayKey}`}`) to force React to restart "Entry" animations on every click.
+- **Dashboard Crash (TypeError)**: Resolved a critical error where `.replace()` was called on undefined IDs in the `ProgressPanel`.
+- **Prop Naming Mismatch**: Fixed a bug where the UI was looking for `cat.name` instead of the `cat.id` returned by the logic layer.
+- **React Key Warnings**: Resolved "Unique Key" warnings in the dashboard grid by implementing robust fallback keys.
+- **NaN Percentage Guard**: Added safety checks to prevent `NaN` display in progress rings for genres with zero total products.
+
+### Challenges Faced
+- **Dynamic Hex vs. Tailwind**: Navigated the limitations of Tailwind's JIT compiler regarding dynamic hex codes by implementing a style-injection pattern in the `ProgressRing`.
+- **Layout Animation Deadlocks**: Balancing `AnimatePresence` with array slicing in the collapsible panel required careful layout prop management to prevent UI "jumping" during expansion.
+
+### What We Learnt
+- **Perceived Sync**: Visual animations need a tiny delay (0.1s) after audio starts to feel naturally "caused" by the sound.
+- **Physics Tuning**: Moved to **Critical Damping** (`mass: 3`, `stiffness: 800`, `damping: 60`) to make UI elements feel "Heavy" and solid without bouncing.
+- **React Key Prop**: Confirmed that changing the `key` prop is the most reliable way to replay complex mount animations in Framer Motion.
+- **The Psychology of Ranks**: Moving from generic "Elite" tags to specialized titles like `GRAND_EXECUTIVE` significantly improves the "Curator" user experience and provides higher motivation for collection completion.
+- **Resilient UI Patterns**: Using optional chaining and fallback strings in metadata lookups is essential when dealing with dynamic data that might not have a 1:1 mapping at all times.
+
+---
+
+## [2026-02-15] - Public Access & UI Accessibility
+
+### Changed
+- **Middleware Whitelisting**: Updated `proxy.ts` to include legal and policy routes (`/terms-of-service`, `/privacy-policy`, `/refund-policy`) as public routes, ensuring they are accessible to guests without authentication.
+- **Footer Accessibility**: Refactored the `Direct_Line` contact in `Footer.js` from a static `div` to a functional `tel:` anchor tag to enable click-to-call functionality on mobile devices.
+
+### Fixed
+- **Auth Gate Logic**: Resolved an issue where guest users were being redirected to the Clerk login page when attempting to access the Terms of Service or Privacy Policy from the footer.
+
+### What We Learnt
+- **Public Route Scope**: Whitelisting routes in middleware is essential for legal compliance pages to ensure they remain accessible even when the rest of the application is protected.
+
+---
+
+## [2026-02-13] - Inventory Integrity & Order Consolidation
+
+### Added
+- **Schema Evolution**: Integrated `sku` (Stock Keeping Unit) and `stock` fields into the `Product` and `OrderItem` models to support real-time inventory tracking.
+- **Atomic Transactions**: Implemented `prisma.$transaction` in the checkout flow to ensure that order creation and stock decrement happen as a single, unbreakable operation.
+- **Telemetry Fallbacks**: Added logic to generate `PART_REF` identifiers from `productId` slices in the UI when a manual SKU is not assigned.
+- **Order History Telemetry**: Implemented offset pagination ("Sectors") and status filtering to manage large acquisition histories efficiently.
+- **SSR Upload Handshake**: Integrated `NextSSRPlugin` in the root layout to enable seamless client-server communication for UploadThing.
+
+### Changed
+- **Order Consolidation**: Refactored the checkout logic from multiple individual orders to a single `Order` with nested `OrderItem` creates. This ensures all items purchased together appear in one "Order Manifest" box.
+- **Mobile UI Hardening**:
+    - Updated `OrderHistoryItem` to use `flex-col-reverse` on mobile, preventing metadata overflow.
+    - Implemented `line-clamp-1` on product names to maintain card uniformity on small screens.
+    - Switched to `toLocaleString` for more compact, mobile-friendly date rendering.
+- **Prisma 6 Configuration**: Updated `prisma.config.ts` to manually load `.env.local` using `dotenv` to satisfy Prisma 6's new configuration requirements.
+- **Middleware Security**: Updated `proxy.ts` to whitelist the UploadThing API route, allowing webhooks to bypass Clerk authentication for completion signals.
+- **Media Payload Expansion**: Increased `maxFileSize` to `16MB` in the `mediaUploader` router to support high-fidelity PNG exhibits.
+
+### Fixed
+- **Merge Conflict Deadlock**: Resolved the `MERGE_HEAD` error by manually reconciling `README.md` conflicts and completing the merge commit.
+- **Prisma 6 Environment Bug (P1012)**: Fixed the "Environment variable not found" error caused by Prisma 6 skipping `.env` files when a `prisma.config.ts` is present.
+- **Client Generation Lock (EPERM)**: Resolved file permission errors during `prisma generate` by identifying and closing processes (Next.js dev server) holding the query engine binary.
+- **Inventory Overselling**: Added a logic gate to throw an error and rollback transactions if a purchase would result in negative stock.
+- **Upload Deadlock**: Resolved the issue where uploads would hang at 100% by ensuring the server-side webhook could reach the application.
+- **FileSizeMismatch Error**: Fixed configuration errors when uploading large assets by aligning server-side limits with collector requirements.
+
+### Challenges Faced
+- **Windows File Locking**: Encountered `EPERM` errors where the OS prevented Prisma from updating its client while the Next.js runtime was active.
+- **Prisma 6 Config Strictness**: Navigating the shift in how Prisma 6 handles environment variables compared to previous versions.
+- **UI Grouping Logic**: Solving the "separate boxes" issue required a fundamental shift in how data is written to the database during the checkout handshake.
+- **Webhook Tunneling**: Navigating the limitations of `localhost` when receiving external pings from file storage providers.
+
+### What We Learnt
+- **The "One-to-Many" Rule**: Learnt that UI grouping issues are almost always a reflection of database normalization; one checkout must equal one Order record.
+- **Prisma 6 Manual Loading**: Discovered that using `defineConfig` in Prisma 6 requires manual `dotenv` integration for local development environments.
+- **Atomic Operations**: Understood that `decrement` operations must be wrapped in transactions to prevent race conditions in high-traffic "Vault" acquisitions.
+- **Middleware Whitelisting**: Realized that third-party webhooks require explicit public route definitions in Clerk middleware to function correctly.
+
+---
+
 ## [2026-02-13] - Shiprocket Integration Refactor & Architectural Alignment
 
 ### Added
@@ -294,7 +391,7 @@
 ## Pending Tasks (To-Do)
 
 ### 1. Data Re-tagging
-- [ ] **Manual Update**: Since the migration dropped the `category` column, existing products need to be manually assigned a `collectionStatus` and `genre` via the Admin Panel or Prisma Studio.
+- [X] **Manual Update**: Since the migration dropped the `category` column, existing products need to be manually assigned a `collectionStatus` and `genre` via the Admin Panel or Prisma Studio.
 
 ---
 *End of Log*
