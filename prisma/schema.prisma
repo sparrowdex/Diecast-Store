@@ -62,6 +62,7 @@ model Order {
   postalCode     String
   country        String
   shippingMethod String
+  shipmentId     String?
   trackingNumber String?
   shippingCost   Float       @default(0)
   total          Float

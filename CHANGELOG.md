@@ -1,5 +1,70 @@
 # Changelog - Diecast Store Refactor
 
+## [2026-02-13] - Shiprocket Integration Refactor & Architectural Alignment
+
+### Added
+- **`src/lib/actions/shiprocket.ts`**: Created a new server action file to handle all Shiprocket-related logic, mirroring the structure of `razorpay.ts`. This includes creating shipments, generating labels, and manifesting pickups.
+- **`src/app/api/webhook/shiprocket/route.ts`**: Implemented a new webhook endpoint to receive real-time shipment status updates from Shiprocket.
+- **Standardized Response Objects**: The new Shiprocket actions now return a standardized response object (`{ success: boolean, data?: any, error?: string }`) for consistency with the Razorpay implementation.
+- **`zod` for Validation**: Added `zod` to the project and used it to validate the dimensions and weight of the package before creating a shipment.
+
+### Changed
+- **`FulfillmentCard.js` Refactor**: The `FulfillmentCard` component has been completely refactored to use the new server actions in `shiprocket.ts`. The logic for creating shipments has been moved to the server, and the component now handles loading and error states based on the server's response.
+- **Architectural Alignment**: The Shiprocket integration now follows the same "Server Action -> Verification -> Webhook" pattern as the Razorpay integration, making the codebase more consistent and maintainable.
+
+### Fixed
+- **Removed Direct API Calls from Component**: The `FulfillmentCard` component no longer makes direct calls to the Shiprocket mock API. All communication with the Shiprocket service is now handled through server actions.
+- **Centralized Logic**: The Shiprocket logic is now centralized in `src/lib/actions/shiprocket.ts`, making it easier to manage and switch to the real Shiprocket API in the future.
+
+### Removed
+- **`src/lib/shiprocket-mock.ts`**: The old mock file has been deleted as its logic has been moved to the new `shiprocket.ts` file.
+
+### Challenges Faced
+- **Refactoring UI Logic to Server Actions**: The main challenge was to carefully extract the shipment creation logic from the `FulfillmentCard` component and move it to a server action, ensuring that the UI remains responsive and provides clear feedback to the user.
+- **Ensuring Consistency**: A key focus was to ensure that the new Shiprocket integration is architecturally consistent with the existing Razorpay integration. This required careful planning and a deep understanding of the existing codebase.
+
+### What We Learnt
+- **The Power of Parallel Architectures**: By mirroring the Razorpay implementation, we were able to refactor the Shiprocket integration quickly and efficiently. This approach also makes the codebase easier to understand and maintain.
+- **Server Actions for Cleaner Components**: Moving complex logic from components to server actions makes the components cleaner, more focused on the UI, and easier to test.
+- **The Importance of a "Consistency Checklist"**: The checklist we created for the Shiprocket integration was instrumental in ensuring that the new implementation is consistent with the rest of the codebase.
+
+---
+
+## [2026-02-08] - Logistics Intelligence & Next.js 16 Hardening
+
+### Added
+- **Shiprocket Mock Service**: Created a dedicated service layer in `src/lib/shiprocket-mock.ts` to simulate AWB generation and shipment tracking.
+- **SLA Priority System**: Implemented logic to flag orders as `NEW`, `URGENT`, or `CRITICAL` based on fulfillment duration (24/48h thresholds).
+- **Telemetry HUD**: Added a real-time KPI dashboard to the Admin Order Log showing fleet size, critical alerts, and circuit valuation.
+- **Git Command Manual**: Created `study-notes/git-commands.md` to document modern branch management and stashing workflows.
+- **Shipment ID Persistence**: Updated `schema.prisma` to store internal logistics IDs, ensuring the database is ready for production API keys.
+
+### Changed
+- **Admin Order Log Redesign**: Overhauled the list view with a "Pit Wall" aesthetic, including faded grid lines, SLA pings, and action-oriented navigation.
+- **Delivery Tracker Evolution**: Updated the UI to map technical Shiprocket statuses (e.g., `READY_TO_SHIP`) to the F1-themed timeline and added "Copy Node ID" functionality.
+- **Fulfillment Workflow**: Transformed the Admin fulfillment UI into a multi-step "Action Center" (Metrics -> Label Generation -> Manifest).
+- **README Overhaul**: Rebranded the project documentation to focus on "Pit Wall Telemetry" and technical precision.
+- **Checkout Robustness**: Documented the "Lock-and-Verify" pattern to prevent overselling and ensure payment idempotency.
+
+### Fixed
+- **Next.js 16 Params Promise**: Resolved `P1012` and `sync-dynamic-apis` errors by unwrapping `params` as a Promise in both Client Components (`use()`) and API routes (`await`).
+- **Prisma 6 Config Conflict**: Fixed environment variable loading issues caused by `prisma.config.ts` by utilizing `dotenv-cli` to bridge `.env.local` with the Prisma CLI.
+- **Server Action Validation**: Corrected non-async exported functions in `'use server'` files to satisfy the Next.js compiler.
+- **Prisma Import Syntax**: Resolved named export errors by switching to default imports for the Prisma client utility.
+- **Database Sync**: Successfully migrated the schema to include `shipmentId` using a professional migration history approach.
+
+### Challenges Faced
+- **Next.js 15/16 Transition**: Adapting to the new asynchronous nature of `params` and `searchParams` required a systematic refactor of dynamic routes.
+- **Prisma 6 Strictness**: Prisma 6's new validation for `directUrl` and its behavior of skipping `.env` files when a config file is present created initial migration friction.
+- **Logistics Mapping**: Translating technical courier statuses into a simplified, high-impact visual timeline for collectors.
+
+### What We Learnt
+- **ID Distinction is Key**: Separating the "Digital Receipt" (Order ID) from the "Physical Passport" (AWB) is crucial for professional e-commerce operations.
+- **Async Everything**: In Next.js 15+, even simple helper functions in Server Action files must be `async` to avoid compilation errors.
+- **Telemetry as UX**: Providing the Admin with "Urgency" indicators (SLA Status) transforms a static table into a functional logistics tool.
+
+---
+
 ## [2026-02-06] - Production Hardening & Configuration Standards
 
 ### Added
