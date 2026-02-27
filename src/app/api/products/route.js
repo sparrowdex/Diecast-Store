@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 export const dynamic = 'force-dynamic';
 
@@ -45,10 +46,16 @@ export async function POST(request) {
     // Data Normalization
     if (data.modelYear) data.modelYear = parseInt(data.modelYear);
     if (data.stock) data.stock = parseInt(data.stock);
+    if (data.price) data.price = String(data.price);
 
     const product = await prisma.product.create({
       data,
     });
+
+    // Purge the cache so the new exhibit appears everywhere immediately
+    revalidatePath('/admin/inventory');
+    revalidatePath('/catalog');
+    revalidatePath('/');
 
     return NextResponse.json(product, { status: 201 });
   } catch (error) {

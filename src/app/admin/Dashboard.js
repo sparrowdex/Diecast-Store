@@ -7,7 +7,7 @@ export default function AdminDashboard({ initialCars, initialOrders = [], dbErro
   const [cars, setCars] = useState(initialCars);
 
   // Stats Calculation
-  const totalValue = cars.reduce((acc, car) => acc + parseInt(car.price.replace(/[^\d]/g, "")), 0);
+  const totalValue = cars.reduce((acc, car) => acc + parseInt(String(car.price).replace(/[^\d]/g, "")), 0);
   const featuredCount = cars.filter(c => c.featured).length;
   const lowStockCars = cars.filter(c => c.stock < 3 && c.stock > 0);
   const outOfStockCount = cars.filter(c => c.stock === 0).length;
@@ -25,7 +25,7 @@ export default function AdminDashboard({ initialCars, initialOrders = [], dbErro
 
   // The Podium (Top 3 by Price/Value)
   const podium = [...cars].sort((a, b) => 
-    parseInt(b.price.replace(/[^\d]/g, "")) - parseInt(a.price.replace(/[^\d]/g, ""))
+    parseInt(String(b.price).replace(/[^\d]/g, "")) - parseInt(String(a.price).replace(/[^\d]/g, ""))
   ).slice(0, 3);
 
   return (
