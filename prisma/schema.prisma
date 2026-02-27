@@ -85,7 +85,7 @@ model OrderItem {
 
   id        String @id @default(cuid())
   name      String
-  price     Float
+  price     String
   quantity  Int
   image     String
   sku       String?

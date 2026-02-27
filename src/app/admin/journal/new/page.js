@@ -36,8 +36,18 @@ export default function NewJournalEntryPage() {
     
     if (response.ok) {
       const data = await response.json();
+      
+      // Force Next.js to refresh server-side data so the new exhibit 
+      // appears in the inventory/manifest lists immediately.
+      router.refresh();
+
       // STEP_FORWARD: Redirect to preview instead of dashboard
       router.push(`/admin/journal/preview/${data.id}`);
+    } else {
+      // Provide feedback if the submit button "doesn't work"
+      const errorData = await response.json();
+      console.error("Submission failed:", errorData);
+      alert(`Failed to create exhibit: ${errorData.message || 'Check server logs'}`);
     }
   };
 

@@ -72,8 +72,8 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
 
   const placeholderCars = [
     { id: 'p1', name: 'Placeholder', brand: 'Brand', price: '₹–––', image: '/cars/maybach.jpg', scale: '1:64' },
-    { id: 'p2', name: 'Placeholder', brand: 'Brand', price: '₹–––', image: '/cars/maybach.jpg', scale: '1:18' },
-    { id: 'p3', name: 'Placeholder', brand: 'Brand', price: '₹–––', image: '/cars/maybach.jpg', scale: '1:32' },
+    { id: 'p2', name: 'Placeholder', brand: 'Brand', price: '₹–––', image: '/cars/maybach.jpg', scale: '1:32' },
+    { id: 'p3', name: 'Placeholder', brand: 'Brand', price: '₹–––', image: '/cars/maybach.jpg', scale: '1:24' },
   ];
 
 
@@ -105,7 +105,7 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
                   endpoint="mediaUploader"
                   onClientUploadComplete={(res) => {
                       if (res) {
-                          const newImageUrls = res.map(file => file.ufsUrl);
+                          const newImageUrls = res.map(file => file.ufsUrl || file.url);
                           const updatedImages = [...formData.images, ...newImageUrls];
                           handleChange({ target: { name: 'images', value: updatedImages } });
                       }
@@ -143,7 +143,7 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
                   endpoint="mediaUploader"
                   onClientUploadComplete={(res) => {
                       if (res) {
-                        const newVideoUrls = res.map(file => file.ufsUrl);
+                        const newVideoUrls = res.map(file => file.ufsUrl || file.url);
                         const updatedVideo = newVideoUrls[0]
                         handleChange({ target: { name: 'video', value: updatedVideo } });
                       }
