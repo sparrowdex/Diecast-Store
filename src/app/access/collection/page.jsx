@@ -42,7 +42,7 @@ export default async function CollectionPage() {
       <header className={`border-b-2 pb-4 transition-colors duration-500 ${isDark ? 'border-white/10' : 'border-black'}`}>
         <div className="flex justify-between items-end">
           <h2 className="text-2xl sm:text-4xl font-black italic tracking-tighter uppercase leading-none break-words">
-            My_Archive
+            My_Collection
           </h2>
           <p className="font-geist-mono text-[9px] opacity-40 uppercase hidden sm:block">
             // TOTAL_ASSETS: {purchasedItems.length.toString().padStart(2, '0')}

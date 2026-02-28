@@ -13,7 +13,7 @@ model Product {
   name        String
   brand       String
   scale       String
-  price       String
+  price       Float
   sku         String?
 
   // THE KEY CHANGE: We store a list of URLs, not just one
@@ -85,7 +85,7 @@ model OrderItem {
 
   id        String @id @default(cuid())
   name      String
-  price     String
+  price     Float
   quantity  Int
   image     String
   sku       String?

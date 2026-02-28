@@ -21,7 +21,10 @@ export default function CheckoutSummary({ items, subtotal, shipping, customer })
       const orderResult = await createOrderAction({
         ...customer,
         total,
-        items
+        items: items.map(item => ({
+          ...item,
+          price: parseFloat(item.price)
+        }))
       });
 
       if (!orderResult.success) {

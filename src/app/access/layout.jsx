@@ -4,10 +4,11 @@ import { UserButton } from "@clerk/nextjs";
 import AccessMobileNav from "@/components/dashboard/AccessMobileNav";
 import { headers } from "next/headers";
 import Link from "next/link";
+import { ExternalLink } from "lucide-react";
 
 const NAV_LINKS = [
   { href: "/access", label: "Dashboard" },
-  { href: "/access/collection", label: "My Archive" },
+  { href: "/access/collection", label: "My Collection" },
   { href: "/access/profile", label: "Collector Profile" },
   { href: "/access/orders", label: "Order History" },
   { href: "/access/settings", label: "Account Settings" },
@@ -25,9 +26,7 @@ export default async function AccessLayout({ children }) {
   });
 
   const totalSpent = totalSpentAggregate._sum.total || 0;
-  const totalItems = await prisma.orderItem.count({ 
-    where: { order: { userId: userId, paymentStatus: 'PAID' } } 
-  });
+  const totalItems = await prisma.product.count();
 
   const userProfile = await prisma.user.findUnique({ where: { id: userId } });
   const isDark = userProfile?.theme === 'dark';
@@ -57,10 +56,10 @@ export default async function AccessLayout({ children }) {
                 <p className="font-geist-mono text-[7px] uppercase tracking-widest opacity-40">Collection_Value</p>
                 <p className={`text-sm font-black italic ${textColor}`}>₹{totalSpent.toLocaleString()}</p>
               </div>
-              <div className="text-center border-l border-current/10">
+              <Link href="/catalog" className="text-center border-l border-current/10 hover:bg-current/[0.05] transition-colors block">
                 <p className="font-geist-mono text-[7px] uppercase tracking-widest opacity-40">Exhibits</p>
                 <p className="text-sm font-black italic">{totalItems.toString().padStart(2, '0')}</p>
-              </div>
+              </Link>
             </div>
           )}
         </div>
@@ -80,10 +79,12 @@ export default async function AccessLayout({ children }) {
               <p className="font-geist-mono text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total_Value</p>
               <p className={`text-2xl font-black italic ${textColor}`}>₹{totalSpent.toLocaleString()}</p>
             </div>
-            <div className="text-right min-w-[100px]">
-              <p className="font-geist-mono text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Exhibits</p>
-              <p className="text-2xl font-black italic">{totalItems.toString().padStart(2, '0')}</p>
-            </div>
+            <Link href="/catalog" className="text-center min-w-[100px] group block">
+              <p className="font-geist-mono text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1 group-hover:text-current transition-colors flex items-center justify-center gap-1">
+                Exhibits <ExternalLink size={8} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+              </p>
+              <p className="text-2xl font-black italic group-hover:scale-110 transition-transform">{totalItems.toString().padStart(2, '0')}</p>
+            </Link>
           </div>
         </div>
 

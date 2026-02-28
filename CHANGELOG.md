@@ -1,5 +1,33 @@
 # Changelog - Diecast Store Refactor
 
+## [2026-02-28] - Glossy Telemetry & Collection Refactor
+
+### Added
+- **Glossy Stats Cards**: Upgraded the `StatsPanel` with the same premium gradient and shadow depth as the Collector ID card for visual consistency.
+- **System Idle Placeholder**: Retired the "Rare Editions" metric and replaced it with a "System Idle" state featuring a floating thermal blob animation.
+- **Global Exhibit Tracking**: Updated the "Exhibits" count in the main layout to reflect the total number of unique models available in the entire catalog (`prisma.product.count()`), transforming the metric into a "Collection Goal" for users.
+- **Interactive Metrics**: Transformed the "Exhibits" and "Models Owned" stats into functional navigation nodes.
+
+### Fixed
+- **Nickname Modal Crash**: Resolved a `ReferenceError: setIsEditing is not defined` in `CollectionItem.jsx` that prevented users from saving car nicknames.
+- **Layout Alignment**: Corrected the "Exhibits" metric in the desktop header which was misaligned to the right; it is now centered below its heading for better visual balance.
+- **Dashboard Property Crash**: Resolved a `TypeError: Cannot read properties of undefined (reading 'toString')` in the `StatsPanel` caused by a property name mismatch after renaming `totalModels` to `modelsOwned`.
+
+### Changed
+- **Terminology Update**: Renamed "My Archive" to "My Collection" across the application (Sidebar, Dashboard links, and Collection page header) to better align with the collector's mindset.
+- **Metric Clarification**: Renamed `Total Models` to `Models Owned` in the dashboard and stats panel to clearly differentiate between unique exhibits in the vault and the total number of physical units a collector has acquired.
+- **Archive Modal Evolution**: Refined the nickname configuration modal in `CollectionItem.jsx` by removing the `Rarity_State` box and replacing it with a `Genre_Sector` display to better reflect the car's identity.
+
+### Challenges Faced
+- **State Synchronization**: Ensuring that renaming a data property in a high-level page component is correctly propagated down to all child components (like `StatsPanel`) to prevent runtime errors.
+- **Count Discrepancy**: Reconciling the difference between unique line items in an order (Exhibits) and the total quantity of units purchased (Models Owned).
+
+### What We Learnt
+- **Collection Psychology**: Showing the total possible "Exhibits" in the vault creates a stronger incentive for collectors to complete their sets compared to just showing what they already own.
+- **Defensive Component Design**: Using optional chaining or fallback values when calling methods like `.toString()` on data properties can prevent entire page crashes during refactoring.
+
+---
+
 ## [2026-02-17] - v1.2.0 - The "Heavy Metal" Stamp Update
 
 ### Added

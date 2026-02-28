@@ -32,7 +32,7 @@ export default async function AccessDashboardPage() {
 
   const allItems = allPaidOrders.flatMap(order => order.items);
   const stats = {
-    totalModels: allItems.reduce((sum, item) => sum + item.quantity, 0),
+    modelsOwned: allItems.reduce((sum, item) => sum + item.quantity, 0),
     rareEditions: allItems.filter(item => item.product?.isRare).length,
   };
 
@@ -53,7 +53,7 @@ export default async function AccessDashboardPage() {
     <div className="space-y-12">
       <header className={`border-b-2 pb-4 ${isDark ? 'border-white/10' : 'border-black'}`}>
         <div className="flex justify-end items-center mb-4">
-          <Link href="/access/collection" className="font-geist-mono text-[9px] hover:underline opacity-50 uppercase">[ Full_Archive ]</Link>
+          <Link href="/access/collection" className="font-geist-mono text-[9px] hover:underline opacity-50 uppercase">[ Full_Collection ]</Link>
         </div>
         <div className="flex justify-between items-end">
           <h2 className="text-2xl md:text-4xl font-black italic tracking-tighter uppercase leading-none">Collector_Dashboard</h2>

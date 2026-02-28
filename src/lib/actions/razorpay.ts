@@ -97,7 +97,7 @@ export async function createOrder(items: CartItem[], rawFormData: FormData, pass
         items: {
           create: items.map((item) => ({
             name: item.name,
-            price: String(item.price),
+            price: item.price,
             quantity: item.quantity,
             image: item.image || (Array.isArray(item.images) ? item.images[0] : "/placeholder-car.png"),
             sku: item.sku || null,

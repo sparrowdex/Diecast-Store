@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -11,7 +11,6 @@ export default function OrderSuccessClient() {
   const displayId = searchParams.get("payment_id") || searchParams.get("orderId") || "TXN_UNKNOWN";
   
   const [isScanning, setIsScanning] = useState(true);
-  const blueprintRef = useRef(null);
 
   useEffect(() => {
     if (isScanning) {
@@ -106,7 +105,7 @@ export default function OrderSuccessClient() {
               </div>
 
               {/* Blueprint Section (Captured for PDF) */}
-              <div ref={blueprintRef} className="mb-12 overflow-hidden" style={{ backgroundColor: '#ffffff', borderStyle: 'solid', borderWidth: '1px', borderColor: '#e5e7eb' }}>
+              <div className="mb-12 overflow-hidden" style={{ backgroundColor: '#ffffff', borderStyle: 'solid', borderWidth: '1px', borderColor: '#e5e7eb' }}>
                 <div className="p-4 flex justify-between items-center" style={{ backgroundColor: '#000000' }}>
                   <span className="text-[8px] font-mono uppercase tracking-[0.3em]" style={{ color: 'rgba(255,255,255,0.5)' }}>Technical_Manifesto_v1.0</span>
                   <div className="flex gap-1">

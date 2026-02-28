@@ -22,7 +22,7 @@ export default function CollectionItem({ item, isDark }) {
         method: 'PUT',
         body: JSON.stringify({ nickname }),
       });
-      if (res.ok) setIsEditing(false); // If you're using setIsEditing elsewhere
+      // Ensure no undefined variables like setIsEditing are called here
       if (res.ok) setShowModal(false);
     } catch (error) {
       console.error("Failed to update nickname", error);
@@ -114,10 +114,8 @@ export default function CollectionItem({ item, isDark }) {
                         <p className="font-black italic text-sm">{item.product?.scale || '1:24'}</p>
                     </div>
                     <div className="p-3 bg-current/5 border border-current/5">
-                        <p className="font-geist-mono text-[8px] opacity-40 uppercase mb-1">Rarity_State</p>
-                        <p className={`font-black italic text-sm ${item.product?.isRare ? accentColor : ''}`}>
-                            {item.product?.isRare ? 'RARE_EDITION' : 'STANDARD'}
-                        </p>
+                        <p className="font-geist-mono text-[8px] opacity-40 uppercase mb-1">Genre_Sector</p>
+                        <p className="font-black italic text-sm">{item.product?.genre?.replace('_', ' ') || 'GENERAL'}</p>
                     </div>
                 </div>
 

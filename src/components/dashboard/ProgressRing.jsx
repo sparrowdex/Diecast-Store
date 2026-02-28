@@ -7,7 +7,7 @@ import { GENRE_METADATA } from '../badgeLogic';
 const IMPACT_DELAY = 0.1; 
 
 const ProgressRing = ({ percentage, label, size = 100, strokeWidth = 4, theme = 'dark', color, id }) => {
-  const visualPercentage = Math.max(0, Math.min(percentage, 100));
+  const visualPercentage = Math.round(Math.max(0, Math.min(percentage, 100)));
   const isComplete = visualPercentage === 100;
   const metadata = GENRE_METADATA[id];
   
