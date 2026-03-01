@@ -18,7 +18,7 @@ export default function OrderCard({ order, isDark }: OrderCardProps) {
   return (
     <div className={`group relative w-full transition-all hover:-translate-y-1 ${
       isDark 
-        ? 'bg-zinc-900 hover:shadow-[4px_4px_0px_0px_#ffffff]' 
+        ? 'bg-zinc-900 hover:shadow-[4px_4px_0px_0px_#FAFAFA]' 
         : 'bg-white hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
     }`}>
       

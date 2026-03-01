@@ -5,10 +5,11 @@ import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import confetti from "canvas-confetti";
+import ManifestoButton from "@/components/ManifestoButton";
 
-export default function OrderSuccessClient() {
+export default function OrderSuccessClient({ order }) {
   const searchParams = useSearchParams();
-  const displayId = searchParams.get("payment_id") || searchParams.get("orderId") || "TXN_UNKNOWN";
+  const displayId = order?.id || searchParams.get("payment_id") || searchParams.get("orderId") || "TXN_UNKNOWN";
   
   const [isScanning, setIsScanning] = useState(true);
 
@@ -28,7 +29,7 @@ export default function OrderSuccessClient() {
         angle: 60,
         spread: 55,
         origin: { x: 0 },
-        colors: ["#FF1E1E", "#000000", "#ffffff"],
+        colors: ["#FF1E1E", "#0A0A0A", "#FAFAFA"],
         shapes: ['square'],
       });
       confetti({
@@ -36,7 +37,7 @@ export default function OrderSuccessClient() {
         angle: 120,
         spread: 55,
         origin: { x: 1 },
-        colors: ["#FF1E1E", "#000000", "#ffffff"],
+        colors: ["#FF1E1E", "#0A0A0A", "#FAFAFA"],
         shapes: ['square'],
       });
 
@@ -53,7 +54,7 @@ export default function OrderSuccessClient() {
     <div className="min-h-screen bg-[#fafafa] flex items-center justify-center p-6 font-sans selection:bg-black selection:text-white overflow-hidden relative">
       {/* Background Tech Grid */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-           style={{ backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`, backgroundSize: '40px 40px' }} />
+           style={{ backgroundImage: `linear-gradient(#0A0A0A 1px, transparent 1px), linear-gradient(90deg, #0A0A0A 1px, transparent 1px)`, backgroundSize: '40px 40px' }} />
 
       <div className="max-w-3xl w-full relative z-10">
         <AnimatePresence mode="wait">
@@ -96,17 +97,17 @@ export default function OrderSuccessClient() {
                    </div>
                 </motion.div>
                 
-                <h1 className="text-6xl md:text-8xl font-black italic uppercase tracking-tighter leading-none text-black">
+                <h1 className="text-5xl sm:text-6xl md:text-8xl font-black italic uppercase tracking-tighter leading-none text-black">
                   EXHIBIT<span className="text-[#FF1E1E]">_</span>ACQUIRED
                 </h1>
-                <p className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.6em] mt-6">
+                <p className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.3em] sm:tracking-[0.6em] mt-6">
                   Vault_Log // Transaction_Successful
                 </p>
               </div>
 
               {/* Blueprint Section (Captured for PDF) */}
-              <div className="mb-12 overflow-hidden" style={{ backgroundColor: '#ffffff', borderStyle: 'solid', borderWidth: '1px', borderColor: '#e5e7eb' }}>
-                <div className="p-4 flex justify-between items-center" style={{ backgroundColor: '#000000' }}>
+              <div className="mb-12 overflow-hidden" style={{ backgroundColor: '#FAFAFA', borderStyle: 'solid', borderWidth: '1px', borderColor: '#e5e7eb' }}>
+                <div className="p-4 flex justify-between items-center" style={{ backgroundColor: '#0A0A0A' }}>
                   <span className="text-[8px] font-mono uppercase tracking-[0.3em]" style={{ color: 'rgba(255,255,255,0.5)' }}>Technical_Manifesto_v1.0</span>
                   <div className="flex gap-1">
                     <div className="w-1 h-1" style={{ backgroundColor: '#333333' }} />
@@ -115,15 +116,15 @@ export default function OrderSuccessClient() {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-px" style={{ backgroundColor: '#f3f4f6' }}>
-                  <div className="p-8" style={{ backgroundColor: '#ffffff' }}>
+                  <div className="p-8" style={{ backgroundColor: '#FAFAFA' }}>
                     <p className="text-[9px] font-mono uppercase tracking-widest mb-3 italic" style={{ color: '#999999' }}>Reference_ID</p>
-                    <p className="text-lg font-mono font-bold truncate" style={{ color: '#000000' }}>{displayId}</p>
+                    <p className="text-lg font-mono font-bold truncate" style={{ color: '#0A0A0A' }}>{displayId}</p>
                   </div>
-                  <div className="p-8 border-l" style={{ backgroundColor: '#ffffff', borderLeftStyle: 'solid', borderLeftWidth: '1px', borderLeftColor: '#e5e7eb' }}>
+                  <div className="p-8 border-l" style={{ backgroundColor: '#FAFAFA', borderLeftStyle: 'solid', borderLeftWidth: '1px', borderLeftColor: '#e5e7eb' }}>
                     <p className="text-[9px] font-mono uppercase tracking-widest mb-3 italic" style={{ color: '#999999' }}>Vault_Status</p>
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#10b981' }} />
-                      <p className="text-lg font-black italic uppercase" style={{ color: '#000000' }}>SECURED</p>
+                      <p className="text-lg font-black italic uppercase" style={{ color: '#0A0A0A' }}>SECURED</p>
                     </div>
                   </div>
                 </div>
@@ -133,7 +134,7 @@ export default function OrderSuccessClient() {
                   <p className="text-[11px] leading-relaxed font-medium" style={{ color: '#333333' }}>
                     This exhibit has been officially processed and allocated to your private vault. 
                     The engineering specifications and provenance of this model have been verified 
-                    against the Curated_Diecast_Exhibition standards.
+                    against The Diecast Store standards.
                   </p>
                 </div>
               </div>
@@ -142,12 +143,12 @@ export default function OrderSuccessClient() {
               <div className="flex flex-col items-center gap-6">
                 <Link 
                   href="/" 
-                  className="group relative inline-block bg-black text-white px-16 py-6 font-black text-xs uppercase tracking-[0.4em] overflow-hidden"
+                  className="group relative inline-block bg-black text-white px-8 sm:px-16 py-6 font-black text-xs uppercase tracking-[0.4em] overflow-hidden"
                 >
                   <span className="relative z-10">Return_to_Gallery</span>
                   <div className="absolute inset-0 bg-[#FF1E1E] translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                 </Link>
-
+                <ManifestoButton order={order} />
               </div>
             </motion.div>
           )}

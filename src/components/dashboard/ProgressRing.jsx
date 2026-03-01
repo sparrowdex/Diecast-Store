@@ -163,7 +163,7 @@ const ProgressRing = ({ percentage, label, size = 100, strokeWidth = 4, theme = 
 
                 className="absolute flex items-center justify-center px-3 py-1 border border-white/40 shadow-xl z-30"
                 style={{ 
-                  backgroundImage: `linear-gradient(135deg, ${baseColor} 0%, #ffffff 50%, ${baseColor} 100%)`,
+                  backgroundImage: `linear-gradient(135deg, ${baseColor} 0%, #FAFAFA 50%, ${baseColor} 100%)`,
                   boxShadow: `0px 4px 15px ${baseColor}, inset 0 0 10px rgba(255,255,255,0.5)`,
                   backgroundSize: '200% 200%', 
                 }}
@@ -171,7 +171,7 @@ const ProgressRing = ({ percentage, label, size = 100, strokeWidth = 4, theme = 
                 <span 
                   className="text-[10px] font-black italic uppercase tracking-tighter leading-none whitespace-nowrap drop-shadow-sm"
                   style={{ 
-                    color: '#000000', 
+                    color: '#0A0A0A', 
                     textShadow: '0px 1px 0px rgba(255,255,255,0.5)'
                   }}
                 >

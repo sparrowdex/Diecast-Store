@@ -1,22 +1,10 @@
-import prisma from "@/lib/prisma";
+import { getOrderByAnyId } from "@/lib/actions/orders";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
-async function getOrder(id) {
-  try {
-    return await prisma.order.findUnique({
-      where: { id },
-      include: { items: true },
-    });
-  } catch (error) {
-    console.error("Error fetching order:", error);
-    return null;
-  }
-}
-
 export default async function OrderStatusPage({ params }) {
   const { id } = await params;
-  const order = await getOrder(id);
+  const order = await getOrderByAnyId(id);
 
   if (!order) notFound();
 
