@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import CatalogCard from "./CatalogCard";
+import CatalogCard from "./catalog/CatalogCard";
 import StandardCard from "./StandardCard";
 import BentoCard from "./BentoCard";
 import { UploadButton } from "@uploadthing/react";

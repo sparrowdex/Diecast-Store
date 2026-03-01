@@ -1,8 +1,12 @@
 "use client";
 
 import { useState, useMemo } from 'react';
-import Link from 'next/link';
-import CatalogCard from '@/components/CatalogCard';
+import CatalogCard from '@/components/catalog/CatalogCard';
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
+import { useCart } from '@/context/CartContext';
+import { ShoppingBag } from 'lucide-react';
+import CartDrawer from '@/components/CartDrawer';
 
 const FILTER_VISIBLE_LIMIT = 10; // How many filter tiles to show before hiding the rest
 
@@ -26,7 +30,7 @@ const FilterGroup = ({ title, items, selected, setSelected, isExpanded, setExpan
           <button
             key={item}
             onClick={() => setSelected(item)}
-            className={`px-5 py-2.5 text-[10px] font-bold uppercase tracking-wider border rounded-sm transition-all duration-200
+            className={`px-5 py-2.5 text-[10px] font-bold uppercase tracking-wider border rounded-md transition-all duration-200
               ${selected === item 
                 ? 'bg-black text-white border-black shadow-md' 
                 : 'bg-white text-gray-500 border-gray-100 hover:border-gray-300 hover:text-black'
@@ -69,6 +73,7 @@ export default function Catalog({ cars }) {
   // NEW: State to manage "Show More" toggle
   const [showAllScales, setShowAllScales] = useState(false);
   const [showAllGenres, setShowAllGenres] = useState(false);
+  const { cart, setIsCartOpen } = useCart();
 
   // Dynamically get unique options
   const scales = useMemo(() => ['All', ...new Set(cars.map(car => car.scale))], [cars]);
@@ -89,20 +94,29 @@ export default function Catalog({ cars }) {
   const visibleCars = useMemo(() => filteredCars.slice(0, displayLimit), [filteredCars, displayLimit]);
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-black font-sans selection:bg-black selection:text-white pb-20">
+    <div className={`${GeistSans.className} ${GeistMono.variable} min-h-screen bg-[#fafafa] text-black selection:bg-black selection:text-white pb-20`}>
+      <CartDrawer />
       
       {/* 1. Header */}
-      <div className="bg-white border-b border-black/5 pt-32 pb-12 px-4 sm:px-6 md:px-12 mb-10">
+      <div className="bg-white pt-6 pb-8 px-4 sm:px-6 md:px-12 mb-6">
         <div className="container mx-auto text-center md:text-left">
-          <Link href="/" className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-gray-400 hover:text-black transition-colors mb-8">
-            <span className="text-xs">←</span> [ RETURN_TO_MAIN ]
-          </Link>
-          <h1 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter uppercase italic mb-4">
-            The_Catalog
-          </h1>
-          <p className="text-xs font-mono text-gray-400 uppercase tracking-[0.3em]">
-            Curated Index // {filteredCars.length} Exhibits
-          </p>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <h1 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter uppercase italic mb-2">
+                THE CATALOG
+              </h1>
+              <p className="text-xl md:text-2xl font-black italic uppercase tracking-widest opacity-40">
+                {filteredCars.length} Exhibits
+              </p>
+            </div>
+            <button 
+              onClick={() => setIsCartOpen(true)}
+              className="px-6 py-3 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-red-600 transition-colors flex items-center gap-2 w-fit mx-auto md:mx-0"
+            >
+              <ShoppingBag size={14} />
+              Open Vault ({cart.length})
+            </button>
+          </div>
         </div>
       </div>
 

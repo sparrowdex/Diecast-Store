@@ -56,7 +56,7 @@ export default async function AccessDashboardPage() {
           <Link href="/access/collection" className="font-geist-mono text-[9px] hover:underline opacity-50 uppercase">[ Full_Collection ]</Link>
         </div>
         <div className="flex justify-between items-end">
-          <h2 className="text-2xl md:text-4xl font-black italic tracking-tighter uppercase leading-none">Collector_Dashboard</h2>
+          <h2 className="text-2xl md:text-4xl font-black italic tracking-tighter uppercase leading-none">COLLECTOR DASHBOARD</h2>
         </div>
       </header>
 

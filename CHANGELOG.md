@@ -1,8 +1,19 @@
 # Changelog - Diecast Store Refactor
 
-## [2026-02-28] - Glossy Telemetry & Collection Refactor
+## [2026-02-28] - Catalog UI Overhaul & Search Logic
 
 ### Added
+- **Catalog Navbar**: Implemented a slim, minimal navigation bar for the catalog with mobile hamburger support.
+- **Collapsible Filters**: Added a mobile-only "Filters" button that reveals scale and genre options to save vertical space.
+- **Priority Sorting**: Implemented logic to automatically push `NEW_ARRIVAL` and `FEATURED_EXHIBIT` items to the top of the catalog grid.
+- **Enhanced Search**: Updated search logic to include `collectionStatus` tags, allowing users to search for "New Arrival" or "Featured" directly.
+
+### Changed
+- **Catalog Card Redesign**: 
+    - Reduced image padding and increased base scale to `1.1` for higher visual impact.
+    - Relocated technical details (Scale, Year) to a clean data strip below the image.
+    - Optimized floating badges to prevent image overlap on mobile.
+- **Typography Refinement**: Removed underscores from major headings (e.g., `THE_VAULT` -> `THE VAULT`) for a cleaner, more readable aesthetic.
 - **Glossy Stats Cards**: Upgraded the `StatsPanel` with the same premium gradient and shadow depth as the Collector ID card for visual consistency.
 - **System Idle Placeholder**: Retired the "Rare Editions" metric and replaced it with a "System Idle" state featuring a floating thermal blob animation.
 - **Global Exhibit Tracking**: Updated the "Exhibits" count in the main layout to reflect the total number of unique models available in the entire catalog (`prisma.product.count()`), transforming the metric into a "Collection Goal" for users.

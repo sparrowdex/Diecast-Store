@@ -3,8 +3,9 @@ import { useState, useEffect, useMemo } from "react";
 import { motion } from 'framer-motion';
 import Link from "next/link";
 import JournalMediaDisplay from "@/components/JournalMediaDisplay";
+import SubPageNavbar from "@/components/SubPageNavbar";
 
-const GENRES = ["CLASSIC_VINTAGE", "RACE_COURSE", "CITY_LIFE", "SUPERPOWERS", "LUXURY_REDEFINED", "OFF_ROAD", "FUTURE_PROOF"];
+const GENRES = ["All", "CLASSIC_VINTAGE", "RACE_COURSE", "CITY_LIFE", "SUPERPOWERS", "LUXURY_REDEFINED", "OFF_ROAD", "FUTURE_PROOF"];
 
 export default function JournalPage() {
   const [stories, setStories] = useState([]);
@@ -16,9 +17,7 @@ export default function JournalPage() {
     const fetchStories = async () => {
       try {
         const response = await fetch('/api/journal');
-        if (!response.ok) {
-          throw new Error('Failed to fetch stories');
-        }
+        if (!response.ok) throw new Error('Failed to fetch stories');
         const data = await response.json();
         setStories(data);
       } catch (error) {
@@ -34,12 +33,9 @@ export default function JournalPage() {
       setSearchResults([]);
       return;
     }
-
     try {
       const response = await fetch(`/api/journal/search?query=${query}`);
-      if (!response.ok) {
-        throw new Error('Failed to search stories');
-      }
+      if (!response.ok) throw new Error('Failed to search stories');
       const data = await response.json();
       setSearchResults(data);
     } catch (error) {
@@ -48,54 +44,85 @@ export default function JournalPage() {
   };
   
   const displayedStories = useMemo(() => {
-    // 1. Filter for published entries only (Public View) - Ensure boolean check
     const published = (searchQuery.trim() === "" ? stories : searchResults).filter(s => Boolean(s.isPublished));
-    
-    // 2. Apply Genre Filter
     if (!selectedGenre || selectedGenre === "All") return published;
-    // Robust comparison: handle potential nulls or case mismatches
     return published.filter(story => story.genre?.toUpperCase() === selectedGenre.toUpperCase());
   }, [stories, searchResults, searchQuery, selectedGenre]);
 
   return (
     <div className="min-h-screen bg-[#fafafa] text-black font-sans selection:bg-black selection:text-white pb-20">
+      <SubPageNavbar 
+        title="Journal Ref.01"
+        links={[
+          { name: 'Home', href: '/' },
+          { name: 'Collection', href: '/access' },
+          { name: 'Catalog', href: '/catalog' },
+        ]}
+      />
       
-      <div className="bg-white border-b border-black/5 pt-32 pb-12 px-6 md:px-12 mb-16">
+      {/* 1. Header Section */}
+      <div className="bg-white border-b border-black/5 pt-12 pb-12 px-6 md:px-12 mb-16">
         <div className="container mx-auto">
-          <Link href="/" className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-gray-400 hover:text-black transition-colors mb-8">
-            <span className="text-xs">←</span> [ RETURN_TO_MAIN ]
-          </Link>
           <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic mb-4">
-            The_Journal
+            THE JOURNAL
           </h1>
           <p className="text-xs font-mono text-gray-400 uppercase tracking-[0.3em]">
             Editorial & Insights // Vol. 01
           </p>
-          <div className="mt-8 flex flex-wrap gap-6 items-end">
-            <div className="max-w-md flex-1">
+
+          {/* 2. Unified Search & Filter Controls - Updated for Side-by-Side Mobile */}
+          <div className="mt-12 flex flex-row gap-4 md:gap-8 items-end">
+            
+            {/* Search Input - Flex 1 */}
+            <div className="flex-1">
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-3">Search Insights</span>
               <input
                 type="text"
-                placeholder="Search stories..."
+                placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="w-full bg-black text-white font-mono border-2 border-neutral-800 p-3 text-sm placeholder:text-neutral-500 rounded-none outline-none focus:border-white transition-colors duration-300"
+                className="w-full bg-black text-white font-mono border-2 border-neutral-800 p-4 text-sm placeholder:text-neutral-500 rounded-none outline-none focus:border-white transition-all duration-300 shadow-sm"
               />
             </div>
-            <div className="relative">
+
+            {/* Filter Section - Flex 1 */}
+            <div className="flex-1">
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-3">Category</span>
+              
+              {/* Desktop: Pill Filter */}
+              <div className="hidden md:flex flex-wrap gap-2">
+                {GENRES.map(g => (
+                  <button
+                    key={g}
+                    onClick={() => setSelectedGenre(g)}
+                    className={`px-4 py-3 text-[9px] font-black uppercase tracking-widest transition-all duration-300 border ${
+                      selectedGenre === g 
+                      ? 'bg-black text-white border-black shadow-lg' 
+                      : 'bg-white text-black border-gray-200 hover:border-black'
+                    }`}
+                  >
+                    {g === 'All' ? 'View All' : g.replace(/_/g, ' ')}
+                  </button>
+                ))}
+              </div>
+
+              {/* Mobile: Genre Dropdown to match Search Bar length */}
+              <div className="md:hidden relative">
                 <select
-                    value={selectedGenre}
-                    onChange={(e) => setSelectedGenre(e.target.value)}
-                    className="appearance-none bg-black text-white font-mono border-2 border-neutral-800 p-3 text-sm rounded-none outline-none focus:border-white transition-colors duration-300 pr-10 uppercase tracking-widest"
+                  value={selectedGenre}
+                  onChange={(e) => setSelectedGenre(e.target.value)}
+                  className="w-full appearance-none bg-black text-white font-mono border-2 border-neutral-800 p-4 text-sm rounded-none outline-none focus:border-white transition-colors duration-300 pr-10 uppercase tracking-widest"
                 >
-                    <option value="All">All Genres</option>
-                    {GENRES.map(g => (
-                        <option key={g} value={g}>{g.replace(/_/g, ' ')}</option>
-                    ))}
+                  {GENRES.map(g => (
+                    <option key={g} value={g}>{g === 'All' ? 'View All' : g.replace(/_/g, ' ')}</option>
+                  ))}
                 </select>
-                <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-gray-400">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                 </div>
+              </div>
             </div>
+
           </div>
         </div>
       </div>
@@ -107,10 +134,10 @@ export default function JournalPage() {
                   <JournalCard key={story.id} story={story} index={i} />
               ))}
           </div>
-        ) : searchQuery.trim() !== "" && (
-          <div className="text-center py-20">
-            <p className="text-lg font-semibold text-gray-700">No stories found for your search.</p>
-            <p className="text-sm text-gray-500">Try a different keyword.</p>
+        ) : (
+          <div className="text-center py-32 border-2 border-dashed border-black/5">
+            <p className="text-2xl font-black italic uppercase opacity-20 tracking-tighter mb-2">0_ENTRIES_FOUND</p>
+            <p className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">Adjust search parameters to reveal archive.</p>
           </div>
         )}
       </div>
@@ -118,9 +145,7 @@ export default function JournalPage() {
   );
 }
 
-// 2. The Editorial Card Component
 function JournalCard({ story, index }) {
-    // Logic: First item is "Feature" (Full Width), others are grid columns
     const isFeature = index === 0;
 
     return (
@@ -133,8 +158,8 @@ function JournalCard({ story, index }) {
                 className={`flex flex-col ${isFeature ? 'border-b border-black/5 pb-16 mb-8' : ''}`}
             >
                 {/* Image Container */}
-                <div className="overflow-hidden mb-6 relative w-full">
-                    <div className={`w-full bg-gray-100 relative overflow-hidden ${isFeature ? 'aspect-[21/9]' : 'aspect-[4/3]'}`}>
+                <div className="overflow-hidden mb-6 relative w-full border border-black/5">
+                    <div className={`w-full bg-[#f9f9f9] relative overflow-hidden transition-all duration-700 group-hover:grayscale ${isFeature ? 'aspect-[21/9]' : 'aspect-[4/3]'}`}>
                         {(story.images?.[0] || story.video) ? (
                             <JournalMediaDisplay 
                                 imageUrl={story.images?.[0]} 
@@ -174,7 +199,6 @@ function JournalCard({ story, index }) {
                     <div className={`text-gray-500 font-serif leading-relaxed mb-6
                         ${isFeature ? 'text-lg md:text-xl max-w-2xl' : 'text-sm'}
                     `} dangerouslySetInnerHTML={{ __html: story.content.substring(0, 200) + '...'}} />
-
 
                     {/* 'Read More' Link */}
                     <div className="mt-auto flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest group-hover:gap-4 transition-all border-b border-transparent group-hover:border-black pb-0.5">
