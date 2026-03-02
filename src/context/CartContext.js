@@ -48,6 +48,8 @@ export function CartProvider({ children }) {
           ? parseInt(product.price.replace(/[^\d]/g, "")) 
           : product.price,
         brand: product.brand,
+        genre: product.genre,
+        sku: product.sku,
         scale: product.scale,
         stock: stockLimit,
         quantity: Math.min(quantity, stockLimit),
@@ -82,10 +84,7 @@ export function CartProvider({ children }) {
   };
 
   // Calculate total price
-  const cartTotal = cart.reduce((total, item) => {
-    const price = typeof item.price === 'number' ? item.price : parseInt(String(item.price).replace(/[^\d]/g, "")) || 0;
-    return total + (price * item.quantity);
-  }, 0);
+  const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
 
   return (
     <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart, isCartOpen, setIsCartOpen, cartTotal }}>

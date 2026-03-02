@@ -59,7 +59,9 @@ export default function CartDrawer() {
                           ₹{(Number(String(item.price).replace(/[^\d]/g, "")) * currentQty).toLocaleString()}
                         </p>
                       </div>
-                      <p className="text-[10px] text-gray-400 font-mono mt-1 uppercase">{item.brand} • Scale {item.scale}</p>
+                      <p className="text-[10px] text-gray-400 font-mono mt-1 uppercase">
+                        {item.brand} {item.genre && `• ${item.genre.replace(/_/g, ' ')}`} • Scale {item.scale}
+                      </p>
                       
                       <div className="flex justify-between items-center mt-3">
                         <div className="flex items-center gap-2">

@@ -37,6 +37,14 @@ const FulfillmentCard = ({ order, onUpdate }) => {
     if (onUpdate) onUpdate(awb.awb_code);
   };
 
+  const handlePrintLabel = () => {
+    console.log("Printing label for order:", order.id);
+  };
+
+  const handleManifestPickup = () => {
+    console.log("Manifesting pickup for order:", order.id);
+  };
+
   return (
     <div className="bg-zinc-900 border border-white/10 p-6 rounded-sm font-sans relative overflow-hidden">
       {/* Priority Header */}

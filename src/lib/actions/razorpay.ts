@@ -1,6 +1,7 @@
 'use server';
 
 import prisma from '@/lib/prisma';
+import { Genre } from '@prisma/client';
 import Razorpay from 'razorpay';
 import { auth } from '@clerk/nextjs/server';
 import { z } from 'zod';
@@ -105,7 +106,7 @@ export async function createOrder(items: CartItem[], rawFormData: FormData, pass
             image: item.image || (Array.isArray(item.images) ? item.images[0] : "/placeholder-car.png"),
             sku: item.sku || null,
             brand: item.brand,
-            genre: item.genre,
+            genre: item.genre as Genre,
             scale: item.scale,
             product: { 
               connect: { id: item.id }

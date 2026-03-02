@@ -1,15 +1,23 @@
 "use client";
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Inventory({ initialCars = [] }) {
   const [cars, setCars] = useState(initialCars);
   const [filter, setFilter] = useState("all");
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this exhibit?")) {
-      await fetch(`/api/products/${id}`, { method: 'DELETE' });
-      setCars(cars.filter(car => car.id !== id));
+    if (!window.confirm("Are you sure you want to delete this exhibit?")) return;
+
+    try {
+      const response = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('Failed to delete exhibit');
+      
+      setCars(prev => prev.filter(car => car.id !== id));
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert("Failed to delete the exhibit. Please try again.");
     }
   };
 
@@ -74,10 +82,12 @@ export default function Inventory({ initialCars = [] }) {
               
               {/* Top Half: Details */}
               <div className="flex items-start gap-3 w-full min-w-0">
-                <img 
+                <Image 
                   src={car.images?.[0] || '/fallback.png'} 
                   className="w-12 h-12 object-contain bg-white/5 border border-white/10 shrink-0 p-1" 
                   alt="" 
+                  width={48}
+                  height={48}
                 />
                 
                 <div className="flex flex-col flex-1 min-w-0">

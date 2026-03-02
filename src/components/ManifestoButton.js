@@ -163,7 +163,7 @@ const ManifestoDocument = ({ order, orderId }) => {
               <View style={styles.col1}>
                 <Text style={styles.itemName}>{item.name}</Text>
                 <Text style={styles.itemMeta}>
-                  {item.brand || 'GENERIC'} // {item.genre || item.category || 'UNCATEGORIZED'} // PART_REF: {item.sku || item.id?.slice(-6).toUpperCase() || 'N/A'}
+                  {item.brand || 'GENERIC'} // {item.genre?.replace(/_/g, ' ') || 'UNCATEGORIZED'} // PART_REF: {item.sku || item.id?.slice(-6).toUpperCase() || 'N/A'}
                 </Text>
               </View>
               <Text style={[styles.col2, { fontSize: 10, fontWeight: 'bold' }]}>{item.scale || 'N/A'}</Text>
