@@ -31,13 +31,47 @@ export async function POST(req: NextRequest) {
     switch (eventType) {
       case 'payment.captured':
         const paymentCaptured = payload.payment.entity;
-        await prisma.order.update({
+
+        // 1. Find the order and its items
+        const order = await prisma.order.findUnique({
           where: { razorpayOrderId: paymentCaptured.order_id },
+          include: {
+            items: {
+              include: {
+                product: true,
+              },
+            },
+          },
+        });
+
+        if (!order) {
+          throw new Error('Order not found');
+        }
+
+        // 2. Prepare stock updates for each product in the order
+        const stockUpdates = order.items.map(item => {
+          return prisma.product.update({
+            where: { id: item.productId },
+            data: {
+              stock: {
+                decrement: item.quantity,
+              },
+            },
+          });
+        });
+
+        // 3. Prepare the order status update
+        const orderUpdate = prisma.order.update({
+          where: { id: order.id },
           data: {
             paymentStatus: 'PAID',
             razorpayPaymentId: paymentCaptured.id,
           },
         });
+
+        // 4. Execute all updates in a single transaction
+        await prisma.$transaction([...stockUpdates, orderUpdate]);
+
         break;
 
       case 'payment.failed':

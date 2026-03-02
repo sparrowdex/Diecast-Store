@@ -8,7 +8,7 @@ export default function CatalogCard({ car, isPreview = false }) {
 
   const { cart, addToCart } = useCart();
   const cartItem = cart?.find(item => item.id === car.id);
-  const isOutOfStock = car.stock === 0;
+  const isOutOfStock = !(car.stock > 0);
 
   const CardContent = (
     <div className="group block h-full">

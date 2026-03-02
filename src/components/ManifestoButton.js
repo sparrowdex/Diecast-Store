@@ -1,198 +1,189 @@
 "use client";
 
-import { useEffect } from "react";
+import { PDFDownloadLink, Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 
-export default function ManifestoButton({ order }) {
-  const orderId = order?.id || "UNASSIGNED";
-  
-  // FIX 1: Safely grab the correct total property (order.total instead of order.totalAmount)
-  const orderTotal = order?.total || order?.amount || 0;
+// Registering font to match the Geist Mono industrial vibe
+Font.register({
+  family: 'GeistMono',
+  src: 'https://fonts.gstatic.com/s/geistmono/v1/L0x9DFM0_L6O9P7K-O0.ttf'
+});
 
-  useEffect(() => {
-    const style = document.createElement('style');
-    style.innerHTML = `
-      @media print {
-        /* Hide everything else */
-        body * {
-          visibility: hidden;
-        }
-        
-        /* Make manifesto visible */
-        #printable-manifesto, #printable-manifesto * {
-          visibility: visible;
-        }
-        
-        /* FIX 2: Fit perfectly to A4 without pixel overflow */
-        #printable-manifesto {
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: 100vw;
-          height: 100vh;
-          padding: 15mm !important; /* Safe print margins */
-          box-sizing: border-box;
-          transform: none !important;
-        }
+const styles = StyleSheet.create({
+  page: {
+    padding: 45,
+    backgroundColor: '#ffffff',
+    fontFamily: 'GeistMono',
+    display: 'flex',
+    flexDirection: 'column',
+    color: 'black'
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderBottom: '8 solid black',
+    paddingBottom: 25,
+    marginBottom: 35,
+  },
+  title: { fontSize: 42, fontWeight: 'heavy', fontStyle: 'italic', letterSpacing: -2 },
+  badge: { backgroundColor: 'black', color: 'white', padding: '6 14', fontSize: 9, letterSpacing: 3, fontWeight: 'bold' },
+  grid: { flexDirection: 'row', gap: 40, marginBottom: 50 },
+  gridCol: { flex: 1 },
+  label: { fontSize: 9, color: '#9ca3af', letterSpacing: 2, marginBottom: 6, fontWeight: 'bold' },
+  value: { fontSize: 12, fontWeight: 'bold', textTransform: 'uppercase' },
+  tableTitle: { fontSize: 10, letterSpacing: 4, marginBottom: 12, borderBottom: '2 solid #eeeeee', paddingBottom: 6, fontWeight: 'bold' },
+  tableHeader: { flexDirection: 'row', borderBottom: '1 solid #eeeeee', paddingBottom: 10, marginBottom: 10 },
+  tableRow: { flexDirection: 'row', borderBottom: '1 solid #f9f9f9', paddingVertical: 18 },
+  col1: { flex: 3 },
+  col2: { flex: 1, textAlign: 'center' },
+  col3: { flex: 1, textAlign: 'right' },
+  financialSection: {
+    marginTop: 30,
+    paddingTop: 20,
+    borderTop: '3 solid black',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  totalContainer: { width: 220 },
+  totalRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  totalLabel: { fontSize: 9, color: '#9ca3af', fontWeight: 'bold' },
+  totalAmount: { fontSize: 32, fontWeight: 'heavy', fontStyle: 'italic', letterSpacing: -1, marginTop: 10 },
+  stamp: {
+    position: 'absolute',
+    right: 50,
+    bottom: 90,
+    border: '8 solid #dc2626',
+    padding: '12 24',
+    transform: 'rotate(-12deg)',
+    opacity: 0.85,
+  },
+  stampInner: { position: 'absolute', top: 2, left: 2, right: 2, bottom: 2, border: '2 solid #dc2626' },
+  stampText: { color: '#dc2626', fontSize: 22, fontWeight: 'bold', textAlign: 'center', fontStyle: 'italic' },
+  stampSub: { color: '#dc2626', fontSize: 8, textAlign: 'center', marginTop: 6, letterSpacing: 3, fontWeight: 'bold' },
+  telemetry: {
+    marginTop: 'auto',
+    paddingTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    fontSize: 8,
+    color: '#d1d5db',
+    letterSpacing: 4,
+    fontWeight: 'bold'
+  }
+});
 
-        /* FIX 3: Aggressively force color printing */
-        * {
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-          color-adjust: exact !important;
-        }
-
-        @page {
-          size: A4 portrait;
-          margin: 0; /* Let the padding on #printable-manifesto handle margins */
-        }
-      }
-    `;
-    document.head.appendChild(style);
-
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
-
-  const triggerPrint = () => {
-    window.print();
-  };
-
-  if (!order) return null;
+const ManifestoDocument = ({ order, orderId }) => {
+  // Logic to handle pricing properly
+  const subtotal = order.items?.reduce((acc, item) => acc + Number(item.price), 0) || 0;
+  const shippingFee = Number(order.shippingFee) || 0;
+  const finalTotal = subtotal + shippingFee;
 
   return (
-    <>
-      <button 
-        onClick={triggerPrint}
-        className="group flex items-center gap-2 font-mono text-[9px] font-bold tracking-widest uppercase text-gray-400 hover:text-black transition-all mt-2"
-      >
-        <svg className="w-3 h-3 group-hover:text-red-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-        Generate_Technical_Manifesto.pdf
-      </button>
+    <Document title={`MANIFESTO_${orderId}`}>
+      <Page size="A4" style={styles.page}>
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.title}>THE_DIECAST_STORE</Text>
+            <Text style={{ fontSize: 9, color: '#9ca3af', letterSpacing: 5 }}>CURATED_EXHIBITION_CORE_SYSTEM</Text>
+          </View>
+          <View style={{ alignItems: 'flex-end' }}>
+            <View style={styles.badge}><Text>TECHNICAL_MANIFESTO_V2.0</Text></View>
+            <Text style={{ fontSize: 7, color: '#9ca3af', marginTop: 10 }}>UPLINK: {new Date().toISOString()}</Text>
+          </View>
+        </View>
 
-      {/* Changed w-[800px] to w-full so it respects the print margins */}
-      <div id="printable-manifesto" className="hidden print:flex flex-col w-full bg-white font-mono text-black">
-        
-        {/* Header */}
-        <div className="flex justify-between items-start border-b-8 border-black pb-8 mb-12">
-          <div>
-            <h1 className="text-5xl font-black italic tracking-tighter leading-none mb-2">THE_DIECAST_STORE</h1>
-            <p className="text-[10px] tracking-[0.6em] text-gray-400 uppercase">Curated_Exhibition_Core_System</p>
-          </div>
-          <div className="text-right">
-            <div className="bg-black text-white px-6 py-3 text-xs font-black uppercase tracking-[0.3em]" style={{ backgroundColor: 'black', color: 'white' }}>
-              Technical_Manifesto_v2.0
-            </div>
-            <p className="text-[8px] mt-3 text-gray-400 font-bold">UPLINK_STAMP: {new Date().toISOString()}</p>
-          </div>
-        </div>
-        
-        {/* Section 1: Transaction & Logistics Grid */}
-        <div className="grid grid-cols-2 gap-12 mb-16">
-          <div className="space-y-6">
-            <div>
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">// Order_Reference</p>
-              <p className="text-sm font-black truncate">{orderId}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">// Payment_Protocol</p>
-              <p className="text-sm font-black uppercase">{order.paymentMethod || "RAZORPAY_SECURE_GATEWAY"}</p>
-            </div>
-          </div>
-          <div className="space-y-6 border-l-2 border-gray-100 pl-12">
-            <div>
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">// Logistics_Node_ID</p>
-              <p className="text-sm font-black">{order.trackingNumber || "PENDING_ALLOCATION"}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">// Carrier_Service</p>
-              <p className="text-sm font-black uppercase">{order.shippingProvider || "SHIPROCKET_EXPRESS_LOGISTICS"}</p>
-            </div>
-          </div>
-        </div>
-        
-        {/* Section 2: The Manifest (Items Table) */}
-        <div className="flex-1">
-          <h3 className="text-xs font-black uppercase tracking-[0.4em] mb-6 border-b-2 border-gray-200 pb-3">Exhibit_Allocation_Manifest</h3>
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="text-[10px] text-gray-400 uppercase tracking-widest border-b border-gray-100">
-                <th className="py-4 font-black">Item_Description</th>
-                <th className="py-4 font-black text-center">Scale</th>
-                <th className="py-4 font-black text-right">Valuation</th>
-              </tr>
-            </thead>
-            <tbody className="text-xs">
-              {(order.items || []).map((item, idx) => (
-                <tr key={idx} className="border-b border-gray-50">
-                  <td className="py-6">
-                    <p className="font-black uppercase text-sm">{item.name}</p>
-                    <p className="text-[9px] text-gray-500 uppercase mt-1">{item.brand} // {item.genre?.replace(/_/g, ' ')}</p>
-                  </td>
-                  <td className="py-6 text-center font-black">{item.scale}</td>
-                  <td className="py-6 text-right font-black italic">₹{Number(item.price).toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <View style={styles.grid}>
+          <View style={styles.gridCol}>
+            <Text style={styles.label}>// ORDER_REFERENCE</Text>
+            <Text style={styles.value}>{orderId}</Text>
+            <View style={{ marginTop: 20 }}>
+              <Text style={styles.label}>// PAYMENT_PROTOCOL</Text>
+              <Text style={styles.value}>{order.paymentMethod || "RAZORPAY_SECURE"}</Text>
+            </View>
+          </View>
+          <View style={[styles.gridCol, { borderLeft: '1 solid #f3f4f6', paddingLeft: 35 }]}>
+            <Text style={styles.label}>// LOGISTICS_NODE_ID</Text>
+            <Text style={styles.value}>{order.trackingNumber || "PENDING_ALLOCATION"}</Text>
+            <View style={{ marginTop: 20 }}>
+              <Text style={styles.label}>// CARRIER_SERVICE</Text>
+              <Text style={styles.value}>{order.shippingProvider || "SHIPROCKET_EXPRESS"}</Text>
+            </View>
+          </View>
+        </View>
 
-        {/* Section 3: Financial Summary */}
-        <div className="mt-16 pt-8 border-t-4 border-black flex justify-end">
-          <div className="w-72 space-y-3">
-            <div className="flex justify-between text-[10px] text-gray-500 uppercase font-bold">
-              <span>Subtotal_Valuation</span>
-              <span>₹{Number(orderTotal).toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between text-[10px] text-gray-500 uppercase font-bold">
-              <span>Logistics_Fee</span>
-              <span>₹0.00</span>
-            </div>
-            <div className="flex justify-between items-end pt-6">
-              <span className="text-sm font-black uppercase tracking-[0.2em]">Total_Valuation</span>
-              <span className="text-3xl font-black italic tracking-tighter">₹{Number(orderTotal).toLocaleString()}</span>
-            </div>
-          </div>
-        </div>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.tableTitle}>EXHIBIT_ALLOCATION_MANIFEST</Text>
+          <View style={styles.tableHeader}>
+            <Text style={[styles.col1, styles.label]}>ITEM_DESCRIPTION</Text>
+            <Text style={[styles.col2, styles.label]}>SCALE</Text>
+            <Text style={[styles.col3, styles.label]}>VALUATION</Text>
+          </View>
+          {(order.items || []).map((item, i) => (
+            <View key={i} style={styles.tableRow}>
+              <View style={styles.col1}>
+                <Text style={{ fontSize: 13, fontWeight: 'bold' }}>{item.name}</Text>
+                <Text style={{ fontSize: 8, color: '#9ca3af', marginTop: 4 }}>
+                  {item.brand || 'GENERIC'} // {item.genre || 'UNCATEGORIZED'}
+                </Text>
+              </View>
+              <Text style={[styles.col2, { fontSize: 11 }]}>{item.scale || 'N/A'}</Text>
+              <Text style={[styles.col3, { fontSize: 13, fontWeight: 'bold', fontStyle: 'italic' }]}>
+                ₹{Number(item.price).toLocaleString()}
+              </Text>
+            </View>
+          ))}
+        </View>
 
-        {/* Section 4: Contact & Footer */}
-        <div className="mt-24 grid grid-cols-2 items-end">
-          <div className="space-y-8">
-            <div>
-              <h4 className="text-[10px] font-black text-red-600 uppercase tracking-[0.3em] mb-3" style={{ color: '#dc2626' }}>Contact_Center</h4>
-              <p className="text-[11px] font-bold text-gray-600">support@diecaststore.com</p>
-              <p className="text-[11px] font-bold text-gray-600">+91 123-456-7890</p>
-            </div>
-            <div className="border-l-2 border-gray-200 pl-4">
-              <p className="text-[9px] text-gray-400 max-w-xs leading-relaxed uppercase font-bold">
-                This manifest serves as official proof of acquisition. All exhibits are verified for authenticity and scale precision against Gallery_OS standards.
-              </p>
-            </div>
-          </div>
+        <View style={styles.financialSection}>
+          <View style={styles.totalContainer}>
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>SUBTOTAL_VALUATION</Text>
+              <Text style={{ fontSize: 10 }}>₹{subtotal.toLocaleString()}</Text>
+            </View>
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>SHIPPING_&_HANDLING</Text>
+              <Text style={{ fontSize: 10 }}>₹{shippingFee.toLocaleString()}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderTop: '1 solid #eee', paddingTop: 15 }}>
+              <Text style={[styles.totalLabel, { color: 'black' }]}>TOTAL_VALUATION</Text>
+              <Text style={styles.totalAmount}>₹{finalTotal.toLocaleString()}</Text>
+            </View>
+          </View>
+        </View>
 
-          {/* The Stamp: Scaled down slightly and tucked in to prevent edge-clipping */}
-          <div className="flex justify-end relative pr-4">
-            {/* Added inline style color overrides to ensure the printer does not strip Tailwind colors */}
-            <div 
-              className="relative transform rotate-[-8deg] border-[8px] border-red-600 text-red-600 px-8 py-3 font-black text-3xl uppercase tracking-tighter italic opacity-90 origin-right"
-              style={{ borderColor: '#dc2626', color: '#dc2626' }}
-            >
-              <div className="absolute inset-0 border-[3px] border-red-600 m-1" style={{ borderColor: '#dc2626' }} />
-              PURCHASE_COMPLETED
-              <div className="text-[10px] text-center mt-2 tracking-[0.4em] font-black">VERIFIED_BY_THE_DIECAST_STORE</div>
-            </div>
-          </div>
-        </div>
+        <View style={styles.stamp}>
+          <View style={styles.stampInner} />
+          <Text style={styles.stampText}>PURCHASE_COMPLETED</Text>
+          <Text style={styles.stampSub}>VERIFIED_BY_GALLERY_OS</Text>
+        </View>
 
-        {/* Bottom Telemetry Strip */}
-        <div className="mt-auto pt-16 flex justify-between items-center text-[8px] text-gray-300 uppercase tracking-[0.5em] font-bold">
-          <span>System_Node: {orderId.substring(0, 6)}</span>
-          <span>--- Secure_Manifest_Protocol_Active ---</span>
-          <span>Page_01_of_01</span>
-        </div>
-      </div>
-    </>
+        <View style={styles.telemetry}>
+          <Text>NODE_ID: {orderId.substring(0, 6)}</Text>
+          <Text>--- SECURE_MANIFEST_PROTOCOL_ACTIVE ---</Text>
+          <Text>PAGE_01_OF_01</Text>
+        </View>
+      </Page>
+    </Document>
+  );
+};
+
+export default function ManifestoButton({ order }) {
+  if (!order) return null;
+  const orderId = order.id || "UNASSIGNED";
+
+  return (
+    <PDFDownloadLink 
+      document={<ManifestoDocument order={order} orderId={orderId} />}
+      fileName={`MANIFESTO_${orderId.substring(0, 8)}.pdf`}
+      className="group flex items-center gap-2 font-mono text-[9px] font-bold tracking-widest uppercase text-gray-400 hover:text-black transition-all mt-2"
+    >
+      {({ loading }) => (
+        <>
+          <svg className="w-3 h-3 group-hover:text-red-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          {loading ? 'COMPILING...' : 'Generate_Technical_Manifesto.pdf'}
+        </>
+      )}
+    </PDFDownloadLink>
   );
 }

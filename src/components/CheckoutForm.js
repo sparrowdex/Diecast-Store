@@ -30,7 +30,10 @@ export default function CheckoutForm({ cart, cartTotal }) {
         price: item.price,
         quantity: item.quantity,
         image: item.image || (item.images && item.images[0]),
-        sku: item.sku
+        sku: item.sku,
+        brand: item.brand,
+        genre: item.genre,
+        scale: item.scale
       }));
 
       // 1. Create order on the server

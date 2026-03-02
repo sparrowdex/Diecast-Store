@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "generate": "prisma generate",
-    "migrate": "npx dotenv-cli -e .env.local -- prisma migrate dev"
+    "migrate": "npx dotenv-cli -e .env.local -- prisma migrate dev",
+    "cleanup:orders": "npx dotenv-cli -e .env.local -- ts-node -P tsconfig.script.json scripts/cleanup_orders.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.5",
@@ -16,6 +17,7 @@
     "@neondatabase/serverless": "^1.0.2",
     "@prisma/adapter-neon": "6.19.2",
     "@prisma/client": "6.19.2",
+    "@react-pdf/renderer": "^4.3.2",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
     "@tailwindcss/typography": "^0.5.16",

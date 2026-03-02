@@ -44,4 +44,5 @@ next-env.d.ts
 
 #Ignore specific files
 study-notes/
-
+scripts/
+tsconfig.script.json
