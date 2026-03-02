@@ -89,6 +89,11 @@ model OrderItem {
   quantity  Int
   image     String
   sku       String?
+
+  brand     String?
+  scale     String?
+  genre     Genre?
+
   order     Order  @relation(fields: [orderId], references: [id])
   orderId   String
 
