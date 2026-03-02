@@ -16,7 +16,6 @@ export default function Inventory({ initialCars = [] }) {
   const filteredAndSortedCars = useMemo(() => {
     let result = [...cars];
     
-    // Updated Filter Logic
     if (filter === "sold_out") {
       result = result.filter(car => car.stock === 0);
     } else if (filter === "featured") {
@@ -27,7 +26,6 @@ export default function Inventory({ initialCars = [] }) {
       result = result.filter(car => car.collectionStatus === "NEW_ARRIVAL" && car.featured);
     }
 
-    // Always bubble 0 stock to the top
     return result.sort((a, b) => {
       if (a.stock === 0 && b.stock !== 0) return -1;
       if (a.stock !== 0 && b.stock === 0) return 1;
@@ -36,103 +34,91 @@ export default function Inventory({ initialCars = [] }) {
   }, [cars, filter]);
 
   return (
-    <div className="p-4 md:p-8 lg:p-12">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
-        <div>
-           <h2 className="text-2xl md:text-3xl font-black uppercase italic tracking-tighter mb-2">Inventory</h2>
-           <p className="text-xs font-mono text-gray-500">System Status: <span className="text-green-500 font-bold tracking-widest">ONLINE</span></p>
-        </div>
-        <Link href="/admin/inventory/new" className="bg-white text-black px-6 py-3 font-black text-xs uppercase tracking-widest hover:bg-gray-200 transition-colors w-full md:w-auto text-center shrink-0">
-          + Upload Exhibit
-        </Link>
-      </div>
-
-      {/* Filter Tabs - Scrollable on Mobile */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-4 scrollbar-hide no-scrollbar">
-        <FilterTab active={filter === "all"} onClick={() => setFilter("all")}>All</FilterTab>
-        <FilterTab active={filter === "sold_out"} onClick={() => setFilter("sold_out")}>
-          Sold_Out ({cars.filter(c => c.stock === 0).length})
-        </FilterTab>
-        <FilterTab active={filter === "featured"} onClick={() => setFilter("featured")}>Featured</FilterTab>
-        <FilterTab active={filter === "new_arrival"} onClick={() => setFilter("new_arrival")}>New_Arrivals</FilterTab>
-        <FilterTab active={filter === "na_featured"} onClick={() => setFilter("na_featured")}>NA_Featured</FilterTab>
-      </div>
-
-      {/* Main Container */}
-      <div className="bg-[#111] border border-white/5 rounded-lg overflow-hidden">
+    // ROOT: Locked firmly to max-w-[100vw]
+    <div className="min-h-screen bg-black text-white w-full max-w-[100vw] overflow-x-hidden font-sans box-border">
+      
+      {/* Inner Wrapper: standard padding on desktop, tight padding on mobile */}
+      <div className="w-full px-3 py-4 md:p-8">
         
-        {/* DESKTOP TABLE HEAD (Hidden on Mobile) */}
-        <div className="hidden md:grid grid-cols-12 bg-white/5 text-[9px] font-mono uppercase text-gray-500 px-6 py-4 tracking-widest border-b border-white/5">
-          <div className="col-span-1">ID</div>
-          <div className="col-span-4">Exhibit Name</div>
-          <div className="col-span-1">Scale</div>
-          <div className="col-span-2 text-center">Price</div>
-          <div className="col-span-2 text-center">Status</div>
-          <div className="col-span-1 text-center">Stock</div>
-          <div className="col-span-1 text-right">Action</div>
+        {/* HEADER: Stacked layout with smaller text as suggested */}
+        <div className="flex flex-col items-start mb-6 border-b border-white/10 pb-5 w-full">
+          {/* Scaled down to text-2xl on mobile */}
+          <h2 className="text-2xl md:text-5xl font-black uppercase italic tracking-tighter leading-none">
+            Inventory
+          </h2>
+          <p className="text-[10px] font-mono text-green-500 mt-1.5 tracking-widest uppercase">
+            System: Online
+          </p>
+          
+          {/* Upload Button: w-fit ensures it never forces the container wider than its text */}
+          <Link href="/admin/inventory/new" className="mt-4 w-fit bg-white text-black px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-none">
+            + UPLOAD
+          </Link>
         </div>
 
-        <div className="divide-y divide-white/5">
+        {/* FILTER TABS: flex-wrap to let "NA_FEATURED" drop to a new line natively */}
+        <div className="flex flex-wrap gap-2 mb-6 w-full">
+          <FilterTab active={filter === "all"} onClick={() => setFilter("all")}>All</FilterTab>
+          <FilterTab active={filter === "sold_out"} onClick={() => setFilter("sold_out")}>
+            Sold ({cars.filter(c => c.stock === 0).length})
+          </FilterTab>
+          <FilterTab active={filter === "featured"} onClick={() => setFilter("featured")}>Featured</FilterTab>
+          <FilterTab active={filter === "new_arrival"} onClick={() => setFilter("new_arrival")}>New</FilterTab>
+          <FilterTab active={filter === "na_featured"} onClick={() => setFilter("na_featured")}>NA_Ftr</FilterTab>
+        </div>
+
+        {/* MAIN LIST */}
+        <div className="flex flex-col gap-2 w-full">
           {filteredAndSortedCars.map(car => (
-            <div key={car.id} className={`group hover:bg-white/[0.02] transition-colors ${car.stock === 0 ? 'bg-red-500/[0.01]' : ''}`}>
+            <div key={car.id} className="w-full bg-[#0a0a0a] border border-white/5 p-3 flex flex-col gap-3 min-w-0">
               
-              {/* DESKTOP ROW (md and up) */}
-              <div className="hidden md:grid grid-cols-12 items-center px-6 py-4">
-                <div className="col-span-1 text-xs font-mono text-gray-500">#{car.id.slice(-4)}</div>
-                <div className="col-span-4 flex items-center gap-3">
-                  <img src={car.images[0]} className="w-8 h-8 object-contain bg-white/5 rounded-sm shrink-0" alt="" />
-                  <span className="text-xs font-bold uppercase tracking-tight text-white group-hover:text-red-500 transition-colors">{car.name}</span>
+              {/* Top Half: Details */}
+              <div className="flex items-start gap-3 w-full min-w-0">
+                <img 
+                  src={car.images?.[0] || '/fallback.png'} 
+                  className="w-12 h-12 object-contain bg-white/5 border border-white/10 shrink-0 p-1" 
+                  alt="" 
+                />
+                
+                <div className="flex flex-col flex-1 min-w-0">
+                  <h3 className="text-[11px] font-black uppercase truncate text-white tracking-tight w-full">
+                    {car.name}
+                  </h3>
+                  {/* flex-wrap added here just in case the ID and price get too long */}
+                  <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 mt-1.5">
+                    <span className="text-[10px] font-mono font-bold text-white">{car.price}</span>
+                    <span className="text-[10px] font-mono text-gray-600">|</span>
+                    <span className="text-[9px] font-mono text-gray-500 truncate">#{car.id?.slice(-4) || 'N/A'}</span>
+                  </div>
                 </div>
-                <div className="col-span-1 text-xs font-mono text-gray-400">{car.scale}</div>
-                <div className="col-span-2 text-xs font-mono text-center tracking-tighter">{car.price}</div>
-                <div className="col-span-2 flex justify-center">{renderStatus(car)}</div>
-                <div className="col-span-1 text-xs font-mono text-center">
-                   <span className={car.stock === 0 ? "text-red-500 font-bold" : "text-white"}>{car.stock}</span>
-                </div>
-                <div className="col-span-1 text-right text-[10px] font-bold uppercase space-x-4">
-                  <Link href={`/admin/inventory/edit/${car.id}`} className="text-gray-500 hover:text-white transition-colors">Edit</Link>
-                  <button onClick={() => handleDelete(car.id)} className="text-gray-500 hover:text-red-600 transition-colors">Delete</button>
+
+                <div className="shrink-0 text-right pl-2">
+                  {car.stock === 0 ? (
+                      <span className="text-[9px] font-black text-red-500 italic uppercase">OUT</span>
+                  ) : (
+                      <span className="text-[9px] font-mono text-gray-400">Qty: {car.stock}</span>
+                  )}
                 </div>
               </div>
 
-              {/* MOBILE CARD (Below md) */}
-              <div className="md:hidden p-5 flex flex-col gap-4">
-                <div className="flex justify-between items-start gap-4">
-                  <div className="flex items-center gap-4">
-                    <img src={car.images[0]} className="w-14 h-14 object-contain bg-white/5 rounded p-1 border border-white/5 shrink-0" alt="" />
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold uppercase tracking-tight leading-tight text-white break-words">{car.name}</p>
-                      <p className="text-[10px] font-mono text-gray-500 mt-1">ID: #{car.id.slice(-6)} // {car.scale}</p>
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-xs font-mono font-bold text-white tracking-tighter">{car.price}</p>
-                    <div className="mt-1">
-                        {car.stock === 0 ? (
-                            <span className="text-[9px] font-black text-red-500 bg-red-500/10 px-2 py-0.5 rounded italic uppercase">Out_Of_Stock</span>
-                        ) : (
-                            <span className="text-[9px] font-mono text-gray-400">STOCK: {car.stock}</span>
-                        )}
-                    </div>
-                  </div>
+              {/* Bottom Half: Action Bar */}
+              <div className="flex justify-between items-center bg-white/[0.03] border border-white/5 px-2 py-1.5 w-full min-w-0">
+                <div className="shrink-0 pr-2">
+                  {renderStatus(car)}
                 </div>
-                
-                <div className="flex justify-between items-center bg-white/[0.04] p-3 rounded-md border border-white/5">
-                  <div className="shrink-0 scale-90 origin-left">{renderStatus(car)}</div>
-                  <div className="flex gap-5 text-[10px] font-black uppercase tracking-widest">
-                    <Link href={`/admin/inventory/edit/${car.id}`} className="text-blue-400 hover:text-blue-300">Edit</Link>
-                    <button onClick={() => handleDelete(car.id)} className="text-red-500 hover:text-red-400">Delete</button>
-                  </div>
+                <div className="flex gap-1.5 shrink-0">
+                  <Link href={`/admin/inventory/edit/${car.id}`} className="text-[8px] font-black uppercase tracking-widest text-gray-400 bg-white/5 px-3 py-1.5 hover:text-white transition-colors">Edit</Link>
+                  <button onClick={() => handleDelete(car.id)} className="text-[8px] font-black uppercase tracking-widest text-red-500 bg-red-500/10 px-3 py-1.5 hover:text-red-400 transition-colors">Del</button>
                 </div>
               </div>
 
             </div>
           ))}
+          
           {filteredAndSortedCars.length === 0 && (
-             <div className="p-12 text-center font-mono text-xs text-gray-600 uppercase tracking-widest italic">
-                -- No exhibits found in this sector --
-             </div>
+            <div className="p-8 text-center font-mono text-[10px] text-gray-600 uppercase tracking-widest italic border border-white/5">
+              -- No exhibits found --
+            </div>
           )}
         </div>
       </div>
@@ -140,13 +126,13 @@ export default function Inventory({ initialCars = [] }) {
   );
 }
 
-// Sub-component for Tabs
 function FilterTab({ children, active, onClick }) {
     return (
         <button 
             onClick={onClick} 
-            className={`px-5 py-2.5 text-[10px] font-mono uppercase tracking-widest border transition-all whitespace-nowrap rounded-sm ${
-                active ? 'bg-white text-black border-white shadow-lg' : 'text-gray-500 border-white/10 hover:border-white/20 hover:text-gray-300'
+            // h-fit prevents flexbox from stretching the button vertically into a giant block
+            className={`h-fit shrink-0 whitespace-nowrap px-3 py-1.5 text-[9px] font-black uppercase tracking-widest border transition-colors ${
+                active ? 'bg-white text-black border-white' : 'text-gray-500 border-white/10 hover:text-white hover:border-white/30'
             }`}
         >
             {children}
@@ -154,16 +140,16 @@ function FilterTab({ children, active, onClick }) {
     )
 }
 
-// Global Helper for Status Logic
 function renderStatus(car) {
+  const style = "h-fit text-[7px] font-black uppercase tracking-widest px-1.5 py-1 shrink-0";
   if (car.collectionStatus === "FEATURED_EXHIBIT") {
-    return <span className="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">Featured</span>;
+    return <span className={`${style} bg-yellow-500/10 text-yellow-500`}>Featured</span>;
   }
   if (car.collectionStatus === "NEW_ARRIVAL") {
     if (car.featured) {
-      return <span className="bg-red-500/10 text-red-500 border border-red-500/20 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider whitespace-nowrap">NA Featured</span>;
+      return <span className={`${style} bg-red-500/10 text-red-500`}>NA Featured</span>;
     }
-    return <span className="bg-blue-500/10 text-blue-500 border border-blue-500/20 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider whitespace-nowrap">New Arrival</span>;
+    return <span className={`${style} bg-blue-500/10 text-blue-500`}>New Arrival</span>;
   }
-  return <span className="bg-gray-800 text-gray-400 border border-white/10 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">Archive</span>;
+  return <span className={`${style} bg-white/5 text-gray-400`}>Archive</span>;
 }

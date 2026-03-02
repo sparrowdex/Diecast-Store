@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { Check, Package, Truck, Ship, MapPin, ChevronRight, Copy, ChevronDown } from 'lucide-react';
+import { Check, Package, Truck, Ship, MapPin, Copy, ChevronDown } from 'lucide-react';
 
 /**
  * Logistics mapping for The Diecast Store
@@ -71,8 +71,9 @@ const DeliveryTracker = ({ status, trackingNumber, isDark }) => {
         </div>
       </div>
 
-      {/* HEADER: Balanced Layout */}
-      <div className="flex flex-col md:flex-row justify-between items-center p-6 gap-6 group relative z-10 border-b border-white/5">
+      {/* HEADER: Balanced Layout (Fixed for Mobile) */}
+      {/* CHANGED: items-center is now items-start md:items-center */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-6 gap-6 group relative z-10 border-b border-white/5">
         
         {/* LEFT: Logistics ID */}
         <div className="space-y-1">
@@ -80,10 +81,11 @@ const DeliveryTracker = ({ status, trackingNumber, isDark }) => {
             <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${isDark ? 'bg-yellow-500' : 'bg-orange-600'}`} />
             <p className="font-mono text-[8px] uppercase tracking-[0.3em] opacity-40">Logistics_ID</p>
           </div>
-          <h3 className="font-black text-2xl italic tracking-tighter uppercase leading-none flex items-center gap-3">
+          {/* Added break-all for mobile so extremely long tracking numbers don't break layout */}
+          <h3 className="font-black text-2xl italic tracking-tighter uppercase leading-none flex items-center gap-3 break-all">
             {trackingNumber || 'UNASSIGNED'}
             {trackingNumber && (
-              <button onClick={handleCopy} className={`p-1.5 rounded-full transition-all ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/5'}`}>
+              <button onClick={handleCopy} className={`p-1.5 rounded-full transition-all shrink-0 ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/5'}`}>
                 {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} className="opacity-30 group-hover:opacity-100" />}
               </button>
             )}
@@ -91,15 +93,17 @@ const DeliveryTracker = ({ status, trackingNumber, isDark }) => {
         </div>
 
         {/* RIGHT: Status Phase & Carrier Chip */}
-        <div className="flex items-center gap-6">
-          <div className={`flex flex-col items-end px-4 py-1.5 border-r-2 ${isDark ? 'border-yellow-500/30' : 'border-orange-600/30'}`}>
+        {/* CHANGED: Added w-full justify-between for mobile spreading */}
+        <div className="flex items-center justify-between w-full md:w-auto md:justify-end gap-4 md:gap-6">
+          
+          {/* CHANGED: items-start on mobile, items-end on desktop */}
+          <div className={`flex flex-col items-start md:items-end pr-4 md:px-4 py-1.5 border-r-2 ${isDark ? 'border-yellow-500/30' : 'border-orange-600/30'}`}>
             <span className="text-[8px] font-bold uppercase tracking-[0.2em] opacity-40">Phase</span>
             <span className={`font-mono text-xs font-black italic ${isDark ? 'text-yellow-500' : 'text-orange-600'}`}>
               {status.replace(/_/g, ' ')}
             </span>
           </div>
 
-          {/* Moved Carrier Chip to the right side of the Phase */}
           {trackingNumber && (
             <div className="relative group/carrier" onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} style={{ perspective: '1200px' }}>
               <motion.div 
@@ -110,7 +114,7 @@ const DeliveryTracker = ({ status, trackingNumber, isDark }) => {
               >
                 <div className="flex items-center gap-3">
                   <Truck size={12} className={isDark ? 'text-yellow-500' : 'text-orange-600'} />
-                  <div>
+                  <div className="text-left">
                     <p className="text-[7px] font-bold uppercase tracking-widest opacity-40 leading-none mb-1">Carrier</p>
                     <p className="text-[10px] font-black uppercase italic leading-none">BlueDart_Express</p>
                   </div>
@@ -121,10 +125,9 @@ const DeliveryTracker = ({ status, trackingNumber, isDark }) => {
               <AnimatePresence>
                 {isCarrierExpanded && (
                   <>
-                    {/* TETHER: Connects from the right side now */}
                     <svg className="absolute bottom-full right-1/2 translate-x-1/2 w-48 h-48 pointer-events-none overflow-visible z-[60]" viewBox="0 0 100 100">
                       <motion.path
-                        d="M 50 100 L 50 75 L 20 45" // Adjusted path for the new right-hand position
+                        d="M 50 100 L 50 75 L 20 45"
                         fill="none" stroke={isDark ? '#eab308' : '#ea580c'} strokeWidth="1.5" strokeDasharray="4 3"
                         initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ pathLength: 0 }}
                       />
@@ -133,7 +136,7 @@ const DeliveryTracker = ({ status, trackingNumber, isDark }) => {
                     <motion.div
                       initial={{ opacity: 0, scale: 0.98, y: 10 }}
                       animate={{ 
-                        opacity: 1, scale: 1, y: -95, x: -40, // Offsets to the left because it's on the right edge
+                        opacity: 1, scale: 1, y: -95, x: -40,
                         rotateX, rotateY,
                         boxShadow: isDark ? "0 30px 60px -12px rgba(0,0,0,1)" : "0 30px 60px -12px rgba(0,0,0,0.2)"
                       }}
