@@ -1,5 +1,31 @@
 # Changelog - Diecast Store Refactor
 
+## [2026-03-03] - Single Featured Exhibit Constraint & Priority Sorting
+
+### Added
+- **Hard Lock System**: Implemented a database-level constraint using Prisma transactions to prevent multiple journal entries from holding the `isFeatured` status simultaneously.
+- **Admin Lock UI**: Added a dynamic disclaimer and "Hard Lock" logic to the `NewJournalEntryPage`. The "Pole Position" checkbox is now disabled if a featured entry already exists, identifying the current title that must be removed first.
+- **Feature-Locked Error Handling**: Added custom error propagation (`FEATURE_LOCKED`) from the API to the client to provide clear feedback during unauthorized "dethroning" attempts.
+
+### Changed
+- **Priority Sorting Logic**: Updated `GET` handlers in both the public and admin APIs to utilize a multi-layered sort: `isFeatured: desc` followed by `createdAt: desc`.
+- **Manifest Positional Integrity**: Ensured the "Pole Position" entry always occupies Index 0 (Pos 01) in the manifest, regardless of the release date of newer entries.
+- **Real-Time Dashboard Sync**: Forced the Admin Journal Dashboard to `force-dynamic` and implemented `router.refresh()` handshakes to ensure the manifest updates immediately after staging or deleting entries.
+
+### Fixed
+- **Featured Displacement**: Resolved a UI bug where newer non-featured entries would "steal" the large featured slot in the public journal by virtue of having a more recent timestamp.
+- **Admin Role Verification**: Hardened the `PUT` and `DELETE` endpoints for individual journal entries with strict Clerk metadata role checks.
+
+### Challenges Faced
+- **Sorting Precedence**: Balancing the need for chronological "Newest First" feeds with the requirement that a specific "Featured" item must stay on top regardless of age.
+- **Accidental Dethroning**: Designing a UI that prevents users from accidentally un-featuring an important post simply by clicking a checkbox on a new draft.
+
+### What We Learnt
+- **Atomic Transactions**: Using `prisma.$transaction` is essential for maintaining "Single Source of Truth" flags across a database table to avoid race conditions.
+- **UI-API Synchronization**: Disabling inputs on the frontend based on backend state (the existence of a featured post) provides a much smoother "Curator" experience than allowing a submission only to have it fail at the API level.
+
+---
+
 ## [2026-02-28] - Catalog UI Overhaul & Search Logic
 
 ### Added

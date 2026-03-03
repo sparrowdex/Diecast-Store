@@ -50,11 +50,20 @@ export default function JournalPreview({ entry }) {
                 <JournalMediaDisplay imageUrl={entry.images?.[0]} videoUrl={entry.video} />
               </div>
               <div className="p-4 md:p-6">
-                <div className="flex justify-between items-start mb-3">
-                  <span className="text-[8px] md:text-[9px] font-geist-mono text-[#FF8700] uppercase tracking-widest">{entry.genre}</span>
-                  <span className="text-[8px] md:text-[9px] font-geist-mono text-white/20 uppercase">{entry.readTime} MIN_LAP</span>
-                </div>
                 <h3 className="text-lg md:text-xl font-black uppercase italic tracking-tighter text-white group-hover:text-[#FF8700] transition-colors">{entry.title}</h3>
+                <div className="flex items-center gap-3 mt-3">
+                  <span className="text-[8px] md:text-[9px] font-geist-mono text-white/40 uppercase tracking-widest">
+                    {new Date(entry.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                  </span>
+                  {entry.author && (
+                    <span className="text-[8px] md:text-[9px] font-geist-mono text-white/40 uppercase tracking-widest border-l border-white/10 pl-3">BY: {entry.author}</span>
+                  )}
+                  {entry.genre && (
+                    <span className="text-[8px] md:text-[9px] font-geist-mono text-[#FF8700] uppercase tracking-widest border-l border-white/10 pl-3">
+                      {entry.genre.replace(/_/g, ' ')}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -66,18 +75,33 @@ export default function JournalPreview({ entry }) {
         {entry.isFeatured ? (
           <JournalHero entry={entry} />
         ) : (
-          <header className="relative w-full h-[50vh] md:h-[70vh] overflow-hidden border-b border-white/10">
+          <header className="relative w-full aspect-video max-h-[75vh] overflow-hidden border-b border-white/10">
             <div className="absolute inset-0">
               <JournalMediaDisplay imageUrl={entry.images?.[0]} />
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
             <div className="absolute bottom-0 left-0 w-full p-6 md:p-20">
               <div className="max-w-5xl mx-auto">
-                <p className="font-geist-mono text-[8px] md:text-[10px] uppercase text-[#FF8700] tracking-[0.5em] mb-4 md:mb-6">// LOG_ENTRY_PROCESSED</p>
+                <p className="font-geist-mono text-[8px] md:text-[10px] uppercase text-[#FF8700] tracking-[0.5em] mb-4 md:mb-6">
+                  {entry.genre?.replace(/_/g, ' ') || 'EDITORIAL'}
+                </p>
                 {/* Fixed: text-3xl on mobile, text-8xl on desktop */}
                 <h1 className="text-3xl md:text-8xl font-black italic uppercase tracking-tighter leading-[0.9] text-white drop-shadow-2xl break-words">
                   {entry.title}
                 </h1>
+                
+                {/* Meta Data Strip below title */}
+                <div className="flex items-center gap-4 mt-6">
+                  <span className="text-[9px] font-geist-mono text-white/40 uppercase tracking-widest">
+                    {new Date(entry.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  </span>
+                  {entry.author && (
+                    <span className="text-[9px] font-geist-mono text-white/40 uppercase tracking-widest border-l border-white/10 pl-4">BY: {entry.author}</span>
+                  )}
+                  {entry.readTime > 0 && (
+                    <span className="text-[9px] font-geist-mono text-white/40 uppercase tracking-widest border-l border-white/10 pl-4">{entry.readTime} MIN READ</span>
+                  )}
+                </div>
               </div>
             </div>
           </header>

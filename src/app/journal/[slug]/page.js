@@ -33,7 +33,7 @@ export default async function SingleJournalEntryPage({ params }) {
       {entry.isFeatured ? (
         <JournalHero entry={entry} />
       ) : (
-        <header className="relative w-full h-[80vh] overflow-hidden border-b border-white/10">
+        <header className="relative w-full aspect-video max-h-[85vh] overflow-hidden border-b border-white/10">
           <div className="absolute inset-0">
             <JournalMediaDisplay 
               imageUrl={entry.images?.[0]} 
@@ -49,13 +49,25 @@ export default async function SingleJournalEntryPage({ params }) {
 
           <div className="absolute bottom-0 left-0 w-full p-12 md:p-20">
             <div className="max-w-5xl mx-auto">
-              <p className="font-geist-mono text-[10px] uppercase text-[#FF8700] tracking-[0.5em] mb-6">
-                // LOG_ENTRY_PROCESSED: {new Date(entry.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-                {entry.author && <span className="ml-4 opacity-50">BY: {entry.author}</span>}
+              <p className="font-geist-mono text-[10px] uppercase text-[#FF8700] tracking-[0.5em] mb-4">
+                {entry.genre?.replace(/_/g, ' ') || 'EDITORIAL'}
               </p>
               <h1 className="text-5xl md:text-9xl font-black italic uppercase tracking-tighter leading-[0.8] text-white drop-shadow-2xl">
                 {entry.title}
               </h1>
+              
+              {/* Meta Data Strip below title */}
+              <div className="flex items-center gap-4 mt-8">
+                <span className="text-[9px] font-geist-mono text-white/40 uppercase tracking-widest">
+                  {new Date(entry.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </span>
+                {entry.author && (
+                  <span className="text-[9px] font-geist-mono text-white/40 uppercase tracking-widest border-l border-white/10 pl-4">BY: {entry.author}</span>
+                )}
+                {entry.readTime > 0 && (
+                  <span className="text-[9px] font-geist-mono text-white/40 uppercase tracking-widest border-l border-white/10 pl-4">{entry.readTime} MIN READ</span>
+                )}
+              </div>
             </div>
           </div>
         </header>

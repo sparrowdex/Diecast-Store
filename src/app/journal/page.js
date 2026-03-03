@@ -159,7 +159,7 @@ function JournalCard({ story, index }) {
             >
                 {/* Image Container */}
                 <div className="overflow-hidden mb-6 relative w-full border border-black/5">
-                    <div className={`w-full bg-[#f9f9f9] relative overflow-hidden transition-all duration-700 group-hover:grayscale ${isFeature ? 'aspect-[21/9]' : 'aspect-[4/3]'}`}>
+                    <div className={`w-full bg-[#f9f9f9] relative overflow-hidden transition-all duration-700 ${isFeature ? 'aspect-video' : 'aspect-[3/2]'}`}>
                         {(story.images?.[0] || story.video) ? (
                             <JournalMediaDisplay 
                                 imageUrl={story.images?.[0]} 
@@ -173,8 +173,15 @@ function JournalCard({ story, index }) {
 
                 {/* Content Container */}
                 <div className={`flex flex-col items-start ${isFeature ? 'max-w-4xl' : ''}`}>
-                    {/* Meta Data */}
-                    <div className="flex items-center gap-3 mb-4">
+                    {/* Headline */}
+                    <h2 className={`font-black italic uppercase tracking-tighter mb-4 leading-[0.9] group-hover:text-red-600 transition-colors
+                        ${isFeature ? 'text-4xl md:text-6xl' : 'text-2xl md:text-3xl'}
+                    `}>
+                        {story.title}
+                    </h2>
+
+                    {/* Meta Data - Moved below title and added Read Time */}
+                    <div className="flex items-center gap-3 mb-6">
                         <span className="text-[9px] font-mono text-gray-400 uppercase tracking-widest">
                             {new Date(story.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                         </span>
@@ -187,13 +194,6 @@ function JournalCard({ story, index }) {
                             </span>
                         )}
                     </div>
-                    
-                    {/* Headline */}
-                    <h2 className={`font-black italic uppercase tracking-tighter mb-4 leading-[0.9] group-hover:text-red-600 transition-colors
-                        ${isFeature ? 'text-4xl md:text-6xl' : 'text-2xl md:text-3xl'}
-                    `}>
-                        {story.title}
-                    </h2>
                     
                     {/* Excerpt */}
                     <div className={`text-gray-500 font-serif leading-relaxed mb-6

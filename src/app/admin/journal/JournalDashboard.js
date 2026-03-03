@@ -1,10 +1,14 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Star, Eye, Edit3, Trash2 } from "lucide-react";
 
 export default function JournalDashboard({ initialEntries = [] }) {
   const [entries, setEntries] = useState(initialEntries);
+
+  useEffect(() => {
+    setEntries(initialEntries);
+  }, [initialEntries]);
 
   const handleDelete = async (id) => {
     if (window.confirm("CONFIRM_DELETION: This action cannot be undone.")) {
@@ -39,6 +43,7 @@ export default function JournalDashboard({ initialEntries = [] }) {
                 <th className="px-6 py-4 font-normal">Pos</th>
                 <th className="px-6 py-4 font-normal">Manifest_Title</th>
                 <th className="px-6 py-4 font-normal">Pilot</th>
+                <th className="px-6 py-4 font-normal">Genre</th>
                 <th className="px-6 py-4 font-normal">Status</th>
                 <th className="px-6 py-4 font-normal text-right">Telemetry</th>
               </tr>
@@ -54,6 +59,9 @@ export default function JournalDashboard({ initialEntries = [] }) {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-[10px] font-geist-mono opacity-60 uppercase">{entry.author || 'DR_01'}</td>
+                  <td className="px-6 py-4 text-[10px] font-geist-mono opacity-60 uppercase">
+                    {entry.genre?.replace(/_/g, ' ') || 'GENERAL'}
+                  </td>
                   <td className="px-6 py-4">
                      <StatusBadge entry={entry} />
                   </td>
