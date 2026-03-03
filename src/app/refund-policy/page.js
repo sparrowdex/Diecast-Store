@@ -14,7 +14,7 @@ export default function RefundPolicyPage() {
         <p>Last updated: January 07, 2026</p>
 
         <p>
-            Thank you for shopping at Diecast-Store. If you are not entirely satisfied with your purchase, we're here to help.
+            Thank you for shopping at Diecast-Store. If you are not entirely satisfied with your purchase, we&apos;re here to help.
         </p>
 
         <h2 className="text-2xl font-semibold mt-6">Returns</h2>
@@ -33,7 +33,8 @@ export default function RefundPolicyPage() {
             Once we receive your item, we will inspect it and notify you that we have received your returned item. We will immediately notify you on the status of your refund after inspecting the item.
         </p>
         <p>
-            If your return is approved, we will initiate a refund to your original method of payment. You will receive the credit within a certain amount of days, depending on your card issuer's policies.
+            If your return is approved, we will initiate a refund to your original method of payment. You will receive the credit within a certain amount of days, depending on your card issuer&apos;s policies.
+            If your return is approved, we will initiate a refund to your original method of payment. You will receive the credit within a certain amount of days, depending on your card issuer&apos;s policies.
         </p>
 
         <h2 className="text-2xl font-semibold mt-6">Shipping</h2>

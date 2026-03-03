@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Inventory({ initialCars = [] }) {
   const [cars, setCars] = useState(initialCars);
@@ -53,7 +54,7 @@ export default function Inventory({ initialCars = [] }) {
                   <td className="px-6 py-4 text-xs font-mono text-gray-500">#{car.id?.slice(-6)}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <img src={car.images?.[0]} className="w-8 h-8 object-contain bg-white/5 rounded-sm" />
+                      <Image src={car.images?.[0] || "/placeholder.png"} alt={car.name} width={32} height={32} className="object-contain bg-white/5 rounded-sm" />
                       <span className="text-xs font-bold uppercase tracking-tight">{car.name}</span>
                     </div>
                   </td>
@@ -80,7 +81,7 @@ export default function Inventory({ initialCars = [] }) {
           {cars.map(car => (
             <div key={car.id} className="bg-[#111] border border-white/5 p-4 rounded-lg">
               <div className="flex gap-4 mb-4">
-                <img src={car.images?.[0]} className="w-12 h-12 object-contain bg-white/5 rounded-sm shrink-0" />
+                <Image src={car.images?.[0] || "/placeholder.png"} alt={car.name} width={48} height={48} className="object-contain bg-white/5 rounded-sm shrink-0" />
                 <div className="min-w-0 flex-1">
                   <h3 className="text-[11px] font-bold uppercase tracking-tight truncate">{car.name}</h3>
                   <div className="flex items-center gap-2 mt-1">

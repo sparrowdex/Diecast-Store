@@ -64,7 +64,7 @@ export default function AdminDashboard({ initialCars = [], initialOrders = [], d
         {/* Sector 01: Genre Performance */}
         <div className="col-span-12 xl:col-span-7 bg-[#111] border border-white/5 rounded-lg p-6 md:p-8">
           <div className="flex justify-between items-center mb-8">
-            <h3 className="text-[10px] font-mono uppercase tracking-[0.3em] text-gray-500">Sector_01 // Genre_Distribution</h3>
+            <h3 className="text-[10px] font-mono uppercase tracking-[0.3em] text-gray-500">{"Sector_01 // Genre_Distribution"}</h3>
             <div className="flex gap-2 text-red-600 font-mono text-[10px] animate-pulse">LIVE_FEED</div>
           </div>
           <div className="space-y-6">
@@ -90,7 +90,7 @@ export default function AdminDashboard({ initialCars = [], initialOrders = [], d
         <div className="col-span-12 xl:col-span-5 flex flex-col gap-6">
           {/* High Value Podium */}
           <div className="bg-[#111] border border-white/5 rounded-lg p-6 md:p-8 flex-1">
-            <h3 className="text-[10px] font-mono uppercase tracking-[0.3em] text-gray-500 mb-8">Sector_02 // High_Value_Podium</h3>
+            <h3 className="text-[10px] font-mono uppercase tracking-[0.3em] text-gray-500 mb-8">{"Sector_02 // High_Value_Podium"}</h3>
             <div className="space-y-4">
               {podium.map((car, index) => (
                 <div key={car.id} className="flex items-center gap-4 p-3 bg-white/5 rounded border border-white/5">
@@ -99,7 +99,7 @@ export default function AdminDashboard({ initialCars = [], initialOrders = [], d
                   </span>
                   <div className="flex-1 min-w-0">
                     <p className="text-[10px] font-bold uppercase truncate">{car.name}</p>
-                    <p className="text-[8px] font-mono text-gray-500 uppercase truncate">{car.brand} // {car.scale}</p>
+                    <p className="text-[8px] font-mono text-gray-500 uppercase truncate">{car.brand}{" // "}{car.scale}</p>
                   </div>
                   <span className="text-xs font-black italic shrink-0 pr-1">₹{car.price}</span>
                 </div>
@@ -111,7 +111,7 @@ export default function AdminDashboard({ initialCars = [], initialOrders = [], d
           <div className="bg-red-600/10 border border-red-600/20 rounded-lg p-6 md:p-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
-              <h3 className="text-[10px] font-mono uppercase tracking-[0.3em] text-red-500">Sector_03 // Critical_Stock_Alert</h3>
+              <h3 className="text-[10px] font-mono uppercase tracking-[0.3em] text-red-500">{"Sector_03 // Critical_Stock_Alert"}</h3>
             </div>
             
             {criticalItems.length > 0 ? (
@@ -152,8 +152,8 @@ export default function AdminDashboard({ initialCars = [], initialOrders = [], d
           <span>DRS: <span className="text-green-500 font-bold">ENABLED</span></span>
           <span>Latency: <span className="text-green-500">14ms</span></span>
         </div>
-        <span className="hidden sm:inline animate-pulse">--- Telemetry Stream Active ---</span>
-        <span>Temp: 24°C // Optimal</span>
+        <span className="hidden sm:inline animate-pulse">{"--- Telemetry Stream Active ---"}</span>
+        <span>{"Temp: 24°C // Optimal"}</span>
       </div>
     </div>
   );

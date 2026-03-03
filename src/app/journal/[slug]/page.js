@@ -22,7 +22,7 @@ export default async function SingleJournalEntryPage({ params }) {
       <div className="min-h-screen bg-[#fafafa] text-black flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-4xl font-black uppercase italic tracking-tighter mb-4">Entry_Not_Found</h1>
-          <Link href="/journal" className="text-[#FF8700] font-geist-mono text-xs uppercase tracking-widest hover:underline">// Return_to_Manifest</Link>
+          <Link href="/journal" className="text-[#FF8700] font-geist-mono text-xs uppercase tracking-widest hover:underline">{"// Return_to_Manifest"}</Link>
         </div>
       </div>
     );

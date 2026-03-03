@@ -1,8 +1,9 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react"; 
+import { useState } from "react"; 
 import { useUser, SignInButton, SignOutButton } from "@clerk/nextjs";
 import { useCart } from "@/context/CartContext";
+import Image from "next/image";
 import CartDrawer from "@/components/CartDrawer";
 import Link from "next/link";
 
@@ -23,11 +24,6 @@ export default function ProductDetailClient({ car, preview = false }) {
   }
 
   const [activeMedia, setActiveMedia] = useState(media[0]);
-
-  // Reset mediaError when activeMedia changes
-  useEffect(() => {
-    setMediaError(false);
-  }, [activeMedia]);
 
   if (!car) return <div className="p-20 font-mono text-black">Exhibit Not Found.</div>;
 
@@ -114,16 +110,20 @@ export default function ProductDetailClient({ car, preview = false }) {
                 onError={handleMediaError} // Add onError handler
               />
             ) : (
-              <motion.img
+              <motion.div
                 key={activeMedia.url}
                 layoutId={`car-image-${car.id}`}
-                src={activeMedia.url}
-                className={`object-contain transition-all duration-700 drop-shadow-2xl ${isFullScreen ? 'w-[80%] h-[80%] p-0' : 'w-[70%] h-[70%] p-12'}`}
+                className={`relative transition-all duration-700 drop-shadow-2xl ${isFullScreen ? 'w-[80%] h-[80%] p-0' : 'w-[70%] h-[70%] p-12'}`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                onError={handleMediaError} // Add onError handler
-              />
+              >
+                <Image 
+                  src={activeMedia.url} alt={car.name} fill className="object-contain" 
+                  onLoad={() => setMediaError(false)}
+                  onError={handleMediaError} 
+                />
+              </motion.div>
             )}
           </AnimatePresence>
         </div>
@@ -142,7 +142,7 @@ export default function ProductDetailClient({ car, preview = false }) {
                       <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                    </div>
                 ) : (
-                  <img src={item.url} className="w-full h-full object-cover" alt="thumbnail" />
+                  <Image src={item.url} alt="thumbnail" fill className="object-cover" />
                 )}
               </button>
             ))}

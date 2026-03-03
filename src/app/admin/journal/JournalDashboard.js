@@ -25,7 +25,7 @@ export default function JournalDashboard({ initialEntries = [] }) {
         <div className="min-w-0">
            <h2 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter leading-none mb-2">Journal</h2>
            <p className="text-[9px] md:text-[10px] font-geist-mono text-white/40 uppercase tracking-[0.3em] leading-none">
-             // System_Status: <span className="text-green-500">OPTIMAL</span>
+             {"// System_Status: "}<span className="text-green-500">OPTIMAL</span>
            </p>
         </div>
         

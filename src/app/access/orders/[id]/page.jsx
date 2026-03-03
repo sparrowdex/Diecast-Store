@@ -76,10 +76,11 @@ export default async function OrderDetailsPage({ params }) {
 
               {/* Responsive Image Container */}
               <div className={`h-40 sm:h-32 w-full sm:w-40 shrink-0 border relative flex items-center justify-center p-4 ${isDark ? 'bg-black border-white/10' : 'bg-zinc-50 border-black/5'}`}>
-                 <img 
+                 <Image 
                   src={item.image} 
                   alt={item.name} 
-                  className={`max-h-full max-w-full object-contain p-2 ${!isDark ? 'mix-blend-multiply' : ''}`} 
+                  fill
+                  className={`object-contain p-2 ${!isDark ? 'mix-blend-multiply' : ''}`} 
                 />
               </div>
 

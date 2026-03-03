@@ -64,7 +64,7 @@ export default function ProfileSettingsPage() {
           Profile_Configuration
         </h2>
         <p className="font-geist-mono text-[9px] sm:text-[10px] opacity-40 mt-2 tracking-[0.2em]">
-          // CUSTOMIZE_YOUR_DIGITAL_CREDENTIALS
+          {"// CUSTOMIZE_YOUR_DIGITAL_CREDENTIALS"}
         </p>
       </header>
 

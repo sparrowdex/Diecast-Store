@@ -3,6 +3,7 @@ import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ExhibitPreview from "@/components/ExhibitPreview";
+import Image from "next/image";
 import { UploadButton } from "@uploadthing/react";
 
 const isMediaVideo = (media) => {
@@ -214,7 +215,7 @@ export default function NewExhibitPage() {
            </div>
 
            <div className="md:col-span-2">
-             <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Editor's Note</label>
+             <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Editor&apos;s Note</label>
              <textarea name="editorsNote" rows="2" value={formData.editorsNote} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white" />
            </div>
 
@@ -282,7 +283,7 @@ export default function NewExhibitPage() {
                       </>
                     ) : (
                       <>
-                        <img src={media.url} className="w-full h-full object-cover" />
+                        <Image src={media.url} alt="Exhibit Media" fill className="object-cover" />
                         {idx === 0 && <span className="absolute top-2 left-2 bg-yellow-500 text-black text-[10px] font-bold px-2 py-1 rounded shadow-lg">COVER</span>}
                         <button onClick={() => handleDeleteMedia(idx)} className="absolute top-2 right-2 bg-red-600 text-white text-[10px] p-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">✕</button>
                       </>

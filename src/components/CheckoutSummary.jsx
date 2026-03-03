@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { processPayment } from '@/lib/payment-utils';
 import { createOrderAction } from '@/actions/order';
 
@@ -62,10 +63,12 @@ export default function CheckoutSummary({ items, subtotal, shipping, customer })
         {items.map((item) => (
           <div key={item.id} className="flex items-center gap-4 text-sm">
             <div className="w-12 h-12 bg-gray-50 border border-black/5 rounded flex-shrink-0 p-1">
-              <img
+              <Image
                 src={item.image}
-                className="w-full h-full object-contain mix-blend-multiply"
                 alt={item.name}
+                width={48}
+                height={48}
+                className="w-full h-full object-contain mix-blend-multiply"
               />
             </div>
             <span className="flex-1">{item.name} <span className="text-gray-400 text-xs">x{item.quantity}</span></span>

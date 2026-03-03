@@ -1,26 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Truck, Package, Printer, CheckCircle2, Loader2, AlertCircle, Clock } from 'lucide-react';
 import { shiprocketMock } from '@/lib/shiprocket-mock';
 
 const FulfillmentCard = ({ order, onUpdate }) => {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(order.trackingNumber ? 3 : 1); // 1: Details, 2: Create, 3: Shipped
-  const [urgency, setUrgency] = useState({ label: 'Standard', color: 'text-zinc-500', ping: false });
 
-  useEffect(() => {
-    // Calculate Priority based on order age (Mocking logic)
+  // Calculate Priority based on order age during render to avoid cascading renders
+  const urgency = useMemo(() => {
+    // eslint-disable-next-line react-hooks/purity
     const orderDate = new Date(order.createdAt || Date.now());
     const hoursElapsed = Math.floor((new Date() - orderDate) / (1000 * 60 * 60));
 
-    if (hoursElapsed < 1) {
-      setUrgency({ label: 'NEW ORDER', color: 'text-green-500', ping: true });
-    } else if (hoursElapsed > 48) {
-      setUrgency({ label: 'CRITICAL SLA', color: 'text-red-500', ping: false });
-    } else if (hoursElapsed > 12) {
-      setUrgency({ label: 'URGENT', color: 'text-yellow-500', ping: false });
-    }
+    if (hoursElapsed < 1) return { label: 'NEW ORDER', color: 'text-green-500', ping: true };
+    if (hoursElapsed > 48) return { label: 'CRITICAL SLA', color: 'text-red-500', ping: false };
+    if (hoursElapsed > 12) return { label: 'URGENT', color: 'text-yellow-500', ping: false };
+    return { label: 'Standard', color: 'text-zinc-500', ping: false };
   }, [order.createdAt]);
 
   const handleCreateShipment = async () => {

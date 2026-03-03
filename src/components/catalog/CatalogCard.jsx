@@ -4,9 +4,10 @@ import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 
 export default function CatalogCard({ car, isPreview = false }) {
+  const { cart, addToCart } = useCart();
+
   if (!car) return null;
 
-  const { cart, addToCart } = useCart();
   const cartItem = cart?.find(item => item.id === car.id);
   const isOutOfStock = !(car.stock > 0);
 

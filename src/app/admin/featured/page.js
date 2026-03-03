@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
+import Image from "next/image";
 
 // --- Layout Configurations for Mini-Maps and Main Grid ---
 const layoutConfigs = [
@@ -207,7 +208,7 @@ export default function FeaturedManagerPage() {
                       >
                         {exhibit ? (
                             <>
-                              <img src={exhibit.images[0]} className="w-full h-full object-cover opacity-50" />
+                              <Image src={exhibit.images[0]} alt={exhibit.name} fill className="object-cover opacity-50" />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                               <span className="absolute bottom-4 left-4 text-sm font-bold">{exhibit.name}</span>
                             </>

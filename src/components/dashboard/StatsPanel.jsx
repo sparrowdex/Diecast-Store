@@ -56,7 +56,7 @@ const StatsPanel = ({ stats, theme }) => {
                   className={`absolute w-20 h-20 rounded-full blur-3xl -z-10 ${isDark ? 'bg-yellow-500/20' : 'bg-orange-500/20'}`}
                 />
                 <span className="font-geist-mono text-[8px] tracking-[0.3em] animate-pulse">
-                  // SYSTEM_IDLE
+                  {"// SYSTEM_IDLE"}
                 </span>
                 <div className="mt-2 flex gap-1">
                   {[1, 2, 3].map(i => (

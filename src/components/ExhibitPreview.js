@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import CatalogCard from "./catalog/CatalogCard";
 import StandardCard from "./StandardCard";
 import BentoCard from "./BentoCard";
@@ -119,7 +120,7 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
                   <p className="text-xs text-gray-400">Existing Images:</p>
                   {formData.images.map((url, index) => (
                     <div key={index} className="flex items-center gap-2 bg-white/5 p-2 rounded">
-                      <img src={url} className="w-8 h-8 object-cover rounded" />
+                      <Image src={url} alt="Thumbnail" width={32} height={32} className="object-cover rounded" />
                       <span className="text-xs text-gray-300 truncate flex-1">{url.split('/').pop()}</span>
                       <button
                         onClick={() => {
@@ -241,7 +242,7 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
                                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                               </div>
                             ) : (
-                              <img src={item.url} className="w-full h-full object-cover" />
+                              <Image src={item.url} alt="Thumbnail" fill className="object-cover" />
                             )}
                           </button>
                         ))}

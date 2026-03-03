@@ -13,12 +13,18 @@ export function CartProvider({ children }) {
     const savedCart = localStorage.getItem("vault");
     if (savedCart) {
       try {
-        setCart(JSON.parse(savedCart));
+        const parsed = JSON.parse(savedCart);
+        setTimeout(() => {
+          setCart(parsed);
+          setIsInitialized(true);
+        }, 0);
+        return;
       } catch (e) {
         console.error("Error loading cart from storage:", e);
       }
     }
-    setIsInitialized(true);
+    // Use a microtask to avoid synchronous setState warning
+    Promise.resolve().then(() => setIsInitialized(true));
   }, []);
 
   // Save cart to localStorage whenever it changes

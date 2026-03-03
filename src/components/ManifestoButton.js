@@ -129,21 +129,21 @@ const ManifestoDocument = ({ order, orderId }) => {
         <View style={styles.grid}>
           <View style={styles.gridCol}>
             <View>
-              <Text style={styles.label}>// ORDER_REFERENCE</Text>
+              <Text style={styles.label}>{"// ORDER_REFERENCE"}</Text>
               <Text style={styles.value}>{orderId}</Text>
             </View>
             <View style={styles.valueGroup}>
-              <Text style={styles.label}>// PAYMENT_PROTOCOL</Text>
+              <Text style={styles.label}>{"// PAYMENT_PROTOCOL"}</Text>
               <Text style={styles.value}>{order?.paymentMethod || "RAZORPAY_SECURE_GATEWAY"}</Text>
             </View>
           </View>
           <View style={[styles.gridCol, { borderLeft: '1 solid #e5e7eb', paddingLeft: 25 }]}>
             <View>
-              <Text style={styles.label}>// LOGISTICS_NODE_ID</Text>
+              <Text style={styles.label}>{"// LOGISTICS_NODE_ID"}</Text>
               <Text style={styles.value}>{order?.trackingNumber || "PENDING_ALLOCATION"}</Text>
             </View>
             <View style={styles.valueGroup}>
-              <Text style={styles.label}>// CARRIER_SERVICE</Text>
+              <Text style={styles.label}>{"// CARRIER_SERVICE"}</Text>
               <Text style={styles.value}>{order?.shippingProvider || "STANDARD"}</Text>
             </View>
           </View>
@@ -163,7 +163,7 @@ const ManifestoDocument = ({ order, orderId }) => {
               <View style={styles.col1}>
                 <Text style={styles.itemName}>{item.name}</Text>
                 <Text style={styles.itemMeta}>
-                  {item.brand || 'GENERIC'} // {item.genre?.replace(/_/g, ' ') || 'UNCATEGORIZED'} // PART_REF: {item.sku || item.id?.slice(-6).toUpperCase() || 'N/A'}
+                  {item.brand || 'GENERIC'}{" // "}{item.genre?.replace(/_/g, ' ') || 'UNCATEGORIZED'}{" // PART_REF: "}{item.sku || item.id?.slice(-6).toUpperCase() || 'N/A'}
                 </Text>
               </View>
               <Text style={[styles.col2, { fontSize: 10, fontWeight: 'bold' }]}>{item.scale || 'N/A'}</Text>

@@ -18,7 +18,7 @@ export default function JournalPreview({ entry }) {
             </div>
             <div>
                 <span className="text-[10px] font-black uppercase italic tracking-tighter text-white block">SYSTEM_PREVIEW_MODE</span>
-                <p className="text-[8px] font-geist-mono opacity-40 uppercase tracking-widest italic whitespace-nowrap">// VISUALIZING_LIVE_MANIFEST</p>
+                <p className="text-[8px] font-geist-mono opacity-40 uppercase tracking-widest italic whitespace-nowrap">{"// VISUALIZING_LIVE_MANIFEST"}</p>
             </div>
         </div>
         
@@ -40,7 +40,7 @@ export default function JournalPreview({ entry }) {
       <section className="py-12 md:py-20 px-4 md:px-6 border-b border-white/5 bg-white/[0.01]">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center gap-4 mb-8 md:mb-10">
-            <h3 className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-white/40">// Manifest_Card_Preview</h3>
+            <h3 className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-white/40">{"// Manifest_Card_Preview"}</h3>
             <div className="h-px flex-1 bg-white/5" />
           </div>
           

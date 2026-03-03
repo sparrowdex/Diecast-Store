@@ -45,7 +45,7 @@ export default async function CollectionPage() {
             MY COLLECTION
           </h2>
           <p className="font-geist-mono text-[9px] opacity-40 uppercase hidden sm:block">
-            // TOTAL_ASSETS: {purchasedItems.length.toString().padStart(2, '0')}
+            {"// TOTAL_ASSETS: "}{purchasedItems.length.toString().padStart(2, '0')}
           </p>
         </div>
       </header>
@@ -53,7 +53,7 @@ export default async function CollectionPage() {
       {purchasedItems.length === 0 ? (
         <div className={`p-20 border-2 border-dashed flex items-center justify-center transition-all ${isDark ? "bg-zinc-900/50 border-white/5" : "bg-black/[0.02] border-black/5"}`}>
             <p className="text-[10px] font-geist-mono text-current opacity-30 italic uppercase tracking-widest">
-                // NO_EXHIBITS_DETECTED_IN_SECTOR
+                {"// NO_EXHIBITS_DETECTED_IN_SECTOR"}
             </p>
         </div>
       ) : (

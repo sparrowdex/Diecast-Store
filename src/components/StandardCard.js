@@ -2,7 +2,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
-import { useState, useEffect } from "react";
+import Image from "next/image";
+import { useState, useEffect, useMemo } from "react";
 
 function Tag({ text, colorClass }) {
     return (
@@ -36,7 +37,9 @@ export default function StandardCard({ car, isPreview = false }) {
     const [isHovered, setIsHovered] = useState(false);
     const [currentImage, setCurrentImage] = useState(0);
 
-    const images = car?.images && car.images.length > 0 ? car.images : (car?.image ? [car.image] : []);
+    const images = useMemo(() => {
+        return car?.images && car.images.length > 0 ? car.images : (car?.image ? [car.image] : []);
+    }, [car.images, car.image]);
 
     useEffect(() => {
         let interval;
@@ -49,8 +52,6 @@ export default function StandardCard({ car, isPreview = false }) {
                     setCurrentImage(prev => (prev + 1) % images.length);
                 }, 2000); // Change image every 2 seconds
             }, 500); // Wait 500ms before starting carousel
-        } else {
-            setCurrentImage(0);
         }
 
         return () => {
@@ -60,6 +61,11 @@ export default function StandardCard({ car, isPreview = false }) {
             }
         };
     }, [isHovered, images]);
+
+    // Reset currentImage when not hovered
+    if (!isHovered && currentImage !== 0) {
+        setCurrentImage(0);
+    }
 
     const handleClick = () => {
         if (!isPreview) {
@@ -94,12 +100,10 @@ export default function StandardCard({ car, isPreview = false }) {
                 </div>
             ) : (
                 <AnimatePresence>
-                    <motion.img
+                    <motion.div
                         key={currentImage}
                         layoutId={isPreview ? null : `car-image-${car.id}`}
-                        src={images[currentImage]}
-                        alt={car.name}
-                        className="w-full h-full object-contain absolute inset-0"
+                        className="absolute inset-0"
                         initial={{ opacity: 0 }}
                         animate={{ 
                             opacity: 1, 
@@ -114,7 +118,14 @@ export default function StandardCard({ car, isPreview = false }) {
                             transform: isHovered ? 'scale(1.1)' : 'scale(1)',
                             transition: 'filter 0.5s ease-in-out, transform 0.5s ease-in-out',
                         }}
-                    />
+                    >
+                        <Image 
+                            src={images[currentImage]} 
+                            alt={car.name} 
+                            fill 
+                            className="object-contain" 
+                        />
+                    </motion.div>
                 </AnimatePresence>
             )}
 

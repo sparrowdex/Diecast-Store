@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -8,6 +9,8 @@ export default async function AdminOrdersPage({ searchParams }) {
   const resolvedSearchParams = await searchParams;
   const filter = resolvedSearchParams.filter || 'ALL_EXHIBITS';
 
+  // eslint-disable-next-line react-hooks/purity
+  const now = Date.now();
   let orders = [];
   let dbError = false;
 
@@ -18,7 +21,7 @@ export default async function AdminOrdersPage({ searchParams }) {
     if (filter === 'DELIVERED') where.status = 'DELIVERED';
     if (filter === 'CRITICAL_ONLY') {
       where.status = { not: 'DELIVERED' };
-      where.createdAt = { lt: new Date(Date.now() - 172800000) }; 
+      where.createdAt = { lt: new Date(now - 172800000) }; 
     }
 
     orders = await prisma.order.findMany({
@@ -45,13 +48,13 @@ export default async function AdminOrdersPage({ searchParams }) {
 
   const stats = {
     total: await prisma.order.count(),
-    new: await prisma.order.count({ where: { createdAt: { gt: new Date(Date.now() - 3600000) } } }),
-    critical: await prisma.order.count({ where: { status: { not: 'DELIVERED' }, createdAt: { lt: new Date(Date.now() - 172800000) } } }),
+    new: await prisma.order.count({ where: { createdAt: { gt: new Date(now - 3600000) } } }),
+    critical: await prisma.order.count({ where: { status: { not: 'DELIVERED' }, createdAt: { lt: new Date(now - 172800000) } } }),
     valuation: (await prisma.order.aggregate({ _sum: { total: true } }))._sum.total || 0
   };
 
   const getPriority = (createdAt) => {
-    const hours = Math.floor((new Date() - new Date(createdAt)) / (1000 * 60 * 60));
+    const hours = Math.floor((now - new Date(createdAt)) / (1000 * 60 * 60));
     if (hours < 1) return { label: 'NEW', color: 'text-green-500', bg: 'bg-green-500/10', ping: true };
     if (hours > 48) return { label: 'CRITICAL', color: 'text-red-500', bg: 'bg-red-500/10', ping: false };
     if (hours > 12) return { label: 'URGENT', color: 'text-yellow-500', bg: 'bg-yellow-500/10', ping: false };
@@ -169,7 +172,7 @@ export default async function AdminOrdersPage({ searchParams }) {
                     {order.firstName} {order.lastName}
                   </p>
                   <p className="text-[9px] font-mono text-zinc-500 mt-1.5 leading-none truncate">
-                    #{order.id.slice(-6).toUpperCase()} // {order.city}
+                    #{order.id.slice(-6).toUpperCase()}{" // "}{order.city}
                   </p>
                   <p className="text-[10px] font-black italic text-yellow-500 mt-1.5 tracking-tighter leading-none">
                     ₹{order.total.toLocaleString()}
@@ -223,7 +226,7 @@ function ExhibitStack({ items, compact = false }) {
         <div className={`flex ${overlap} shrink-0`}>
             {items.slice(0, 3).map((item, i) => (
                 <div key={i} className={`${size} bg-white border border-black rounded-full overflow-hidden shrink-0 shadow-xl`}>
-                    <img src={item.image} alt="" className="w-full h-full object-contain mix-blend-multiply" />
+                    <Image src={item.image} alt="Exhibit" width={32} height={32} className="w-full h-full object-contain mix-blend-multiply" />
                 </div>
             ))}
             {items.length > 3 && (

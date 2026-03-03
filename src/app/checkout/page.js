@@ -2,6 +2,7 @@
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 import CheckoutForm from "@/components/CheckoutForm";
+import Image from "next/image";
 
 export default function CheckoutPage() {
   const { cart, cartTotal, clearCart } = useCart();
@@ -50,8 +51,11 @@ export default function CheckoutPage() {
           {cart.map((item) => (
             <div key={item.id} className="flex gap-4 items-center">
               <div className="w-16 h-16 bg-gray-50 border border-black/5 p-2 flex items-center justify-center">
-                <img
+                <Image
                   src={item.image}
+                  alt={item.name}
+                  width={64}
+                  height={64}
                   className="max-w-full max-h-full object-contain"
                 />
               </div>

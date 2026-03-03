@@ -1,5 +1,29 @@
 # Changelog - Diecast Store Refactor
 
+## [2026-03-03] - Final Linting & Project Polish
+
+### Fixed
+- **Unused Directives**: Removed redundant `eslint-disable` comments in the logistics components that were no longer necessary after the render purity refactor.
+- **Project Integrity**: Completed the final pass of ESLint verification, reaching zero errors across the core codebase.
+
+---
+
+## [2026-03-03] - Linting & Render Optimization
+
+### Fixed
+- **Cascading Renders**: Resolved `react-hooks/set-state-in-effect` errors in `FulfillmentCard` by converting the urgency calculation from a `useEffect` side-effect into a derived `useMemo` value.
+- **JSX Comment Nodes**: Fixed `react/jsx-no-comment-textnodes` errors in the `Admin Dashboard` by wrapping text strings containing `//` in curly braces.
+
+### Changed
+- **Render Purity**: Implemented `useMemo` for time-based urgency badges to ensure they only recalculate when the source data (`createdAt`) changes, improving component stability.
+- **Linting Compliance**: Added `eslint-disable` markers for specific purity rules where `Date.now()` is required for real-time logistics telemetry.
+
+### What We Learnt
+- **Derived State vs. Effects**: Learnt that if state can be calculated from props or existing state, it should be derived during render (or memoized) rather than set inside a `useEffect` to avoid unnecessary re-renders.
+- **JSX Text Node Sensitivity**: Discovered that ESLint's JSX parser is sensitive to `//` inside text nodes, treating them as potential un-braced JavaScript comments.
+
+---
+
 ## [2026-03-03] - Single Featured Exhibit Constraint & Priority Sorting
 
 ### Added

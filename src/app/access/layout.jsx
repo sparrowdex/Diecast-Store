@@ -71,7 +71,7 @@ export default async function AccessLayout({ children }) {
               <span className="text-xs">←</span> [ RETURN_TO_MAIN ]
             </Link>
             <h1 className="text-6xl font-black uppercase italic tracking-tighter leading-none">THE VAULT</h1>
-            <p className="font-geist-mono text-[9px] uppercase tracking-[0.3em] opacity-40 mt-2">// Authorized_Collector_Access</p>
+            <p className="font-geist-mono text-[9px] uppercase tracking-[0.3em] opacity-40 mt-2">{"// Authorized_Collector_Access"}</p>
           </div>
 
           <div className="flex items-center gap-8 justify-end">

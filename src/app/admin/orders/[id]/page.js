@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import FulfillmentCard from '@/components/FulfillmentCard';
 
 export default function OrderDetailPage({ params }) {
@@ -62,7 +63,7 @@ export default function OrderDetailPage({ params }) {
               <div key={item.id} className="flex gap-6 items-center bg-zinc-900 border border-white/10 p-6 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-12 h-12 bg-white/5 -mr-6 -mt-6 rotate-45" />
                 <div className="w-20 h-20 bg-white border border-white/10 p-2 flex items-center justify-center grayscale group-hover:grayscale-0 transition-all">
-                  <img src={item.image} className="max-w-full max-h-full object-contain mix-blend-multiply" />
+                  <Image src={item.image} alt={item.name} width={80} height={80} className="object-contain mix-blend-multiply" />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-black uppercase italic text-white">{item.name}</p>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const OrderHistoryItem = ({ order, isDark }) => {
   const items = order.items || [];
@@ -45,13 +46,14 @@ const OrderHistoryItem = ({ order, isDark }) => {
           >
             {/* Product Image Node */}
             <div className={`
-              h-20 w-28 shrink-0 flex items-center justify-center p-2 border
+              h-20 w-28 shrink-0 flex items-center justify-center p-2 border relative
               ${isDark ? 'bg-zinc-900 border-white/10' : 'bg-zinc-100 border-black/5'}
             `}>
-              <img 
+              <Image 
                 src={item.image || '/placeholder.png'} 
                 alt={item.name} 
-                className="max-h-full max-w-full object-contain transition-transform group-hover:scale-110" 
+                fill
+                className="object-contain p-2 transition-transform group-hover:scale-110" 
               />
             </div>
 
