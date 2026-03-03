@@ -1,165 +1,135 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 
 export default function Inventory({ initialCars = [] }) {
   const [cars, setCars] = useState(initialCars);
-  const [filter, setFilter] = useState("all");
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this exhibit?")) return;
-
-    try {
-      const response = await fetch(`/api/products/${id}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Failed to delete exhibit');
-      
-      setCars(prev => prev.filter(car => car.id !== id));
-    } catch (error) {
-      console.error("Delete error:", error);
-      alert("Failed to delete the exhibit. Please try again.");
+    if (window.confirm("Are you sure you want to delete this exhibit?")) {
+      await fetch(`/api/products/${id}`, {
+        method: 'DELETE',
+      });
+      setCars(cars.filter(car => car.id !== id));
     }
   };
 
-  const filteredAndSortedCars = useMemo(() => {
-    let result = [...cars];
-    
-    if (filter === "sold_out") {
-      result = result.filter(car => car.stock === 0);
-    } else if (filter === "featured") {
-      result = result.filter(car => car.collectionStatus === "FEATURED_EXHIBIT");
-    } else if (filter === "new_arrival") {
-      result = result.filter(car => car.collectionStatus === "NEW_ARRIVAL" && !car.featured);
-    } else if (filter === "na_featured") {
-      result = result.filter(car => car.collectionStatus === "NEW_ARRIVAL" && car.featured);
-    }
-
-    return result.sort((a, b) => {
-      if (a.stock === 0 && b.stock !== 0) return -1;
-      if (a.stock !== 0 && b.stock === 0) return 1;
-      return 0;
-    });
-  }, [cars, filter]);
-
   return (
-    // ROOT: Locked firmly to max-w-[100vw]
-    <div className="min-h-screen bg-black text-white w-full max-w-[100vw] overflow-x-hidden font-sans box-border">
-      
-      {/* Inner Wrapper: standard padding on desktop, tight padding on mobile */}
-      <div className="w-full px-3 py-4 md:p-8">
+    <div className="min-h-screen bg-black text-white w-full max-w-[100vw] overflow-x-hidden">
+      {/* Container: Matches your original p-12 on desktop, tighter on mobile */}
+      <div className="p-4 lg:p-12">
         
-        {/* HEADER: Stacked layout with smaller text as suggested */}
-        <div className="flex flex-col items-start mb-6 border-b border-white/10 pb-5 w-full">
-          {/* Scaled down to text-2xl on mobile */}
-          <h2 className="text-2xl md:text-5xl font-black uppercase italic tracking-tighter leading-none">
-            Inventory
-          </h2>
-          <p className="text-[10px] font-mono text-green-500 mt-1.5 tracking-widest uppercase">
-            System: Online
-          </p>
-          
-          {/* Upload Button: w-fit ensures it never forces the container wider than its text */}
-          <Link href="/admin/inventory/new" className="mt-4 w-fit bg-white text-black px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-none">
-            + UPLOAD
+        {/* Header: Original Design */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
+          <div>
+            <h2 className="text-3xl font-black uppercase italic tracking-tighter mb-2 leading-none">Inventory</h2>
+            <p className="text-xs font-mono text-gray-500">System Status: <span className="text-green-500">ONLINE</span></p>
+          </div>
+          <Link href="/admin/inventory/new" className="bg-white text-black px-6 py-3 font-black text-xs uppercase tracking-widest hover:bg-gray-200 transition-colors shrink-0">
+            + Upload Exhibit
           </Link>
         </div>
 
-        {/* FILTER TABS: flex-wrap to let "NA_FEATURED" drop to a new line natively */}
-        <div className="flex flex-wrap gap-2 mb-6 w-full">
-          <FilterTab active={filter === "all"} onClick={() => setFilter("all")}>All</FilterTab>
-          <FilterTab active={filter === "sold_out"} onClick={() => setFilter("sold_out")}>
-            Sold ({cars.filter(c => c.stock === 0).length})
-          </FilterTab>
-          <FilterTab active={filter === "featured"} onClick={() => setFilter("featured")}>Featured</FilterTab>
-          <FilterTab active={filter === "new_arrival"} onClick={() => setFilter("new_arrival")}>New</FilterTab>
-          <FilterTab active={filter === "na_featured"} onClick={() => setFilter("na_featured")}>NA_Ftr</FilterTab>
+        {/* --- DESKTOP VIEW: Your Original Table --- */}
+        <div className="hidden lg:block bg-[#111] border border-white/5 rounded-lg overflow-hidden">
+          <div className="px-6 py-4 border-b border-white/5 flex justify-between items-center">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">All Exhibits</h3>
+          </div>
+          <table className="w-full text-left">
+            <thead className="bg-white/5 text-[9px] font-mono uppercase text-gray-500">
+              <tr>
+                <th className="px-6 py-3 font-normal">ID</th>
+                <th className="px-6 py-3 font-normal">Exhibit Name</th>
+                <th className="px-6 py-3 font-normal">Scale</th>
+                <th className="px-6 py-3 font-normal">Price</th>
+                <th className="px-6 py-3 font-normal">Status</th>
+                <th className="px-6 py-3 font-normal">Stock</th>
+                <th className="px-6 py-3 font-normal text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {cars.map(car => (
+                <tr key={car.id} className="hover:bg-white/5 transition-colors">
+                  <td className="px-6 py-4 text-xs font-mono text-gray-500">#{car.id?.slice(-6)}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <img src={car.images?.[0]} className="w-8 h-8 object-contain bg-white/5 rounded-sm" />
+                      <span className="text-xs font-bold uppercase tracking-tight">{car.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-xs font-mono">{car.scale}</td>
+                  <td className="px-6 py-4 text-xs font-mono">{car.price}</td>
+                  <td className="px-6 py-4">
+                    <StatusBadge car={car} />
+                  </td>
+                  <td className="px-6 py-4 text-xs font-mono">
+                    {car.stock > 0 ? <span>{car.stock}</span> : <span className="text-red-500 font-bold">{car.stock}</span>}
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <Link href={`/admin/inventory/edit/${car.id}`} className="text-[10px] font-bold uppercase hover:text-white text-gray-500 mr-4">Edit</Link>
+                    <button onClick={() => handleDelete(car.id)} className="text-[10px] font-bold uppercase hover:text-red-500 text-gray-500">Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
-        {/* MAIN LIST */}
-        <div className="flex flex-col gap-2 w-full">
-          {filteredAndSortedCars.map(car => (
-            <div key={car.id} className="w-full bg-[#0a0a0a] border border-white/5 p-3 flex flex-col gap-3 min-w-0">
-              
-              {/* Top Half: Details */}
-              <div className="flex items-start gap-3 w-full min-w-0">
-                <Image 
-                  src={car.images?.[0] || '/fallback.png'} 
-                  className="w-12 h-12 object-contain bg-white/5 border border-white/10 shrink-0 p-1" 
-                  alt="" 
-                  width={48}
-                  height={48}
-                />
-                
-                <div className="flex flex-col flex-1 min-w-0">
-                  <h3 className="text-[11px] font-black uppercase truncate text-white tracking-tight w-full">
-                    {car.name}
-                  </h3>
-                  {/* flex-wrap added here just in case the ID and price get too long */}
-                  <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 mt-1.5">
-                    <span className="text-[10px] font-mono font-bold text-white">{car.price}</span>
+        {/* --- MOBILE VIEW: Card Layout (Prevents Stretching) --- */}
+        <div className="lg:hidden flex flex-col gap-3">
+          {cars.map(car => (
+            <div key={car.id} className="bg-[#111] border border-white/5 p-4 rounded-lg">
+              <div className="flex gap-4 mb-4">
+                <img src={car.images?.[0]} className="w-12 h-12 object-contain bg-white/5 rounded-sm shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-[11px] font-bold uppercase tracking-tight truncate">{car.name}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[10px] font-mono text-gray-400">{car.price}</span>
                     <span className="text-[10px] font-mono text-gray-600">|</span>
-                    <span className="text-[9px] font-mono text-gray-500 truncate">#{car.id?.slice(-4) || 'N/A'}</span>
+                    <span className="text-[10px] font-mono text-gray-600">#{car.id?.slice(-4)}</span>
                   </div>
                 </div>
-
-                <div className="shrink-0 text-right pl-2">
-                  {car.stock === 0 ? (
-                      <span className="text-[9px] font-black text-red-500 italic uppercase">OUT</span>
-                  ) : (
-                      <span className="text-[9px] font-mono text-gray-400">Qty: {car.stock}</span>
-                  )}
+              </div>
+              
+              <div className="flex justify-between items-center pt-3 border-t border-white/5">
+                <StatusBadge car={car} />
+                <div className="flex gap-4">
+                  <Link href={`/admin/inventory/edit/${car.id}`} className="text-[10px] font-bold uppercase text-gray-500">Edit</Link>
+                  <button onClick={() => handleDelete(car.id)} className="text-[10px] font-bold uppercase text-gray-500">Delete</button>
                 </div>
               </div>
-
-              {/* Bottom Half: Action Bar */}
-              <div className="flex justify-between items-center bg-white/[0.03] border border-white/5 px-2 py-1.5 w-full min-w-0">
-                <div className="shrink-0 pr-2">
-                  {renderStatus(car)}
-                </div>
-                <div className="flex gap-1.5 shrink-0">
-                  <Link href={`/admin/inventory/edit/${car.id}`} className="text-[8px] font-black uppercase tracking-widest text-gray-400 bg-white/5 px-3 py-1.5 hover:text-white transition-colors">Edit</Link>
-                  <button onClick={() => handleDelete(car.id)} className="text-[8px] font-black uppercase tracking-widest text-red-500 bg-red-500/10 px-3 py-1.5 hover:text-red-400 transition-colors">Del</button>
-                </div>
-              </div>
-
             </div>
           ))}
-          
-          {filteredAndSortedCars.length === 0 && (
-            <div className="p-8 text-center font-mono text-[10px] text-gray-600 uppercase tracking-widest italic border border-white/5">
-              -- No exhibits found --
-            </div>
-          )}
         </div>
+
       </div>
     </div>
   );
 }
 
-function FilterTab({ children, active, onClick }) {
-    return (
-        <button 
-            onClick={onClick} 
-            // h-fit prevents flexbox from stretching the button vertically into a giant block
-            className={`h-fit shrink-0 whitespace-nowrap px-3 py-1.5 text-[9px] font-black uppercase tracking-widest border transition-colors ${
-                active ? 'bg-white text-black border-white' : 'text-gray-500 border-white/10 hover:text-white hover:border-white/30'
-            }`}
-        >
-            {children}
-        </button>
-    )
-}
-
-function renderStatus(car) {
-  const style = "h-fit text-[7px] font-black uppercase tracking-widest px-1.5 py-1 shrink-0";
+// Extracted the status logic to keep the main code clean
+function StatusBadge({ car }) {
   if (car.collectionStatus === "FEATURED_EXHIBIT") {
-    return <span className={`${style} bg-yellow-500/10 text-yellow-500`}>Featured</span>;
+    return (
+      <span className="bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+        Featured
+      </span>
+    );
   }
   if (car.collectionStatus === "NEW_ARRIVAL") {
-    if (car.featured) {
-      return <span className={`${style} bg-red-500/10 text-red-500`}>NA Featured</span>;
-    }
-    return <span className={`${style} bg-blue-500/10 text-blue-500`}>New Arrival</span>;
+    return car.featured ? (
+      <span className="bg-red-500/10 text-red-500 border border-red-500/20 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+        NA Featured
+      </span>
+    ) : (
+      <span className="bg-blue-500/10 text-blue-500 border border-blue-500/20 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+        New Arrival
+      </span>
+    );
   }
-  return <span className={`${style} bg-white/5 text-gray-400`}>Archive</span>;
+  return (
+    <span className="bg-gray-800 text-gray-400 border border-white/10 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+      Archive
+    </span>
+  );
 }
