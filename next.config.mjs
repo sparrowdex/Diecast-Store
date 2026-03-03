@@ -11,6 +11,12 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'utfs.io', // UploadThing Old (Add this one!)
+        port: '',
+        pathname: '/f/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'img.clerk.com',
       },
     ],

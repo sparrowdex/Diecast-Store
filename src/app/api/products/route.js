@@ -46,7 +46,7 @@ export async function POST(request) {
     // Data Normalization
     if (data.modelYear) data.modelYear = parseInt(data.modelYear);
     if (data.stock) data.stock = parseInt(data.stock);
-    if (data.price) data.price = String(data.price);
+    if (data.price) data.price = parseFloat(data.price);
 
     const product = await prisma.product.create({
       data,

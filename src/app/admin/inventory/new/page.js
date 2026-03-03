@@ -4,11 +4,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ExhibitPreview from "@/components/ExhibitPreview";
 import Image from "next/image";
-import { UploadButton } from "@uploadthing/react";
+import { UploadButton } from "@/components/UploadButton"; 
+import { ChevronLeft } from "lucide-react";
 
+// Robust media checker that handles both your original type check and the URL check
 const isMediaVideo = (media) => {
-  if (!media || !media.type) return false;
-  return media.type.startsWith("video/");
+  if (!media) return false;
+  if (media.type) return media.type.startsWith("video/");
+  if (media.url) return /\.(mp4|webm|ogg|mov|m4v)($|\?)/i.test(media.url);
+  return false;
 };
 
 export default function NewExhibitPage() {
@@ -17,7 +21,7 @@ export default function NewExhibitPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   
-  // Form State
+  // RESTORED: Your exact original state
   const [formData, setFormData] = useState({
     name: "",
     brand: "",
@@ -34,12 +38,11 @@ export default function NewExhibitPage() {
     stock: 1,
   });
 
-  // Drag & Drop State
   const [reorderedImages, setReorderedImages] = useState([]);
   const dragItem = useRef(null);
   const dragOverItem = useRef(null);
 
-  // Handlers
+  // RESTORED: Your exact original change handler
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     let val = type === 'checkbox' ? checked : value;
@@ -70,11 +73,6 @@ export default function NewExhibitPage() {
       }
       return finalMedia;
     });
-
-    const imageCount = newMediaObjects.filter(f => !isMediaVideo(f)).length;
-    const videoCount = newMediaObjects.find(f => isMediaVideo(f)) ? 1 : 0;
-    if (imageCount > 0) alert(`${imageCount} image(s) uploaded.`);
-    if (videoCount > 0) alert("Video uploaded successfully.");
   };
 
   const handleSort = useCallback(() => {
@@ -92,20 +90,6 @@ export default function NewExhibitPage() {
     setReorderedImages(prev => prev.filter((_, i) => i !== indexToDelete));
   };
 
-  // Navigation Logic
-  const handleNext = () => {
-    if (step === 1) {
-      setStep(2);
-    } else if (step === 2) {
-      // Step 3 is removed, so we always submit from step 2
-      handleSubmit();
-    }
-  };
-
-  const handlePrev = () => {
-    setStep(prev => prev - 1);
-  };
-
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     if (isSubmitting) return;
@@ -119,16 +103,14 @@ export default function NewExhibitPage() {
       ...formData,
       images,
       video,
-      price: String(formData.price),
-      stock: parseInt(formData.stock, 10) || 0,
+      price: parseFloat(formData.price) || 0,
+      stock: parseInt(formData.stock, 10) || 0
     };
     
     try {
       const response = await fetch('/api/products', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSend),
       });
 
@@ -137,10 +119,7 @@ export default function NewExhibitPage() {
         throw new Error(errorData.message || 'Something went wrong');
       }
 
-      // Force Next.js to refresh server-side data so the new exhibit 
-      // appears in the inventory list immediately.
       router.refresh();
-
       router.push("/admin/inventory");
 
     } catch (error) {
@@ -150,179 +129,172 @@ export default function NewExhibitPage() {
       setIsSubmitting(false);
     }
   };
-  
-  const imageCount = reorderedImages.filter(m => !isMediaVideo(m)).length;
-  const videoCount = reorderedImages.some(m => isMediaVideo(m)) ? 1 : 0;
 
   return (
-    <div className="p-12 text-white">
-      {/* Header */}
-      <div className="flex justify-between items-end mb-12">
-        <div>
-          <h2 className="text-3xl font-black uppercase italic tracking-tighter mb-2">
-            {step === 1 ? "New Exhibit" : "Preview & Edit Exhibit"}
+    // Main container locked to prevent horizontal scroll
+    <div className="p-6 md:p-12 text-white font-geist max-w-6xl mx-auto w-full min-w-0">
+      
+      <header className="mb-10 md:mb-12 border-b-4 border-white/10 pb-6 flex justify-between items-end w-full min-w-0">
+        <div className="min-w-0 overflow-hidden">
+          <h2 className="text-2xl md:text-4xl font-black italic uppercase tracking-tighter truncate">
+            {step === 1 ? "New_Exhibit_Entry" : "Preview & Edit"}
           </h2>
-          <p className="text-xs font-mono text-gray-500">
-            {step === 1 ? "Add a new model to the gallery database." 
-            : "Visualize, edit, and confirm details."}
+          <p className="font-geist-mono text-[8px] md:text-[10px] uppercase tracking-[0.3em] opacity-40 mt-2 truncate">
+            {"// "}{step === 1 ? "LOG_DATA_INPUT" : "FINAL_VISUAL_CHECK"}
           </p>
         </div>
-      </div>
+        <button onClick={() => step === 2 ? setStep(1) : router.push("/admin/inventory")} className="font-geist-mono text-[10px] opacity-40 hover:opacity-100 uppercase italic whitespace-nowrap ml-4">
+          <ChevronLeft size={12} className="inline mr-1"/> {step === 2 ? "Back" : "Cancel"}
+        </button>
+      </header>
 
-      {/* --- STEP 1: INITIAL DATA ENTRY --- */}
-      {step === 1 && (
-        <form onSubmit={(e) => { e.preventDefault(); handleNext(); }} className="bg-[#111] border border-white/5 rounded-lg p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-           <InputField name="name" label="Exhibit Name" value={formData.name} onChange={handleChange} placeholder="e.g., Red Bull RB19" required />
-           <InputField name="brand" label="Brand" value={formData.brand} onChange={handleChange} placeholder="e.g., Bburago" required />
-           <InputField name="price" label="Price" type="number" value={formData.price} onChange={handleChange} placeholder="e.g., 1400" required />
-           <div>
-             <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Scale</label>
-             <select name="scale" value={formData.scale} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white">
-               {['1:64', '1:32', '1:24', '1:18'].map(s => (
-                 <option key={s} value={s} className="bg-[#111]">{s}</option>
-               ))}
-             </select>
-           </div>
-           <InputField name="modelYear" label="Model Year" type="number" value={formData.modelYear} onChange={handleChange} placeholder="e.g., 2023" />
-           
-           <div className="md:col-span-2">
-             <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
-               Media (Images & Video) {isUploading && <span className="text-yellow-500 animate-pulse ml-2">— UPLOADING...</span>}
-             </label>
-             <UploadButton 
-                endpoint="mediaUploader" 
-                onUploadBegin={() => setIsUploading(true)}
-                onClientUploadComplete={(res) => {
-                  setIsUploading(false);
-                  handleMediaUpload(res);
-                }} 
-                onUploadError={(error) => {
-                  setIsUploading(false);
-                  alert(`Upload Failed: ${error.message}`);
-                }}
-             />
-             <p className="text-xs text-gray-500 mt-2">
-                {imageCount} image(s) and {videoCount} video uploaded.
-             </p>
-           </div>
-
-           <InputField name="material" label="Material" value={formData.material} onChange={handleChange} />
-           <InputField name="condition" label="Condition" value={formData.condition} onChange={handleChange} />
-           
-           <div className="md:col-span-2">
-             <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Description</label>
-             <textarea name="description" rows="4" value={formData.description} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white" />
-           </div>
-
-           <div className="md:col-span-2">
-             <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Editor&apos;s Note</label>
-             <textarea name="editorsNote" rows="2" value={formData.editorsNote} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white" />
-           </div>
-
-           <div className="md:col-span-2">
-                <InputField name="stock" label="Stock" value={formData.stock} onChange={handleChange} type="number" />
-           </div>
-
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:col-span-2">
-             <div>
-               <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Collection Status</label>
-               <select name="collectionStatus" value={formData.collectionStatus} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white">
-                 <option value="ARCHIVE_CATALOG" className="bg-[#111]">Archive Catalog</option>
-                 <option value="NEW_ARRIVAL" className="bg-[#111]">New Arrival</option>
-                 <option value="FEATURED_EXHIBIT" className="bg-[#111]">Featured Exhibit</option>
-               </select>
-             </div>
-             <div>
-               <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Genre</label>
-               <select name="genre" value={formData.genre} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white">
-                 <option value="CLASSIC_VINTAGE" className="bg-[#111]">Classic & Vintage</option>
-                 <option value="RACE_COURSE" className="bg-[#111]">Race Course</option>
-                 <option value="CITY_LIFE" className="bg-[#111]">City Life</option>
-                 <option value="SUPERPOWERS" className="bg-[#111]">Superpowers</option>
-                 <option value="LUXURY_REDEFINED" className="bg-[#111]">Luxury Redefined</option>
-                 <option value="OFF_ROAD" className="bg-[#111]">Off-Road</option>
-                 <option value="FUTURE_PROOF" className="bg-[#111]">Future Proof</option>
-               </select>
-             </div>
-           </div>
-
-           <div className="md:col-span-2 flex justify-end gap-4 mt-4 border-t border-white/5 pt-4">
-             <Link href="/admin/inventory" className="text-gray-400 px-6 py-2 font-bold text-xs uppercase tracking-widest">Cancel</Link>
-             <button type="submit" className="bg-white text-black px-6 py-2 font-black text-xs uppercase tracking-widest hover:bg-gray-200">Next: Preview</button>
-           </div>
-        </form>
-      )}
-
-      {/* --- STEP 2: PREVIEW & MANAGE --- */}
-      {step === 2 && (
-        <div className="space-y-12">
+      {step === 1 ? (
+        <form onSubmit={(e) => { e.preventDefault(); setStep(2); }} className="space-y-8 md:space-y-12 w-full min-w-0">
           
-          {/* 1. Media Gallery Management */}
-          <div className="bg-[#111] border border-white/5 rounded-lg p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-white">Media Gallery Management</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full min-w-0 items-start">
+            
+            {/* LEFT COLUMN: Media Staging */}
+            <div className="space-y-6 w-full min-w-0">
+              <div className="p-6 bg-white/[0.02] border border-white/5 w-full min-w-0 overflow-hidden">
+                <p className="text-[10px] font-geist-mono opacity-40 uppercase italic mb-4 truncate">Upload_Exhibit_Assets</p>
+                
+                <div className="w-full max-w-full overflow-hidden flex items-center">
+                  <UploadButton
+                    endpoint="mediaUploader"
+                    onUploadBegin={() => setIsUploading(true)}
+                    onClientUploadComplete={(res) => {
+                      setIsUploading(false);
+                      handleMediaUpload(res);
+                    }}
+                    onUploadError={() => setIsUploading(false)}
+                  />
+                </div>
+                <p className="text-[8px] font-geist-mono opacity-20 uppercase mt-4 italic truncate">
+                  {"// "}{reorderedImages.length} ASSETS STAGED {isUploading && "- UPLOADING..."}
+                </p>
               </div>
-              <p className="text-xs text-gray-500 mb-6">Drag and drop to reorder images. The first image will be the cover image.</p>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                {reorderedImages.map((media, idx) => (
-                  <div 
-                    key={media.url} 
-                    draggable 
-                    onDragStart={() => (dragItem.current = idx)}
-                    onDragEnter={() => (dragOverItem.current = idx)}
-                    onDragEnd={handleSort}
-                    onDragOver={(e) => e.preventDefault()}
-                    className="relative aspect-square bg-black rounded-md overflow-hidden border border-white/10 cursor-move group hover:border-yellow-500/50 transition-colors"
-                  >
-                    {isMediaVideo(media) ? (
-                      <>
-                        <video src={media.url} autoPlay loop muted className="w-full h-full object-cover" />
-                        <span className="absolute top-2 left-2 bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg">VIDEO</span>
-                        <button onClick={() => handleDeleteMedia(idx)} className="absolute top-2 right-2 bg-red-600 text-white text-[10px] p-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">✕</button>
-                      </>
-                    ) : (
-                      <>
-                        <Image src={media.url} alt="Exhibit Media" fill className="object-cover" />
-                        {idx === 0 && <span className="absolute top-2 left-2 bg-yellow-500 text-black text-[10px] font-bold px-2 py-1 rounded shadow-lg">COVER</span>}
-                        <button onClick={() => handleDeleteMedia(idx)} className="absolute top-2 right-2 bg-red-600 text-white text-[10px] p-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">✕</button>
-                      </>
-                    )}
-                  </div>
-                ))}
-                {reorderedImages.length === 0 && (
-                   <div className="col-span-full text-center text-xs text-gray-600 py-12 border border-dashed border-gray-700 rounded bg-black/20">
-                      <p className="mb-2">No media uploaded yet.</p>
-                      <button onClick={handlePrev} className="text-yellow-500 hover:text-white transition-colors underline">Go back to Step 1 to upload</button>
-                   </div>
-                )}
+
+              {reorderedImages.length > 0 && (
+                <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 w-full min-w-0">
+                  {reorderedImages.map((m, i) => (
+                    <div key={i} className="aspect-square bg-white/5 border border-white/10 relative overflow-hidden rounded-md">
+                      {isMediaVideo(m) ? <div className="w-full h-full bg-blue-500/20 flex items-center justify-center text-[8px]">VIDEO</div> : <Image src={m.url} fill className="object-cover" alt="prev" />}
+                      <button type="button" onClick={() => handleDeleteMedia(i)} className="absolute top-0.5 right-0.5 bg-red-500 p-0.5 text-[8px] rounded-sm z-10">✕</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* RIGHT COLUMN: Core Data */}
+            <div className="space-y-6 w-full min-w-0">
+              <InputField name="name" label="Exhibit Name" value={formData.name} onChange={handleChange} required />
+              <InputField name="brand" label="Brand" value={formData.brand} onChange={handleChange} required />
+              <div className="grid grid-cols-2 gap-4 w-full min-w-0">
+                <InputField name="price" label="Price" value={formData.price} onChange={handleChange} type="number" required />
+                <div className="space-y-2 font-geist-mono w-full min-w-0">
+                  <label className="text-[10px] font-black uppercase tracking-widest opacity-40 block truncate">Scale</label>
+                  <select name="scale" value={formData.scale} onChange={handleChange} className="w-full bg-white/5 border border-white/10 p-4 text-xs outline-none uppercase italic text-white appearance-none">
+                    {['1:64', '1:43', '1:24', '1:18'].map(s => <option key={s} value={s} className="bg-zinc-900">{s}</option>)}
+                  </select>
+                </div>
               </div>
+              <div className="grid grid-cols-2 gap-4 w-full min-w-0">
+                <InputField name="modelYear" label="Model Year" value={formData.modelYear} onChange={handleChange} type="number" />
+                <InputField name="stock" label="Stock" value={formData.stock} onChange={handleChange} type="number" />
+              </div>
+            </div>
           </div>
 
-          {/* 2. Product Page Preview */}
-          <div className="bg-[#111] border border-white/5 rounded-lg p-6">
-            <h3 className="text-xl font-bold text-white mb-6">Live Preview & Input Fields</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full min-w-0">
+            <InputField name="material" label="Material" value={formData.material} onChange={handleChange} />
+            <InputField name="condition" label="Condition" value={formData.condition} onChange={handleChange} />
+          </div>
+
+          {/* RESTORED: Status and Genre Selectors */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full min-w-0">
+             <div className="space-y-2 font-geist-mono w-full min-w-0">
+                <label className="text-[10px] font-black uppercase tracking-widest opacity-40 block truncate">Collection Status</label>
+                <select name="collectionStatus" value={formData.collectionStatus} onChange={handleChange} className="w-full bg-white/5 border border-white/10 p-4 text-xs outline-none uppercase italic text-white appearance-none">
+                  <option value="ARCHIVE_CATALOG" className="bg-[#111]">Archive Catalog</option>
+                  <option value="NEW_ARRIVAL" className="bg-[#111]">New Arrival</option>
+                  <option value="FEATURED_EXHIBIT" className="bg-[#111]">Featured Exhibit</option>
+                </select>
+             </div>
+             <div className="space-y-2 font-geist-mono w-full min-w-0">
+                <label className="text-[10px] font-black uppercase tracking-widest opacity-40 block truncate">Genre</label>
+                <select name="genre" value={formData.genre} onChange={handleChange} className="w-full bg-white/5 border border-white/10 p-4 text-xs outline-none uppercase italic text-white appearance-none">
+                  <option value="CLASSIC_VINTAGE" className="bg-[#111]">Classic & Vintage</option>
+                  <option value="RACE_COURSE" className="bg-[#111]">Race Course</option>
+                  <option value="CITY_LIFE" className="bg-[#111]">City Life</option>
+                  <option value="SUPERPOWERS" className="bg-[#111]">Superpowers</option>
+                  <option value="LUXURY_REDEFINED" className="bg-[#111]">Luxury Redefined</option>
+                  <option value="OFF_ROAD" className="bg-[#111]">Off-Road</option>
+                  <option value="FUTURE_PROOF" className="bg-[#111]">Future Proof</option>
+                </select>
+             </div>
+          </div>
+
+          <div className="space-y-2 font-geist-mono w-full min-w-0">
+            <label className="text-[10px] font-black uppercase tracking-widest opacity-40 block truncate">Description</label>
+            <textarea name="description" value={formData.description} onChange={handleChange} className="w-full bg-white/5 border border-white/10 p-4 text-xs outline-none text-white italic min-h-[100px] resize-y" />
+          </div>
+
+          <div className="space-y-2 font-geist-mono w-full min-w-0">
+            <label className="text-[10px] font-black uppercase tracking-widest opacity-40 block truncate">Editor's Note</label>
+            <textarea name="editorsNote" value={formData.editorsNote} onChange={handleChange} className="w-full bg-white/5 border border-white/10 p-4 text-xs outline-none text-white italic min-h-[60px] resize-y" />
+          </div>
+
+          <div className="flex justify-end pt-8 border-t border-white/10 w-full min-w-0">
+            <button 
+              type="submit"
+              disabled={!formData.name}
+              className="w-full md:w-auto bg-white text-black px-10 py-4 font-black text-[10px] uppercase italic hover:bg-yellow-500 transition-all disabled:opacity-30"
+            >
+              Proceed_to_Curation
+            </button>
+          </div>
+        </form>
+      ) : (
+        /* STEP 2: PREVIEW */
+        <div className="space-y-8 w-full min-w-0">
+          <section className="bg-white/[0.02] border border-white/5 p-4 md:p-6 w-full min-w-0 overflow-hidden">
+            <p className="text-[10px] font-geist-mono opacity-40 uppercase italic mb-6">Drag_to_Reorder_Manifest</p>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 md:gap-4 w-full min-w-0">
+              {reorderedImages.map((m, idx) => (
+                <div 
+                  key={m.url} draggable 
+                  onDragStart={() => (dragItem.current = idx)}
+                  onDragEnter={() => (dragOverItem.current = idx)}
+                  onDragEnd={handleSort}
+                  onDragOver={(e) => e.preventDefault()}
+                  className="aspect-square relative border border-white/10 cursor-move group rounded-md overflow-hidden"
+                >
+                  {isMediaVideo(m) ? <video src={m.url} className="w-full h-full object-cover" muted /> : <Image src={m.url} fill className="object-cover" alt="sort" />}
+                  <button onClick={() => handleDeleteMedia(idx)} className="absolute top-1 right-1 bg-red-500 p-1 text-[8px] rounded-sm">✕</button>
+                  {idx === 0 && <span className="absolute bottom-0 left-0 bg-yellow-500 text-black text-[7px] font-black px-1 uppercase w-full text-center">Cover</span>}
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <div className="bg-white rounded-lg overflow-hidden border border-white/10 shadow-2xl w-full min-w-0">
+            {/* FIXED: Passed formData and orderedMedia exactly like your original code requested */}
             <ExhibitPreview 
               formData={{
-                  ...formData,
-                  images: reorderedImages.filter(m => !isMediaVideo(m)).map(m => m.url),
-                  video: (reorderedImages.find(m => isMediaVideo(m)) || {}).url || ""
-              }}
-              orderedMedia={reorderedImages} 
-              handleChange={handleChange} 
+                ...formData,
+                images: reorderedImages.filter(m => !isMediaVideo(m)).map(m => m.url),
+                video: reorderedImages.find(m => isMediaVideo(m))?.url || "" 
+              }} 
+              orderedMedia={reorderedImages}
+              handleChange={handleChange}
             />
           </div>
 
-          {/* Navigation */}
-          <div className="flex justify-end gap-4 pt-4 border-t border-white/10">
-             <button onClick={handlePrev} className="text-gray-400 px-6 py-3 font-bold text-xs uppercase tracking-widest hover:text-white transition-colors">Back to Edit</button>
-             <button 
-                onClick={handleSubmit} 
-                disabled={isSubmitting || isUploading}
-                className="bg-white text-black px-8 py-3 font-black text-xs uppercase tracking-widest hover:bg-gray-200 transition-colors rounded disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? "Creating..." : isUploading ? "Uploading Media..." : "Create Exhibit"}
-             </button>
+          <div className="flex justify-end gap-6 pt-10 border-t border-white/10 w-full min-w-0">
+            <button onClick={handleSubmit} disabled={isSubmitting} className="w-full md:w-auto bg-yellow-500 text-black px-12 py-4 font-black text-[11px] uppercase italic hover:bg-white transition-all shadow-xl">
+              {isSubmitting ? "Finalizing..." : "Commit_to_Database"}
+            </button>
           </div>
         </div>
       )}
@@ -330,12 +302,18 @@ export default function NewExhibitPage() {
   );
 }
 
-// Simple Helper Component
-function InputField({ name, label, placeholder, required = false, value, onChange, type = "text" }) {
+function InputField({ name, label, value, onChange, type = "text", required = false }) {
   return (
-    <div>
-      <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">{label}</label>
-      <input type={type} name={name} value={value} onChange={onChange} placeholder={placeholder} required={required} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white" />
+    <div className="space-y-2 font-geist-mono w-full min-w-0">
+      <label className="text-[10px] font-black uppercase opacity-40 tracking-widest block truncate">{label}</label>
+      <input 
+        type={type} 
+        name={name}
+        value={value} 
+        onChange={onChange}
+        required={required} 
+        className="w-full min-w-0 bg-white/5 border border-white/10 p-4 text-xs focus:border-yellow-500 outline-none text-white italic transition-all" 
+      />
     </div>
   );
 }
