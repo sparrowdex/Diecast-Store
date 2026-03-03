@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import OrderSuccessClient from './OrderSuccessClient';
+import { getOrderByAnyId } from '@/lib/actions/orders';
 
 const Loading = () => {
     return (
@@ -26,10 +27,19 @@ const Loading = () => {
     )
 }
 
-export default function OrderSuccessPage() {
+export default async function OrderSuccessPage({ searchParams }) {
+  // Turbopack requires searchParams to be awaited
+  const resolvedSearchParams = await searchParams;
+  const anyId = resolvedSearchParams.orderId || resolvedSearchParams.payment_id;
+  let order = null;
+
+  if (anyId) {
+    order = await getOrderByAnyId(anyId);
+  }
+
   return (
     <Suspense fallback={<Loading />}>
-      <OrderSuccessClient />
+      <OrderSuccessClient order={order} />
     </Suspense>
   );
 }

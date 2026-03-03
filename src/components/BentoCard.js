@@ -118,7 +118,7 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
         <div 
           className="absolute top-0 left-0 w-[3px] h-full opacity-20"
           style={{
-            backgroundImage: `repeating-conic-gradient(#000 0% 25%, transparent 0% 50%)`,
+            backgroundImage: `repeating-conic-gradient(#0A0A0A 0% 25%, transparent 0% 50%)`,
             backgroundSize: '6px 6px'
           }}
         />

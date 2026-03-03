@@ -98,10 +98,10 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
                     <div className="absolute top-full left-0 w-48 pt-6 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 ease-out z-50">
                       <div className="bg-white border border-black shadow-2xl p-2 flex flex-col">
                         <Link href="/access" className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-all">Dashboard</Link>
-                        <Link href="/access/profile" className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-all">Profile</Link>
+                        <Link href="/access/profile" className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-all">Collector Profile</Link>
                         <Link href="/access/collection" className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-all">My Collection</Link>
                         <Link href="/access/orders" className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-all">Order History</Link>
-                        <Link href="/access/settings" className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-all">Settings</Link>
+                        <Link href="/access/settings" className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-all">Account Settings</Link>
                         
                         <div className="h-px bg-black/5 my-2" />
                         <SignOutButton>

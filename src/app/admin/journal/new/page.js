@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import Image from "next/image";
 import { UploadButton } from "@/components/UploadButton";
 import JournalMediaDisplay from "@/components/JournalMediaDisplay"; 
 import { Camera, Zap, ChevronLeft, Layers } from "lucide-react";
@@ -13,11 +14,30 @@ const GENRES = ["CLASSIC_VINTAGE", "RACE_COURSE", "CITY_LIFE", "SUPERPOWERS", "L
 
 export default function NewJournalEntryPage() {
   const router = useRouter();
+  const [hasExistingFeatured, setHasExistingFeatured] = useState(false);
+  const [existingFeaturedTitle, setExistingFeaturedTitle] = useState("");
+
   const [formData, setFormData] = useState({
     title: "", slug: "", content: "", author: "",
     genre: "CLASSIC_VINTAGE", isPublished: false, isFeatured: false,
     readTime: 0, imageUrl: "", videoUrl: "",
   });
+
+  useEffect(() => {
+    const checkFeatured = async () => {
+      try {
+        const res = await fetch('/api/journal?featured=true');
+        const data = await res.json();
+        if (data && data.length > 0) {
+          setHasExistingFeatured(true);
+          setExistingFeaturedTitle(data[0].title);
+        }
+      } catch (err) {
+        console.error("Error checking featured status:", err);
+      }
+    };
+    checkFeatured();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -56,7 +76,7 @@ export default function NewJournalEntryPage() {
       <header className="mb-12 border-b-4 border-white/10 pb-6 flex justify-between items-end">
         <div>
           <h2 className="text-4xl font-black italic uppercase tracking-tighter">New_Journal_Entry</h2>
-          <p className="font-geist-mono text-[10px] uppercase tracking-[0.3em] opacity-40 mt-2">// SYSTEM_LOG_INITIATED</p>
+          <p className="font-geist-mono text-[10px] uppercase tracking-[0.3em] opacity-40 mt-2">{"// SYSTEM_LOG_INITIATED"}</p>
         </div>
         <Link href="/admin/journal" className="font-geist-mono text-[10px] opacity-40 hover:opacity-100 uppercase italic">
           <ChevronLeft size={12} className="inline mr-1"/> Back_to_Manifest
@@ -70,7 +90,7 @@ export default function NewJournalEntryPage() {
             {/* Image Staging Slot */}
             <div className="aspect-video border border-white/10 bg-white/5 relative overflow-hidden flex items-center justify-center group">
               {formData.imageUrl && !/\.(mp4|webm|ogg|mov|m4v)($|\?)/i.test(formData.imageUrl) ? (
-                <img src={formData.imageUrl} className="w-full h-full object-cover opacity-80" alt="Cover Preview" />
+                <Image src={formData.imageUrl} fill className="object-cover opacity-80" alt="Cover Preview" />
               ) : (
                 <span className="text-[8px] font-geist-mono opacity-20 uppercase tracking-widest">No_Cover_Staged</span>
               )}
@@ -100,6 +120,7 @@ export default function NewJournalEntryPage() {
               <UploadButton
                 endpoint="mediaUploader"
                 onClientUploadComplete={(res) => {
+                  if (!res || res.length === 0) return;
                   const file = res[0];
                   const url = file.url;
                   // Robust check: check file name extension OR URL extension (ignoring query params)
@@ -112,7 +133,7 @@ export default function NewJournalEntryPage() {
                   }
                 }}
               />
-              <p className="text-[8px] font-geist-mono opacity-20 uppercase mt-4 italic">// AUTO_ROUTING: Images to Slot_01, Videos to Slot_02.</p>
+              <p className="text-[8px] font-geist-mono opacity-20 uppercase mt-4 italic">{"// AUTO_ROUTING: Images to Slot_01, Videos to Slot_02."}</p>
             </div>
 
             <div className="flex flex-col gap-4">
@@ -120,9 +141,29 @@ export default function NewJournalEntryPage() {
                 <input type="checkbox" checked={formData.isPublished} onChange={(e) => setFormData(prev => ({ ...prev, isPublished: e.target.checked }))} className="h-5 w-5 accent-green-500" />
                 <label className="text-xs font-black uppercase italic text-white/60">Official_Release (Live)</label>
               </div>
-              <div className="flex items-center gap-4 p-5 border border-[#FF8700]/20 bg-[#FF8700]/5">
-                <input type="checkbox" checked={formData.isFeatured} onChange={(e) => setFormData(prev => ({ ...prev, isFeatured: e.target.checked }))} className="h-5 w-5 accent-[#FF8700]" />
-                <label className="text-xs font-black uppercase italic text-[#FF8700]">Pole_Position_Exhibit</label>
+              <div className={`p-5 border transition-all ${
+                formData.isFeatured ? "border-[#FF8700] bg-[#FF8700]/10" : 
+                hasExistingFeatured ? "border-white/5 bg-white/5 opacity-50" : "border-white/10 bg-white/5"
+              }`}>
+                <div className="flex items-center gap-4">
+                  <input 
+                    type="checkbox" 
+                    checked={formData.isFeatured} 
+                    disabled={hasExistingFeatured}
+                    onChange={(e) => setFormData(prev => ({ ...prev, isFeatured: e.target.checked }))} 
+                    className={`h-5 w-5 ${hasExistingFeatured ? 'cursor-not-allowed' : 'accent-[#FF8700]'}`} 
+                  />
+                  <label className="text-xs font-black uppercase italic text-[#FF8700]">
+                    Pole_Position_Exhibit
+                  </label>
+                </div>
+                
+                {/* Hard Lock Disclaimer */}
+                {hasExistingFeatured && (
+                  <p className="mt-3 pl-9 text-[9px] font-mono text-[#FF8700] uppercase leading-tight opacity-80">
+                    ! Locked: &quot;{existingFeaturedTitle}&quot; is currently featured. Delete or un-feature it to enable this slot.
+                  </p>
+                )}
               </div>
             </div>
           </div>

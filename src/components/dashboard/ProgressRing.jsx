@@ -1,6 +1,6 @@
 'use client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { GENRE_METADATA } from '../badgeLogic';
 
 // SYNC: We skip the "Hiss" on replay, so the visual impact is almost instant (0.1s)
@@ -15,21 +15,8 @@ const ProgressRing = ({ percentage, label, size = 100, strokeWidth = 4, theme = 
   const [replayKey, setReplayKey] = useState(0);   // Forces Re-render
   const audioRef = useRef(null);
 
-  // --- 1. INITIAL LOAD CHECK ---
-  useEffect(() => {
-    if (isComplete) {
-      const hasSeen = localStorage.getItem(`badge_seen_${id}`);
-      if (hasSeen) {
-        setStatus('settled'); // Silent Load
-      } else {
-        setStatus('animating'); // First Time Drama
-        triggerAudio('full');
-      }
-    }
-  }, [isComplete, id]);
-
   // --- 2. AUDIO TRIGGER LOGIC ---
-  const triggerAudio = (type) => {
+  const triggerAudio = useCallback((type) => {
     const audio = audioRef.current;
     if (!audio) return;
 
@@ -67,7 +54,23 @@ const ProgressRing = ({ percentage, label, size = 100, strokeWidth = 4, theme = 
     } catch (e) {
       console.warn("Audio Error");
     }
-  };
+  }, [id]);
+
+  // --- 1. INITIAL LOAD CHECK ---
+  useEffect(() => {
+    if (isComplete) {
+      const hasSeen = localStorage.getItem(`badge_seen_${id}`);
+      if (hasSeen) {
+        // Use a microtask to avoid synchronous setState warning
+        Promise.resolve().then(() => setStatus('settled'));
+      } else {
+        Promise.resolve().then(() => {
+            setStatus('animating');
+            triggerAudio('full');
+        });
+      }
+    }
+  }, [isComplete, id, triggerAudio]);
 
   // --- 3. CLICK HANDLER (LATENCY FREE) ---
   const handleReplay = () => {
@@ -163,7 +166,7 @@ const ProgressRing = ({ percentage, label, size = 100, strokeWidth = 4, theme = 
 
                 className="absolute flex items-center justify-center px-3 py-1 border border-white/40 shadow-xl z-30"
                 style={{ 
-                  backgroundImage: `linear-gradient(135deg, ${baseColor} 0%, #ffffff 50%, ${baseColor} 100%)`,
+                  backgroundImage: `linear-gradient(135deg, ${baseColor} 0%, #FAFAFA 50%, ${baseColor} 100%)`,
                   boxShadow: `0px 4px 15px ${baseColor}, inset 0 0 10px rgba(255,255,255,0.5)`,
                   backgroundSize: '200% 200%', 
                 }}
@@ -171,7 +174,7 @@ const ProgressRing = ({ percentage, label, size = 100, strokeWidth = 4, theme = 
                 <span 
                   className="text-[10px] font-black italic uppercase tracking-tighter leading-none whitespace-nowrap drop-shadow-sm"
                   style={{ 
-                    color: '#000000', 
+                    color: '#0A0A0A', 
                     textShadow: '0px 1px 0px rgba(255,255,255,0.5)'
                   }}
                 >

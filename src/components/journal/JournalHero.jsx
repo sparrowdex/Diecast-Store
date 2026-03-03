@@ -1,13 +1,14 @@
 'use client';
 import { Gauge, Calendar, User, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 export default function JournalHero({ entry }) {
   return (
     <section className="relative w-full h-[85vh] flex flex-col justify-end overflow-hidden font-geist">
       {/* Background Image & Overlays */}
       <div className="absolute inset-0 z-0">
-        <img src={entry.images[0]} className="w-full h-full object-cover opacity-60 grayscale hover:grayscale-0 transition-all duration-1000" alt="Hero" />
+        <Image src={entry.images[0]} alt="Hero" fill className="object-cover opacity-60 grayscale hover:grayscale-0 transition-all duration-1000" priority />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/20 to-transparent" />
         {/* Telemetry Grid Overlay */}
         <div className="absolute inset-0 opacity-[0.05] pointer-events-none" 

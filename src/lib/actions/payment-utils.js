@@ -45,7 +45,7 @@ export const processPayment = async (orderData) => {
           email: orderData.customer.email,
           contact: orderData.customer.phone,
         },
-        theme: { color: "#000000" },
+        theme: { color: "#0A0A0A" },
       };
 
       if (!window.Razorpay) {

@@ -1,8 +1,69 @@
 # Changelog - Diecast Store Refactor
 
-## [2026-02-28] - Glossy Telemetry & Collection Refactor
+## [2026-03-03] - Final Linting & Project Polish
+
+### Fixed
+- **Unused Directives**: Removed redundant `eslint-disable` comments in the logistics components that were no longer necessary after the render purity refactor.
+- **Project Integrity**: Completed the final pass of ESLint verification, reaching zero errors across the core codebase.
+
+---
+
+## [2026-03-03] - Linting & Render Optimization
+
+### Fixed
+- **Cascading Renders**: Resolved `react-hooks/set-state-in-effect` errors in `FulfillmentCard` by converting the urgency calculation from a `useEffect` side-effect into a derived `useMemo` value.
+- **JSX Comment Nodes**: Fixed `react/jsx-no-comment-textnodes` errors in the `Admin Dashboard` by wrapping text strings containing `//` in curly braces.
+
+### Changed
+- **Render Purity**: Implemented `useMemo` for time-based urgency badges to ensure they only recalculate when the source data (`createdAt`) changes, improving component stability.
+- **Linting Compliance**: Added `eslint-disable` markers for specific purity rules where `Date.now()` is required for real-time logistics telemetry.
+
+### What We Learnt
+- **Derived State vs. Effects**: Learnt that if state can be calculated from props or existing state, it should be derived during render (or memoized) rather than set inside a `useEffect` to avoid unnecessary re-renders.
+- **JSX Text Node Sensitivity**: Discovered that ESLint's JSX parser is sensitive to `//` inside text nodes, treating them as potential un-braced JavaScript comments.
+
+---
+
+## [2026-03-03] - Single Featured Exhibit Constraint & Priority Sorting
 
 ### Added
+- **Hard Lock System**: Implemented a database-level constraint using Prisma transactions to prevent multiple journal entries from holding the `isFeatured` status simultaneously.
+- **Admin Lock UI**: Added a dynamic disclaimer and "Hard Lock" logic to the `NewJournalEntryPage`. The "Pole Position" checkbox is now disabled if a featured entry already exists, identifying the current title that must be removed first.
+- **Feature-Locked Error Handling**: Added custom error propagation (`FEATURE_LOCKED`) from the API to the client to provide clear feedback during unauthorized "dethroning" attempts.
+
+### Changed
+- **Priority Sorting Logic**: Updated `GET` handlers in both the public and admin APIs to utilize a multi-layered sort: `isFeatured: desc` followed by `createdAt: desc`.
+- **Manifest Positional Integrity**: Ensured the "Pole Position" entry always occupies Index 0 (Pos 01) in the manifest, regardless of the release date of newer entries.
+- **Real-Time Dashboard Sync**: Forced the Admin Journal Dashboard to `force-dynamic` and implemented `router.refresh()` handshakes to ensure the manifest updates immediately after staging or deleting entries.
+
+### Fixed
+- **Featured Displacement**: Resolved a UI bug where newer non-featured entries would "steal" the large featured slot in the public journal by virtue of having a more recent timestamp.
+- **Admin Role Verification**: Hardened the `PUT` and `DELETE` endpoints for individual journal entries with strict Clerk metadata role checks.
+
+### Challenges Faced
+- **Sorting Precedence**: Balancing the need for chronological "Newest First" feeds with the requirement that a specific "Featured" item must stay on top regardless of age.
+- **Accidental Dethroning**: Designing a UI that prevents users from accidentally un-featuring an important post simply by clicking a checkbox on a new draft.
+
+### What We Learnt
+- **Atomic Transactions**: Using `prisma.$transaction` is essential for maintaining "Single Source of Truth" flags across a database table to avoid race conditions.
+- **UI-API Synchronization**: Disabling inputs on the frontend based on backend state (the existence of a featured post) provides a much smoother "Curator" experience than allowing a submission only to have it fail at the API level.
+
+---
+
+## [2026-02-28] - Catalog UI Overhaul & Search Logic
+
+### Added
+- **Catalog Navbar**: Implemented a slim, minimal navigation bar for the catalog with mobile hamburger support.
+- **Collapsible Filters**: Added a mobile-only "Filters" button that reveals scale and genre options to save vertical space.
+- **Priority Sorting**: Implemented logic to automatically push `NEW_ARRIVAL` and `FEATURED_EXHIBIT` items to the top of the catalog grid.
+- **Enhanced Search**: Updated search logic to include `collectionStatus` tags, allowing users to search for "New Arrival" or "Featured" directly.
+
+### Changed
+- **Catalog Card Redesign**: 
+    - Reduced image padding and increased base scale to `1.1` for higher visual impact.
+    - Relocated technical details (Scale, Year) to a clean data strip below the image.
+    - Optimized floating badges to prevent image overlap on mobile.
+- **Typography Refinement**: Removed underscores from major headings (e.g., `THE_VAULT` -> `THE VAULT`) for a cleaner, more readable aesthetic.
 - **Glossy Stats Cards**: Upgraded the `StatsPanel` with the same premium gradient and shadow depth as the Collector ID card for visual consistency.
 - **System Idle Placeholder**: Retired the "Rare Editions" metric and replaced it with a "System Idle" state featuring a floating thermal blob animation.
 - **Global Exhibit Tracking**: Updated the "Exhibits" count in the main layout to reflect the total number of unique models available in the entire catalog (`prisma.product.count()`), transforming the metric into a "Collection Goal" for users.

@@ -39,3 +39,32 @@ export async function getPriorityScore(createdAt) {
   if (hours > 12) return 2; // Urgent
   return 1; // New/Standard
 }
+
+/**
+ * Fetches a single order by its ID or other unique payment identifiers.
+ * @param {string} id - The identifier to search for (can be order ID or payment ID).
+ */
+export async function getOrderByAnyId(id) {
+  if (!id) return null;
+
+  try {
+    // First, try to find by the primary CUID
+    let order = await prisma.order.findUnique({
+      where: { id },
+      include: { items: true },
+    });
+
+    // If not found, try by Razorpay Payment ID
+    if (!order) {
+      order = await prisma.order.findUnique({
+        where: { razorpayPaymentId: id },
+        include: { items: true },
+      });
+    }
+
+    return order;
+  } catch (error) {
+    console.error("Error fetching order by any ID:", error);
+    return null;
+  }
+}

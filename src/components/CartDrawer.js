@@ -2,6 +2,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link"; // NEW: Import Link for navigation
+import Image from "next/image";
 
 export default function CartDrawer() {
   const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, cartTotal } = useCart();
@@ -46,8 +47,10 @@ export default function CartDrawer() {
                   return (
                   <div key={item.id} className="flex gap-4 group">
                     <div className="w-16 h-16 bg-gray-100 rounded-sm p-2 flex-shrink-0 border border-black/5">
-                      <img 
+                      <Image 
                         src={item.image || (item.images && item.images[0]) || "/placeholder-car.png"} 
+                        width={64}
+                        height={64}
                         className="w-full h-full object-contain mix-blend-multiply" 
                         alt={item.name}
                       />
@@ -59,7 +62,9 @@ export default function CartDrawer() {
                           ₹{(Number(String(item.price).replace(/[^\d]/g, "")) * currentQty).toLocaleString()}
                         </p>
                       </div>
-                      <p className="text-[10px] text-gray-400 font-mono mt-1 uppercase">{item.brand} • Scale {item.scale}</p>
+                      <p className="text-[10px] text-gray-400 font-mono mt-1 uppercase">
+                        {item.brand} {item.genre && `• ${item.genre.replace(/_/g, ' ')}`} • Scale {item.scale}
+                      </p>
                       
                       <div className="flex justify-between items-center mt-3">
                         <div className="flex items-center gap-2">

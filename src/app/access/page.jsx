@@ -56,7 +56,7 @@ export default async function AccessDashboardPage() {
           <Link href="/access/collection" className="font-geist-mono text-[9px] hover:underline opacity-50 uppercase">[ Full_Collection ]</Link>
         </div>
         <div className="flex justify-between items-end">
-          <h2 className="text-2xl md:text-4xl font-black italic tracking-tighter uppercase leading-none">Collector_Dashboard</h2>
+          <h2 className="text-2xl md:text-4xl font-black italic tracking-tighter uppercase leading-none">COLLECTOR DASHBOARD</h2>
         </div>
       </header>
 
@@ -80,7 +80,7 @@ export default async function AccessDashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {orders.length === 0 ? (
             <div className={`col-span-full py-20 border-2 border-dashed ${isDark ? 'border-white/5' : 'border-black/5'} text-center font-geist-mono text-[10px] opacity-20`}>
-              // NO_ASSETS_DETECTED_IN_VAULT
+              {"// NO_ASSETS_DETECTED_IN_VAULT"}
             </div>
           ) : (
             orders.map((order) => <OrderCard key={order.id} order={order} isDark={isDark} />)

@@ -30,7 +30,10 @@ export default function CheckoutForm({ cart, cartTotal }) {
         price: item.price,
         quantity: item.quantity,
         image: item.image || (item.images && item.images[0]),
-        sku: item.sku
+        sku: item.sku,
+        brand: item.brand,
+        genre: item.genre,
+        scale: item.scale
       }));
 
       // 1. Create order on the server
@@ -79,7 +82,7 @@ export default function CheckoutForm({ cart, cartTotal }) {
           email: formData.get('email'),
           contact: formData.get('phone'),
         },
-        theme: { color: "#000000" },
+        theme: { color: "#0A0A0A" },
         modal: { ondismiss: () => setIsProcessing(false) },
       };
 
@@ -88,11 +91,8 @@ export default function CheckoutForm({ cart, cartTotal }) {
     } catch (err) {
       console.error(err);
       setError("An unexpected error occurred.");
-    } finally {
-      // Only stop processing if we aren't redirecting
-      if (process.env.NEXT_PUBLIC_PAYMENT_MODE !== 'mock') {
-        setIsProcessing(false);
-      }
+      // If a critical error happens, stop processing
+      setIsProcessing(false);
     }
   };
 

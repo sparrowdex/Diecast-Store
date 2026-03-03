@@ -61,7 +61,7 @@ const CollectorIDCard = ({ profile }) => {
               {profile.collectorName?.toLowerCase().replace(/\s+/g, '_')}.auth_id
             </p>
             <p className="text-[10px] opacity-50 font-mono uppercase tracking-widest mt-1">
-              // ID_HOLDER_VERIFIED
+              {"// ID_HOLDER_VERIFIED"}
             </p>
           </div>
           

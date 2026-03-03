@@ -1,6 +1,7 @@
 'use server';
 
 import prisma from '@/lib/prisma';
+import { Genre } from '@prisma/client';
 import Razorpay from 'razorpay';
 import { auth } from '@clerk/nextjs/server';
 import { z } from 'zod';
@@ -15,6 +16,9 @@ interface CartItem {
   image?: string;
   images?: string[];
   sku?: string;
+  brand?: string;
+  genre?: string;
+  scale?: string;
 }
 
 interface RazorpayResponse {
@@ -101,6 +105,9 @@ export async function createOrder(items: CartItem[], rawFormData: FormData, pass
             quantity: item.quantity,
             image: item.image || (Array.isArray(item.images) ? item.images[0] : "/placeholder-car.png"),
             sku: item.sku || null,
+            brand: item.brand,
+            genre: item.genre as Genre,
+            scale: item.scale,
             product: { 
               connect: { id: item.id }
             },

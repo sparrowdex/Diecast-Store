@@ -5,11 +5,18 @@
   /* Ensure font-black is mapped to weight 900 if using custom Geist vars */
   --font-geist: "Geist", sans-serif;
   --font-geist-mono: "Geist Mono", monospace;
+
+  /* Custom color palette */
+  --color-off-white: #FAFAFA;
+  --color-soft-black: #0A0A0A;
+
+  /* Custom F1-style animation speeds and easings */
+  --ease-snap: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: var(--color-off-white);
+  --foreground: var(--color-soft-black);
 }
 
 /* --- ANIMATION FIX --- */
@@ -82,10 +89,6 @@ body {
   /* Critical for the overlay to sit behind text but over image */
   isolation: isolate; 
 }
-
-/* REMOVED: .footer-content, .footer-section styles 
-   We will handle layout directly in Tailwind for better control 
-*/
 
 /* --- 1. VAULT BUTTON: Checkered Effect --- */
 .checkered-hover {
