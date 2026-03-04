@@ -25,13 +25,18 @@ const prismaClientSingleton = () => {
   }
 
   // 1. Use a URL object to safely append parameters without breaking the string
-  const url = new URL(baseEnvUrl);
-  url.searchParams.set('connect_timeout', '60');
-  url.searchParams.set('pool_timeout', '60');
-  // Ensure pgbouncer is disabled for the serverless adapter
-  url.searchParams.delete('pgbouncer');
-
-  const connectionString = url.toString();
+  let connectionString: string;
+  try {
+    const url = new URL(baseEnvUrl);
+    url.searchParams.set('connect_timeout', '60');
+    url.searchParams.set('pool_timeout', '60');
+    // Ensure pgbouncer is disabled for the serverless adapter
+    url.searchParams.delete('pgbouncer');
+    connectionString = url.toString();
+  } catch (urlError) {
+    console.error("[Prisma] Failed to parse DATABASE_URL. Check your environment variables.");
+    throw urlError;
+  }
 
   const adapter = new PrismaNeon({ connectionString });
 

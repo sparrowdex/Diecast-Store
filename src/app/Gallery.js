@@ -1,6 +1,6 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
-import { useUser, SignInButton, SignOutButton } from "@clerk/nextjs";
+import { useUser, SignInButton, SignOutButton, UserButton } from "@clerk/nextjs";
 import { useState, useMemo } from "react";
 import Link from 'next/link';
 import { useCart } from "@/context/CartContext";
@@ -81,21 +81,24 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
         <div className="p-4 md:p-12">
             <header className="mb-12 md:mb-20 flex flex-col md:flex-row justify-between items-center md:items-baseline border-b border-black/10 pb-8 gap-8 md:gap-0">
               <div className="text-center md:text-left">
-                <h1 className="text-2xl sm:text-5xl md:text-6xl font-black tracking-tighter italic">THE_DIECAST_STORE</h1>
+                <h1 className="text-xl sm:text-5xl md:text-6xl font-black tracking-tighter italic">THE DIECAST STORE</h1>
                 <p className="text-gray-400 text-[10px] tracking-[0.4em] font-mono uppercase mt-3 ml-1">Curated_Diecast_Exhibition</p>
               </div>
-              <nav className="flex w-full md:w-auto items-center justify-between md:justify-end gap-1 sm:gap-6 md:gap-8 lg:gap-12 text-[10px] font-bold tracking-widest uppercase">
+              <nav className="flex w-full md:w-auto items-center justify-between md:justify-end gap-2 sm:gap-6 md:gap-8 lg:gap-12 text-[10px] font-bold tracking-widest uppercase">
                 
                 {/* User Section */}
                 {!isLoaded ? (
                   <div className="w-12 h-4 bg-black/5 animate-pulse" />
                 ) : isSignedIn ? (
-                  <div className="group relative py-2">
-                    <Link href="/access" className="font-mono text-[10px] sm:text-sm font-bold uppercase italic tracking-widest text-black border-b-2 border-black hover:text-[#FF1E1E] hover:border-[#FF1E1E] transition-all">
-                      ACCESS
-                    </Link>
+                  <div className="group relative flex items-center gap-2 py-2">
+                    <div className="scale-90 sm:scale-100">
+                      <UserButton afterSignOutUrl="/" />
+                    </div>
+                    <div className="relative group">
+                      <SpeedLink href="/access">Access</SpeedLink>
+
                     {/* Hover Dropdown */}
-                    <div className="absolute top-full left-0 w-48 pt-6 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 ease-out z-50">
+                    <div className="absolute top-full left-0 w-48 pt-4 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 ease-out z-50">
                       <div className="bg-white border border-black shadow-2xl p-2 flex flex-col">
                         <Link href="/access" className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-all">Dashboard</Link>
                         <Link href="/access/profile" className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-all">Collector Profile</Link>
@@ -108,6 +111,7 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
                           <button className="w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-600 hover:bg-red-50 transition-colors">Logout_Session</button>
                         </SignOutButton>
                       </div>
+                    </div>
                     </div>
                   </div>
                 ) : (
