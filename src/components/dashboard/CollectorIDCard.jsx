@@ -5,7 +5,9 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 
 const CollectorIDCard = ({ profile }) => {
-  const isDark = profile.theme === 'dark';
+  if (!profile) return null;
+
+  const isDark = profile?.theme === 'dark';
 
   return (
     <motion.div 
@@ -28,7 +30,7 @@ const CollectorIDCard = ({ profile }) => {
       {/* Tilted Physical Stamp - Moved to overlap the grid pattern for a more authentic look */}
       <div className="absolute top-24 right-10 transform -rotate-12 z-20 pointer-events-none transform-gpu will-change-transform">
         <div className="px-6 py-2.5 bg-yellow-500 text-black text-sm font-black border-2 border-black uppercase tracking-tighter shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          {profile.stamp || "VERIFIED"}
+          {profile?.stamp || "VERIFIED"}
         </div>
       </div>
 
@@ -37,17 +39,17 @@ const CollectorIDCard = ({ profile }) => {
         <div className={`relative h-24 w-24 rounded-full border-4 flex items-center justify-center overflow-hidden shrink-0 ${
           isDark ? 'border-white/20 bg-zinc-800' : 'border-black bg-gray-100'
         }`}>
-           {profile.imageUrl ? (
+           {profile?.imageUrl ? (
              <Image 
-               src={profile.imageUrl} 
-               alt={profile.collectorName} 
+               src={profile?.imageUrl} 
+               alt={profile?.collectorName} 
                width={96}
                height={96}
                className="h-full w-full object-cover"
              />
            ) : (
              <span className="text-4xl font-black italic tracking-tighter">
-               {profile.collectorName?.charAt(0) || 'C'}
+               {profile?.collectorName?.charAt(0) || 'C'}
              </span>
            )}
         </div>
@@ -55,10 +57,10 @@ const CollectorIDCard = ({ profile }) => {
         <div className="flex-1">
           <div className="mb-2">
             <h3 className="text-2xl font-black italic tracking-tighter uppercase leading-none">
-              {profile.collectorName}
+              {profile?.collectorName}
             </h3>
             <p className="text-[10px] font-mono opacity-40 uppercase tracking-tighter">
-              {profile.collectorName?.toLowerCase().replace(/\s+/g, '_')}.auth_id
+              {profile?.collectorName?.toLowerCase().replace(/\s+/g, '_')}.auth_id
             </p>
             <p className="text-[10px] opacity-50 font-mono uppercase tracking-widest mt-1">
               {"// ID_HOLDER_VERIFIED"}
@@ -69,11 +71,11 @@ const CollectorIDCard = ({ profile }) => {
           <div className="grid grid-cols-2 gap-6 mb-6 max-w-xs border-y border-current/5 py-4">
             <div className="space-y-1">
               <span className="block text-[8px] font-bold opacity-30 uppercase tracking-[0.2em]">Member_Since</span>
-              <span className="block font-mono text-xs opacity-80 italic">{profile.memberSince}</span>
+              <span className="block font-mono text-xs opacity-80 italic">{profile?.memberSince}</span>
             </div>
             <div className="space-y-1">
               <span className="block text-[8px] font-bold opacity-30 uppercase tracking-[0.2em]">Last_Activity</span>
-              <span className="block font-mono text-xs opacity-80 italic">{profile.lastSync}</span>
+              <span className="block font-mono text-xs opacity-80 italic">{profile?.lastSync}</span>
             </div>
           </div>
 

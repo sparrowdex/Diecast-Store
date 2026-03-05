@@ -1,10 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Star, Eye, Edit3, Trash2 } from "lucide-react";
 
 export default function JournalDashboard({ initialEntries = [] }) {
   const [entries, setEntries] = useState(initialEntries);
+  const router = useRouter();
 
   useEffect(() => {
     setEntries(initialEntries);
@@ -14,6 +16,7 @@ export default function JournalDashboard({ initialEntries = [] }) {
     if (window.confirm("CONFIRM_DELETION: This action cannot be undone.")) {
       await fetch(`/api/journal/${id}`, { method: 'DELETE' });
       setEntries(entries.filter(entry => entry.id !== id));
+      router.refresh();
     }
   };
 

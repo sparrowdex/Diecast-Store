@@ -32,7 +32,7 @@ export default function EditExhibit({ car }) {
     description: car?.description || "",
     editorsNote: car?.editorsNote || "",
     featured: car?.featured || false,
-    collectionStatus: car?.collectionStatus || "ARCHIVE_CATALOG",
+    collectionStatus: car?.collectionStatus || "CATALOG",
     genre: car?.genre || "CITY_LIFE",
     modelYear: car?.modelYear || new Date().getFullYear(),
     stock: car?.stock || 1,
@@ -50,8 +50,7 @@ export default function EditExhibit({ car }) {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    let val = type === 'checkbox' ? checked : value;
-    if (name === 'modelYear' || name === 'stock') val = parseInt(value) || 0;
+    const val = type === 'checkbox' ? checked : value;
     setFormData(prev => ({ ...prev, [name]: val }));
   };
 
@@ -206,9 +205,10 @@ export default function EditExhibit({ car }) {
              <div className="space-y-2 font-geist-mono w-full overflow-hidden">
                 <label className="text-[10px] font-black uppercase tracking-widest opacity-40 block truncate">Collection Status</label>
                 <select name="collectionStatus" value={formData.collectionStatus} onChange={handleChange} className="w-full bg-white/5 border border-white/10 p-4 text-xs outline-none uppercase italic text-white appearance-none rounded-lg box-border">
-                  <option value="ARCHIVE_CATALOG" className="bg-[#111]">Archive Catalog</option>
+                  <option value="CATALOG" className="bg-[#111]">Catalog</option>
                   <option value="NEW_ARRIVAL" className="bg-[#111]">New Arrival</option>
                   <option value="FEATURED_EXHIBIT" className="bg-[#111]">Featured Exhibit</option>
+                  <option value="ARCHIVED" className="bg-[#111]">Archived</option>
                 </select>
              </div>
              <div className="space-y-2 font-geist-mono w-full overflow-hidden">

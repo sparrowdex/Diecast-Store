@@ -3,6 +3,8 @@ import Gallery from "./Gallery";
 import fs from 'fs/promises';
 import path from 'path';
 
+export const dynamic = 'force-dynamic';
+
 async function getFeaturedExhibits() {
   const configPath = path.join(process.cwd(), 'prisma', 'featured_config.json');
 

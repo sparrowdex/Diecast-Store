@@ -1,9 +1,11 @@
 import Link from "next/link";
-import Image from "next/image";
-import { Order, OrderItem } from "@prisma/client"; // Adjust based on your Prisma types
+import { Order, OrderItem, Product } from "@prisma/client";
+import OrderImageSlideshow from "@/components/dashboard/OrderImageSlideshow";
+import OrderNameSlideshow from "@/components/dashboard/OrderNameSlideshow";
 //This component displays an order summary card with dynamic styling for recent acquistions based on the isDark prop.
 // Helper type to include relation
-type OrderWithItems = Order & { items: OrderItem[] };
+type OrderItemWithProduct = OrderItem & { product: Product | null };
+type OrderWithItems = Order & { items: OrderItemWithProduct[] };
 
 interface OrderCardProps {
   order: OrderWithItems;
@@ -48,24 +50,16 @@ export default function OrderCard({ order, isDark }: OrderCardProps) {
               isDark ? 'border-white/20 group-hover:border-white' : 'border-black/20 group-hover:border-black'
             }`} />
             
-            {mainItem?.image ? (
-              <Image 
-                src={mainItem.image} 
-                alt={mainItem.name} 
-                width={80}
-                height={80}
-                className={`relative z-10 h-full w-full object-contain grayscale transition-all duration-500 group-hover:scale-110 group-hover:grayscale-0 ${!isDark ? 'mix-blend-multiply' : ''}`} 
-              />
-            ) : (
-              <div className={`text-[10px] ${isDark ? 'text-zinc-600' : 'text-gray-300'}`}>NO IMG</div>
-            )}
+            <div className={`relative z-10 h-full w-full grayscale transition-all duration-500 group-hover:scale-110 group-hover:grayscale-0 ${!isDark ? 'mix-blend-multiply' : ''}`}>
+              <OrderImageSlideshow items={order.items} />
+            </div>
           </div>
 
           {/* Info Section */}
           <div className="flex grow flex-col justify-between py-1">
             <div>
               <h4 className={`font-bold uppercase leading-none tracking-tight ${isDark ? 'text-white' : 'text-black'}`}>
-                {mainItem?.name || "Unknown Asset"}
+                <OrderNameSlideshow items={order.items} />
               </h4>
               <p className={`mt-1 font-mono text-[10px] ${isDark ? 'text-zinc-500' : 'text-gray-400'}`}>
                 TOTAL_UNITS: {itemCount.toString().padStart(2, '0')}

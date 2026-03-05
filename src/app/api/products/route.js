@@ -12,9 +12,24 @@ export async function GET(request) {
     const status = searchParams.get("status");
     const query = searchParams.get("q");
 
-    const where = {};
-    if (genre && genre !== "ALL") where.genre = genre;
-    if (status && status !== "ALL") where.collectionStatus = status;
+    // Initialize where: Default to excluding ARCHIVED items
+    const where = {
+      collectionStatus: {
+        not: 'ARCHIVED'
+      }
+    };
+
+    // If a specific genre is selected
+    if (genre && genre !== "ALL") {
+      where.genre = genre;
+    }
+
+    // If a specific status is requested (allows viewing Archived if status="ARCHIVED")
+    if (status && status !== "ALL") {
+      where.collectionStatus = status;
+    }
+
+    // If a search query exists
     if (query) {
       where.OR = [
         { name: { contains: query, mode: 'insensitive' } },
@@ -52,7 +67,7 @@ export async function POST(request) {
       data,
     });
 
-    // Purge the cache so the new exhibit appears everywhere immediately
+    // Bust the cache for all relevant views
     revalidatePath('/admin/inventory');
     revalidatePath('/catalog');
     revalidatePath('/');

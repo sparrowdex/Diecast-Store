@@ -1,20 +1,43 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
+import { auth } from "@clerk/nextjs/server";
 
 export async function DELETE(request, { params }) {
   const { id } = await params;
+  const { searchParams } = new URL(request.url);
+  const isPermanent = searchParams.get("permanent") === "true";
 
   try {
-    await prisma.product.delete({
-      where: {
-        id: id,
-      },
+    const { sessionClaims } = await auth();
+    if (sessionClaims?.metadata?.role !== 'admin') {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    if (isPermanent) {
+      await prisma.product.delete({
+        where: { id: id },
+      });
+      revalidatePath('/admin/inventory');
+      return NextResponse.json({ success: true, message: "Exhibit permanently deleted" });
+    }
+
+    await prisma.product.update({
+      where: { id: id },
+      data: { collectionStatus: 'ARCHIVED' },
     });
 
-    return new NextResponse(null, { status: 204 });
+    // Purge caches
+    revalidatePath('/admin/inventory');
+    revalidatePath('/catalog');
+    revalidatePath('/');
+    revalidatePath(`/products/${id}`);
+
+    // Returning 200 with JSON to ensure frontend fetch "resolves" cleanly
+    return NextResponse.json({ success: true, message: "Exhibit archived" }, { status: 200 });
   } catch (error) {
-    console.error("Error deleting product:", error);
-    return new NextResponse("Error deleting product", { status: 500 });
+    console.error("Error archiving product:", error);
+    return NextResponse.json({ error: "Error archiving product" }, { status: 500 });
   }
 }
 
@@ -22,49 +45,31 @@ export async function PUT(request, { params }) {
   const { id } = await params;
   const data = await request.json();
 
-  if (data.modelYear) {
-    data.modelYear = parseInt(data.modelYear, 10);
-    if (isNaN(data.modelYear)) {
-      return new NextResponse("Invalid modelYear: must be a number", { status: 400 });
-    }
-  }
+  // Basic Validation & Parsing
+  if (data.modelYear) data.modelYear = parseInt(data.modelYear, 10);
+  if (data.stock) data.stock = parseInt(data.stock, 10);
+  if (data.price) data.price = parseFloat(data.price);
 
-  // Enum Validation for collectionStatus
-  const VALID_STATUSES = ['ARCHIVE_CATALOG', 'NEW_ARRIVAL', 'FEATURED_EXHIBIT'];
+  // Enum Validation
+  const VALID_STATUSES = ['CATALOG', 'NEW_ARRIVAL', 'FEATURED_EXHIBIT', 'ARCHIVED'];
   if (data.collectionStatus && !VALID_STATUSES.includes(data.collectionStatus)) {
-    return new NextResponse(`Invalid collectionStatus. Expected one of: ${VALID_STATUSES.join(', ')}`, { status: 400 });
-  }
-
-  // Data Integrity: 'featured' boolean is only relevant for NEW_ARRIVAL
-  if (data.collectionStatus !== 'NEW_ARRIVAL') {
-    data.featured = false;
-  }
-
-  // Enum Validation for genre
-  const VALID_GENRES = [
-    'CLASSIC_VINTAGE',
-    'RACE_COURSE',
-    'CITY_LIFE',
-    'SUPERPOWERS',
-    'LUXURY_REDEFINED',
-    'OFF_ROAD',
-    'FUTURE_PROOF'
-  ];
-  if (data.genre && !VALID_GENRES.includes(data.genre)) {
-    return new NextResponse(`Invalid genre. Expected one of: ${VALID_GENRES.join(', ')}`, { status: 400 });
+    return NextResponse.json({ error: "Invalid status" }, { status: 400 });
   }
 
   try {
     const updatedProduct = await prisma.product.update({
-      where: {
-        id: id,
-      },
+      where: { id: id },
       data: data,
     });
 
+    revalidatePath('/admin/inventory');
+    revalidatePath('/catalog');
+    revalidatePath('/');
+    revalidatePath(`/products/${id}`);
+    
     return NextResponse.json(updatedProduct, { status: 200 });
   } catch (error) {
     console.error("Error updating product:", error);
-    return new NextResponse("Error updating product", { status: 500 });
+    return NextResponse.json({ error: "Error updating product" }, { status: 500 });
   }
 }

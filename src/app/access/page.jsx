@@ -11,11 +11,17 @@ export default async function AccessDashboardPage() {
   const { userId } = await auth();
   const user = await currentUser();
 
+  if (!userId) return null;
+
   let userProfile = await prisma.user.findUnique({ where: { id: userId } });
   if (!userProfile) {
-    userProfile = await prisma.user.create({
-      data: { id: userId, theme: "dark", collectorName: `COLLECTOR_${userId?.slice(-4)}` },
-    });
+    try {
+      userProfile = await prisma.user.create({
+        data: { id: userId, theme: "dark", collectorName: `COLLECTOR_${userId?.slice(-4)}` },
+      });
+    } catch (e) {
+      console.error("Failed to create user profile:", e);
+    }
   }
 
   const orders = await prisma.order.findMany({
@@ -36,16 +42,24 @@ export default async function AccessDashboardPage() {
     rareEditions: allItems.filter(item => item.product?.isRare).length,
   };
 
-  const allProducts = await prisma.product.findMany({ select: { id: true, genre: true } });
+  let allProducts = [];
+  try {
+    allProducts = await prisma.product.findMany({ select: { id: true, genre: true } });
+  } catch (e) {
+    console.error("Failed to fetch products for dashboard:", e);
+  }
+
   // Use the centralized logic to get completion stats for all genres
   const categories = getGenreCompletion(allItems, allProducts);
 
-  const isDark = userProfile.theme === 'dark';
+  const isDark = userProfile?.theme === 'dark';
 
   const profileData = {
-    ...userProfile,
+    id: userId,
+    collectorName: userProfile?.collectorName || `COLLECTOR_${userId?.slice(-4)}`,
+    theme: userProfile?.theme || 'dark',
     imageUrl: user?.imageUrl,
-    memberSince: new Date(userProfile.createdAt).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.'),
+    memberSince: userProfile?.createdAt ? new Date(userProfile.createdAt).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.') : 'N/A',
     lastSync: orders[0] ? new Date(orders[0].createdAt).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.') : 'NEVER'
   };
 
@@ -65,10 +79,10 @@ export default async function AccessDashboardPage() {
           <CollectorIDCard profile={profileData} />
         </div>
         <div className="lg:col-span-1 h-full">
-          <StatsPanel stats={stats} theme={userProfile.theme} />
+          <StatsPanel stats={stats} theme={userProfile?.theme || 'dark'} />
         </div>
         <div className="lg:col-span-3 pt-4">
-          <ProgressPanel categories={categories} theme={userProfile.theme} />
+          <ProgressPanel categories={categories} theme={userProfile?.theme || 'dark'} />
         </div>
       </div>
 

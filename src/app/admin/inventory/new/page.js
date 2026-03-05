@@ -32,7 +32,7 @@ export default function NewExhibitPage() {
     description: "",
     editorsNote: "",
     featured: false,
-    collectionStatus: "ARCHIVE_CATALOG",
+    collectionStatus: "CATALOG",
     genre: "CITY_LIFE",
     modelYear: new Date().getFullYear(),
     stock: 1,
@@ -216,7 +216,7 @@ export default function NewExhibitPage() {
              <div className="space-y-2 font-geist-mono w-full min-w-0">
                 <label className="text-[10px] font-black uppercase tracking-widest opacity-40 block truncate">Collection Status</label>
                 <select name="collectionStatus" value={formData.collectionStatus} onChange={handleChange} className="w-full bg-white/5 border border-white/10 p-4 text-xs outline-none uppercase italic text-white appearance-none">
-                  <option value="ARCHIVE_CATALOG" className="bg-[#111]">Archive Catalog</option>
+                  <option value="CATALOG" className="bg-[#111]">Catalog</option>
                   <option value="NEW_ARRIVAL" className="bg-[#111]">New Arrival</option>
                   <option value="FEATURED_EXHIBIT" className="bg-[#111]">Featured Exhibit</option>
                 </select>

@@ -187,9 +187,10 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
               <div className="w-full min-w-0">
                 <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2 truncate">Collection Status</label>
                 <select name="collectionStatus" value={formData.collectionStatus} onChange={handleChange} className="w-full bg-white/5 p-3 rounded-md text-sm outline-none focus:ring-2 focus:ring-yellow-500 transition-all text-white">
-                  <option value="ARCHIVE_CATALOG" className="bg-[#111]">Archive Catalog</option>
+                  <option value="CATALOG" className="bg-[#111]">Catalog</option>
                   <option value="NEW_ARRIVAL" className="bg-[#111]">New Arrival</option>
                   <option value="FEATURED_EXHIBIT" className="bg-[#111]">Featured Exhibit</option>
+                  <option value="ARCHIVED" className="bg-[#111]">Archived</option>
                 </select>
               </div>
               <div className="w-full min-w-0">

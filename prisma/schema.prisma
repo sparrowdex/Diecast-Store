@@ -26,7 +26,7 @@ model Product {
   condition   String?
 
   featured    Boolean  @default(false)
-  collectionStatus CollectionStatus @default(ARCHIVE_CATALOG)
+  collectionStatus CollectionStatus @default(CATALOG)
   genre       Genre?
   modelYear   Int?
   isRare      Boolean  @default(false)
@@ -129,9 +129,10 @@ model JournalEntry {
 }
 
 enum CollectionStatus {
-  ARCHIVE_CATALOG
+  CATALOG @map("ARCHIVE_CATALOG")
   NEW_ARRIVAL
   FEATURED_EXHIBIT
+  ARCHIVED
 }
 
 enum Genre {

@@ -1,6 +1,8 @@
 import prisma from "@/lib/prisma";
 import Inventory from "./Inventory";
 
+export const dynamic = 'force-dynamic';
+
 export default async function InventoryPage() {
   let cars = [];
   try {
@@ -16,4 +18,3 @@ export default async function InventoryPage() {
 
   return <Inventory initialCars={cars} />;
 }
-

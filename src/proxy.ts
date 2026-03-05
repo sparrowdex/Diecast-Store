@@ -19,7 +19,7 @@ const isPublicRoute = createRouteMatcher([
   '/privacy-policy',
   '/refund-policy'
 ]);
-const isAdminRoute = createRouteMatcher(['/admin(.*)']);
+const isAdminRoute = createRouteMatcher(['/admin(.*)','/admin']);
 
 export default clerkMiddleware(async (auth, request: NextRequest) => {
   // 1. Check if the user is trying to access an admin area

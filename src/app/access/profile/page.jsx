@@ -25,9 +25,9 @@ export default function ProfileSettingsPage() {
       fetch('/api/products').then(res => res.json())
     ])
       .then(([dashboardData, productsData]) => {
-        setProfile(dashboardData.profile);
-        setUserCollection(dashboardData.collection || []);
-        setAllProducts(productsData || []);
+        setProfile(dashboardData?.profile || { theme: 'dark', collectorName: '', stamp: 'VERIFIED' });
+        setUserCollection(Array.isArray(dashboardData?.collection) ? dashboardData.collection : []);
+        setAllProducts(Array.isArray(productsData) ? productsData : []);
         setLoading(false);
       })
       .catch(err => console.error("Data fetch failed", err));
@@ -114,8 +114,8 @@ export default function ProfileSettingsPage() {
                 <User size={12} className={accentColor} /> Collector_Alias
             </label>
             <input 
-              value={profile.collectorName || ''}
-              onChange={e => setProfile({...profile, collectorName: e.target.value})}
+              value={profile?.collectorName || ''}
+              onChange={e => setProfile(prev => ({ ...prev, collectorName: e.target.value }))}
               className={`w-full bg-transparent border-b-2 p-3 font-black italic text-xl focus:outline-none ${isDark ? 'border-white/10 focus:border-yellow-500' : 'border-black/10 focus:border-orange-600'}`}
               placeholder="UNASSIGNED"
             />
@@ -127,8 +127,8 @@ export default function ProfileSettingsPage() {
             </label>
             <div className="relative">
                 <select 
-                value={profile.stamp || 'VERIFIED'}
-                onChange={e => setProfile({...profile, stamp: e.target.value})}
+                value={profile?.stamp || 'VERIFIED'}
+                onChange={e => setProfile(prev => ({ ...prev, stamp: e.target.value }))}
                 className={`w-full bg-transparent border-b-2 p-3 font-black italic text-sm focus:outline-none appearance-none cursor-pointer uppercase ${isDark ? 'border-white/10 bg-zinc-900' : 'border-black/10 bg-white'}`}
                 >
                 <option value="VERIFIED">VERIFIED</option>
@@ -149,8 +149,8 @@ export default function ProfileSettingsPage() {
             </label>
             <div className="relative">
                 <select 
-                value={profile.specialization || 'GENERALIST'}
-                onChange={e => setProfile({...profile, specialization: e.target.value})}
+                value={profile?.specialization || 'GENERALIST'}
+                onChange={e => setProfile(prev => ({ ...prev, specialization: e.target.value }))}
                 className={`w-full bg-transparent border-b-2 p-3 font-black italic text-sm focus:outline-none appearance-none cursor-pointer uppercase ${isDark ? 'border-white/10 bg-zinc-900' : 'border-black/10 bg-white'}`}
                 >
                 <option value="GENERALIST">GENERAL_COLLECTOR</option>
@@ -169,8 +169,8 @@ export default function ProfileSettingsPage() {
                 <MapPin size={12} className={accentColor} /> Deployment_Sector
             </label>
             <input 
-              value={profile.sector || ''}
-              onChange={e => setProfile({...profile, sector: e.target.value})}
+              value={profile?.sector || ''}
+              onChange={e => setProfile(prev => ({ ...prev, sector: e.target.value }))}
               className={`w-full bg-transparent border-b-2 p-3 font-black italic text-xl focus:outline-none ${isDark ? 'border-white/10 focus:border-yellow-500' : 'border-black/10 focus:border-orange-600'}`}
               placeholder="e.g. SECTOR_07"
             />
@@ -188,8 +188,8 @@ export default function ProfileSettingsPage() {
               <button
                 key={t}
                 type="button"
-                onClick={() => setProfile({...profile, theme: t})}
-                className={`px-8 py-2 font-black text-[10px] uppercase italic transition-all ${profile.theme === t ? (isDark ? 'bg-yellow-500 text-black' : 'bg-orange-600 text-white') : 'opacity-40'}`}
+                onClick={() => setProfile(prev => ({ ...prev, theme: t }))}
+                className={`px-8 py-2 font-black text-[10px] uppercase italic transition-all ${profile?.theme === t ? (isDark ? 'bg-yellow-500 text-black' : 'bg-orange-600 text-white') : 'opacity-40'}`}
               >
                 {t}
               </button>

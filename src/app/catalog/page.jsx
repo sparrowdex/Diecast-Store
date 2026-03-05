@@ -8,7 +8,11 @@ export default async function CatalogPage() {
   let cars = [];
   try {
     cars = await prisma.product.findMany({
-      // No 'where' clause for collectionStatus means it fetches all products
+      where: {
+        NOT: {
+          collectionStatus: 'ARCHIVED'
+        }
+      },
       orderBy: { createdAt: 'desc' }
     });
   } catch (error) {

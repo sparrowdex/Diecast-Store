@@ -13,12 +13,15 @@ export const GENRE_METADATA = {
   FUTURE_PROOF: { label: "Future Proof", badge: "🚀", description: "Next-Gen Visionary", color: "#C0C0C0", rankName: "NEO_COLLECTOR" }
 };
 
-export const getGenreCompletion = (userCollection, allProducts) => {
+export const getGenreCompletion = (userCollection = [], allProducts = []) => {
   const genres = Object.keys(GENRE_METADATA);
-  const ownedIds = new Set(userCollection.map(item => item.productId));
+  
+  const safeCollection = Array.isArray(userCollection) ? userCollection : [];
+  const safeProducts = Array.isArray(allProducts) ? allProducts : [];
+  const ownedIds = new Set(safeCollection.map(item => item.productId));
 
   return genres.map(genre => {
-    const genreProducts = allProducts.filter(p => p.genre === genre);
+    const genreProducts = safeProducts.filter(p => p.genre === genre);
     const total = genreProducts.length;
     const owned = genreProducts.filter(p => ownedIds.has(p.id)).length;
     
