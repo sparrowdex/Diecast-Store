@@ -1,5 +1,16 @@
 # Changelog - Diecast Store Refactor
 
+## [2026-03-07] - Footer Stability & Layout Polish
+
+### Fixed
+- **Footer Jitter**: Resolved a UI bug where the "Coordinates" and "Contact Center" titles would shift or "stretch" during hover animations on the links beneath them.
+- **Animation Decoupling**: Implemented CSS isolation (`isolate`) and hardware acceleration (`transform-gpu`) on footer links to ensure shine effects and color transitions do not trigger parent layout recalculations.
+
+### Changed
+- **Layout Hardening**: Replaced dynamic `min-width` with fixed width constraints and `flex-shrink-0` on footer columns to maintain sub-pixel alignment during complex state transitions.
+
+---
+
 ## [2026-03-03] - Final Linting & Project Polish
 
 ### Fixed

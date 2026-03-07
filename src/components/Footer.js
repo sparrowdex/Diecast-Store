@@ -4,9 +4,9 @@ import Link from 'next/link';
 // Updated Link Component
 const SpeedLink = ({ href, children }) => {
   return (
-    <Link href={href} className="group relative block w-fit overflow-hidden py-1">
+    <Link href={href} className="group relative block w-full overflow-hidden py-1 px-1 transform-gpu isolate">
       {/* The Text */}
-      <span className="relative z-10 font-mono text-sm font-bold uppercase italic tracking-widest text-gray-300 transition-colors duration-300 group-hover:text-white">
+      <span className="relative z-10 inline-block font-mono text-sm font-bold uppercase italic tracking-widest text-gray-300 transition-colors duration-300 group-hover:text-white whitespace-nowrap">
         {children}
       </span>
       
@@ -42,11 +42,11 @@ const Footer = () => {
                 </div>
 
                 {/* Quick Links */}
-                <div className="mb-10 md:mb-0">
-                    <h4 className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-red-500">
+                <div className="mb-10 md:mb-0 w-[200px] flex-shrink-0">
+                    <h4 className="mb-4 block w-full text-xs font-bold uppercase tracking-[0.2em] text-red-500">
                         Coordinates
                     </h4>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 isolate">
                         <SpeedLink href="/terms-of-service">Terms of Service</SpeedLink>
                         <SpeedLink href="/privacy-policy">Privacy Policy</SpeedLink>
                         <SpeedLink href="/refund-policy">Refund Policy</SpeedLink>
@@ -54,19 +54,19 @@ const Footer = () => {
                 </div>
 
                 {/* UPDATED: Contact Center Section */}
-                <div className="min-w-[250px]">
-                    <h4 className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-red-500">
+                <div className="w-[280px] flex-shrink-0">
+                    <h4 className="mb-4 block w-full text-xs font-bold uppercase tracking-[0.2em] text-red-500">
                         Contact Center
                     </h4>
-                    <div className="flex flex-col gap-4 font-mono text-xs tracking-tight">
+                    <div className="flex flex-col gap-4 font-mono text-xs tracking-tight isolate">
 
                         {/* Email Row */}
-                        <a href="mailto:support@diecaststore.com" className="group relative flex flex-col gap-1 text-gray-400 hover:text-white transition-all">
+                        <a href="mailto:support@diecaststore.com" className="group relative flex w-full flex-col gap-1 text-gray-400 hover:text-white transition-colors transform-gpu">
                             <span className="text-[10px] text-gray-500 uppercase tracking-tighter">Server_Inquiry</span>
                             <div className="flex items-center gap-2">
                                 <span className="tech-bracket">[</span>
-                                <span className="relative overflow-hidden">
-                                    support@diecaststore.com
+                                <span className="relative overflow-hidden inline-block">
+                                    thegametheoryy.com
                                     <div className="shine-effect" />
                                 </span>
                                 <span className="tech-bracket">]</span>
@@ -74,11 +74,11 @@ const Footer = () => {
                         </a>
 
                         {/* Phone Row */}
-                        <a href="tel:123-456-7890" className="group relative flex flex-col gap-1 text-gray-400 hover:text-white transition-all">
+                        <a href="tel:123-456-7890" className="group relative flex w-full flex-col gap-1 text-gray-400 hover:text-white transition-colors transform-gpu">
                             <span className="text-[10px] text-gray-500 uppercase tracking-tighter">Direct_Line</span>
                             <div className="flex items-center gap-2">
                                 <span className="tech-bracket">[</span>
-                                <span className="relative overflow-hidden">
+                                <span className="relative overflow-hidden inline-block">
                                     123-456-7890
                                     <div className="shine-effect" />
                                 </span>
