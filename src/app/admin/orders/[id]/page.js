@@ -5,8 +5,7 @@ import Image from "next/image";
 import FulfillmentCard from '@/components/FulfillmentCard';
 
 export default function OrderDetailPage({ params }) {
-  const resolvedParams = use(params);
-  const id = resolvedParams.id;
+  const { id } = use(params);
   const [order, setOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 

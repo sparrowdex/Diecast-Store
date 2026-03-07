@@ -52,7 +52,7 @@ function getInitialFormData() {
 
 export default function GridPreviewPage({ params }) {
   const router = useRouter();
-  const { id } = params; // params is already available as props
+  const { id } = use(params);
   const [cars, setCars] = useState([]);
   const [featuredExhibits, setFeaturedExhibits] = useState([]);
   const [loading, setLoading] = useState(true);

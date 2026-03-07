@@ -37,7 +37,6 @@ export default async function AccessLayout({ children }) {
       {/* Telemetry Grid Overlay */}
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] select-none z-0" 
            style={{ backgroundImage: `linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)`, backgroundSize: '40px 40px' }} />
-
       <div className="relative z-10 p-4 md:p-8 max-w-7xl mx-auto">
         
         {/* MOBILE COMPACT HEADER */}
@@ -47,7 +46,7 @@ export default async function AccessLayout({ children }) {
           </Link>
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-black italic tracking-tighter uppercase">THE VAULT</h1>
-            <UserButton afterSignOutUrl="/" />
+            <UserButton />
           </div>
           
           {isDashboard && (
@@ -105,7 +104,7 @@ export default async function AccessLayout({ children }) {
               ))}
             </nav>
             <div className="mt-8 flex items-center gap-4 px-4 py-3 border border-dashed border-current/20">
-              <UserButton afterSignOutUrl="/" />
+              <UserButton />
               <span className="font-geist-mono text-[9px] opacity-40 uppercase tracking-widest">Active_Session</span>
             </div>
           </aside>

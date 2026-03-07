@@ -77,7 +77,6 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
     return (
       <main className="min-h-screen bg-[#fafafa] text-black font-sans relative selection:bg-black selection:text-white">
         <CartDrawer />
-        
         <div className="p-4 md:p-12">
             <header className="mb-12 md:mb-20 flex flex-col md:flex-row justify-between items-center md:items-baseline border-b border-black/10 pb-8 gap-8 md:gap-0">
               <div className="text-center md:text-left">
@@ -92,7 +91,7 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
                 ) : isSignedIn ? (
                   <div className="group relative flex items-center gap-2 py-2">
                     <div className="scale-90 sm:scale-100">
-                      <UserButton afterSignOutUrl="/" />
+                      <UserButton />
                     </div>
                     <div className="relative group">
                       <SpeedLink href="/access">Access</SpeedLink>
@@ -184,9 +183,8 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
 
             <CustomCursor active={hoverState && !isCursorBlocked} />
         </div>
-
         <Footer />
         {/* Removed styles from here because they are now in globals.css */}
-    </main>
-  );
+      </main>
+    );
 }

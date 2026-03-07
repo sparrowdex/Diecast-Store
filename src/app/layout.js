@@ -24,12 +24,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    // 2. Wrap the entire HTML structure with ClerkProvider
-    <ClerkProvider>
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
-        >
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
+      ><ClerkProvider fallbackAfterSignOutUrl="/">
           <NextSSRPlugin
             /**
              * The `extractRouterConfig` will extract the route config
@@ -40,8 +38,7 @@ export default function RootLayout({ children }) {
           <CartProvider>
             {children}
           </CartProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkProvider></body>
+    </html>
   );
 }
