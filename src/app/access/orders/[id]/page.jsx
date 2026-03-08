@@ -35,7 +35,7 @@ export default async function OrderDetailsPage({ params }) {
           <div className={`absolute -left-4 top-0 h-full w-1 ${isDark ? 'bg-yellow-500' : 'bg-orange-600'}`} />
           {/* Responsive Text Size to prevent overflow */}
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black italic tracking-tighter uppercase leading-none wrap-break-word">
-            Asset_Manifest
+            Asset Manifest
           </h2>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3">
             <p className="font-mono text-[9px] md:text-[10px] opacity-40 tracking-widest uppercase">
@@ -51,7 +51,7 @@ export default async function OrderDetailsPage({ params }) {
            ? `border-yellow-500/30 text-white hover:bg-yellow-500 hover:text-black hover:border-yellow-500` 
           : `border-orange-600/30 text-black hover:bg-orange-600 hover:text-white hover:border-orange-600`}`}
         >
-        <ChevronLeft size={12} /> [ Back_to_Archive ]
+        <ChevronLeft size={12} /> [ Back to Archive ]
         </Link>
       </header>
 
@@ -112,7 +112,7 @@ export default async function OrderDetailsPage({ params }) {
           <section className={`p-6 md:p-8 border-2 ${isDark ? 'border-white/10 bg-zinc-900/50' : 'border-black bg-white'}`}>
             <div className="flex justify-between items-start mb-6 md:mb-8">
                 <h3 className="font-mono text-[10px] font-black uppercase tracking-widest opacity-40 border-b-2 border-current pb-1 text-nowrap">Logistics_Log</h3>
-                <div className="flex gap-[1px] h-6 opacity-30">
+                <div className="flex gap-px h-6 opacity-30">
                     {[2,4,1,3,2,1,4].map((w, i) => <div key={i} className="bg-current" style={{ width: `${w}px` }} />)}
                 </div>
             </div>

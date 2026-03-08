@@ -2,39 +2,56 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 
-// --- Layout Configurations for Mini-Maps and Main Grid ---
+// --- Layout Configurations with Mobile Overrides ---
 const layoutConfigs = [
   {
     name: "hero",
     label: "Hero Layout",
     miniMapGrid: "grid-cols-3 grid-rows-2",
     miniMapSlots: ["col-span-2 row-span-2", "col-span-1 row-span-1", "col-span-1 row-span-1"],
-    mainGrid: "grid-cols-12 grid-rows-2",
-    mainSlots: ["col-span-8 row-span-2", "col-span-4 row-span-1", "col-span-4 row-span-1"],
+    // Mobile: Stacked | Desktop: 12-col grid
+    mainGrid: "grid-cols-1 md:grid-cols-12 md:grid-rows-2",
+    mainSlots: [
+      "col-span-1 md:col-span-8 md:row-span-2 min-h-[300px]", 
+      "col-span-1 md:col-span-4 md:row-span-1 min-h-[150px]", 
+      "col-span-1 md:col-span-4 md:row-span-1 min-h-[150px]"
+    ],
   },
   {
     name: "panorama",
     label: "Panorama Layout",
     miniMapGrid: "grid-cols-2 grid-rows-2",
     miniMapSlots: ["col-span-2 row-span-1", "col-span-1 row-span-1", "col-span-1 row-span-1"],
-    mainGrid: "grid-cols-12 grid-rows-2",
-    mainSlots: ["col-span-12 row-span-1", "col-span-6 row-span-1", "col-span-6 row-span-1"],
+    mainGrid: "grid-cols-1 md:grid-cols-12 md:grid-rows-2",
+    mainSlots: [
+      "col-span-1 md:col-span-12 md:row-span-1 min-h-[200px]", 
+      "col-span-1 md:col-span-6 md:row-span-1 min-h-[150px]", 
+      "col-span-1 md:col-span-6 md:row-span-1 min-h-[150px]"
+    ],
   },
   {
     name: "columns",
     label: "Columns Layout",
     miniMapGrid: "grid-cols-3 grid-rows-1",
     miniMapSlots: ["col-span-1 row-span-1", "col-span-1 row-span-1", "col-span-1 row-span-1"],
-    mainGrid: "grid-cols-12 grid-rows-2",
-    mainSlots: ["col-span-4 row-span-2", "col-span-4 row-span-2", "col-span-4 row-span-2"],
+    mainGrid: "grid-cols-1 md:grid-cols-12 md:grid-rows-2",
+    mainSlots: [
+      "col-span-1 md:col-span-4 md:row-span-2 min-h-[250px]", 
+      "col-span-1 md:col-span-4 md:row-span-2 min-h-[250px]", 
+      "col-span-1 md:col-span-4 md:row-span-2 min-h-[250px]"
+    ],
   },
   {
     name: "mosaic",
     label: "Mosaic Layout",
     miniMapGrid: "grid-cols-2 grid-rows-2",
     miniMapSlots: ["col-span-1 row-span-2", "col-span-1 row-span-1", "col-span-1 row-span-1"],
-    mainGrid: "grid-cols-12 grid-rows-2",
-    mainSlots: ["col-span-6 row-span-2", "col-span-6 row-span-1", "col-span-6 row-span-1"],
+    mainGrid: "grid-cols-1 md:grid-cols-12 md:grid-rows-2",
+    mainSlots: [
+      "col-span-1 md:col-span-6 md:row-span-2 min-h-[300px]", 
+      "col-span-1 md:col-span-6 md:row-span-1 min-h-[150px]", 
+      "col-span-1 md:col-span-6 md:row-span-1 min-h-[150px]"
+    ],
   },
 ];
 
@@ -43,33 +60,27 @@ export default function FeaturedManagerPage() {
   const [selectedLayout, setSelectedLayout] = useState("hero");
   const [isLoading, setIsLoading] = useState(true);
 
-  // Drag & Drop State
   const dragItem = useRef(null);
   const dragOverItem = useRef(null);
 
   const fetchConfiguration = useCallback(async () => {
     setIsLoading(true);
     try {
-      // 1. Fetch the saved configuration
       const configResponse = await fetch('/api/featured');
       const config = await configResponse.json();
       setSelectedLayout(config.layout || 'hero');
 
-      // 2. Fetch the product details for the saved exhibit IDs
       if (config.exhibitIds && config.exhibitIds.length > 0) {
         const productPromises = config.exhibitIds.map(id =>
           fetch(`/api/products/${id}`).then(res => res.json())
         );
         const products = await Promise.all(productPromises);
-        // Ensure the order is preserved
-        setFeaturedExhibits(products.filter(p => p)); // Filter out any nulls from failed fetches
+        setFeaturedExhibits(products.filter(p => p));
       } else {
-          // If no IDs, fetch all products marked as featured as a fallback
-          const response = await fetch('/api/products?featured=true');
-          const featuredProducts = await response.json();
-          setFeaturedExhibits(featuredProducts);
+        const response = await fetch('/api/products?featured=true');
+        const featuredProducts = await response.json();
+        setFeaturedExhibits(featuredProducts);
       }
-
     } catch (error) {
       console.error("Error fetching configuration:", error);
     } finally {
@@ -81,58 +92,30 @@ export default function FeaturedManagerPage() {
     fetchConfiguration();
   }, [fetchConfiguration]);
 
-  const handleLayoutSelect = (name) => {
-    setSelectedLayout(name);
-  };
+  const handleLayoutSelect = (name) => setSelectedLayout(name);
 
   const handleReset = async () => {
-    if (!confirm("Are you sure you want to reset the featured layout to automatic? This will clear your current manual configuration.")) {
-      return;
-    }
-
+    if (!confirm("Are you sure you want to reset to automatic?")) return;
     try {
-      const response = await fetch('/api/featured', {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to reset configuration');
-      }
-
-      alert("Configuration reset successfully! The grid will now update automatically.");
-      
-      // Re-fetch the default configuration
+      await fetch('/api/featured', { method: 'DELETE' });
+      alert("Configuration reset!");
       await fetchConfiguration();
-
     } catch (error) {
-      console.error("Error resetting configuration:", error);
-      alert("Error: Could not reset configuration.");
+      console.error(error);
     }
   };
 
   const handleSave = async () => {
-    const exhibitIds = featuredExhibits.map(exhibit => exhibit.id);
-    const payload = {
-      layout: selectedLayout,
-      exhibitIds: exhibitIds
-    };
-    
+    const payload = { layout: selectedLayout, exhibitIds: featuredExhibits.map(e => e.id) };
     try {
       const response = await fetch('/api/featured', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to save configuration');
-      }
-
-      alert("Configuration saved successfully!");
-      
+      if (response.ok) alert("Saved successfully!");
     } catch (error) {
-      console.error("Error saving configuration:", error);
-      alert("Error: Could not save configuration.");
+      console.error(error);
     }
   };
 
@@ -140,86 +123,92 @@ export default function FeaturedManagerPage() {
     let _featuredExhibits = [...featuredExhibits];
     const draggedItemContent = _featuredExhibits.splice(dragItem.current, 1)[0];
     _featuredExhibits.splice(dragOverItem.current, 0, draggedItemContent);
-    
     dragItem.current = null;
     dragOverItem.current = null;
-    
     setFeaturedExhibits(_featuredExhibits);
   }, [featuredExhibits]);
 
+  const currentLayout = layoutConfigs.find(l => l.name === selectedLayout);
+
   return (
-    <div className="p-12 text-white">
-      <div className="flex justify-between items-end mb-12">
+    <div className="p-6 md:p-12 text-white max-w-7xl mx-auto">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
         <div>
-          <h2 className="text-3xl font-black uppercase italic tracking-tighter mb-2">
+          <h2 className="text-2xl md:text-3xl font-black uppercase italic tracking-tighter mb-2">
             Featured Exhibits Manager
           </h2>
-          <p className="text-xs font-mono text-gray-500">
+          <p className="text-[10px] md:text-xs font-mono text-gray-500">
             Select a layout and drag to arrange your featured exhibits.
           </p>
         </div>
-        <div className="flex items-center gap-4">
-          <button onClick={handleReset} className="bg-red-600 text-white px-6 py-2 font-black text-xs uppercase tracking-widest hover:bg-red-700">
-            Reset to Automatic
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <button onClick={handleReset} className="flex-1 md:flex-none bg-red-600/20 border border-red-600 text-red-500 px-4 py-2 font-black text-[10px] uppercase tracking-widest hover:bg-red-600 hover:text-white transition-colors">
+            Reset
           </button>
-          <button onClick={handleSave} className="bg-white text-black px-6 py-2 font-black text-xs uppercase tracking-widest hover:bg-gray-200">
-            Save Configuration
+          <button onClick={handleSave} className="flex-1 md:flex-none bg-white text-black px-4 py-2 font-black text-[10px] uppercase tracking-widest hover:bg-gray-200 transition-colors">
+            Save Changes
           </button>
         </div>
       </div>
 
       {isLoading ? (
-        <div className="text-center p-24">Loading configuration...</div>
+        <div className="text-center py-24 animate-pulse">Loading configuration...</div>
       ) : (
-        <div className="bg-[#111] border border-white/5 rounded-lg p-8">
-          <h3 className="text-xl font-bold mb-6 text-white">1. Select a Layout Template</h3>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            {layoutConfigs.map((config) => (
-              <button 
-                key={config.name}
-                onClick={() => handleLayoutSelect(config.name)}
-                className={`p-4 border-2 rounded-lg text-left transition-all ${selectedLayout === config.name ? 'border-yellow-500 bg-white/5' : 'border-gray-800 hover:border-gray-600'}`}
-              >
-                <span className="block text-sm font-bold mb-2">{config.label}</span>
-                <div className={`grid h-12 gap-1 p-1 bg-black/50 rounded ${config.miniMapGrid}`}>
-                  {config.miniMapSlots.map((cls, i) => <div key={i} className={`bg-gray-600 rounded-sm ${cls}`} />)}
-                </div>
-              </button>
-            ))}
-          </div>
+        <div className="space-y-12">
+          {/* Section 1: Template Selection */}
+          <section className="bg-[#111] border border-white/5 rounded-xl p-6">
+            <h3 className="text-sm font-bold mb-6 uppercase tracking-widest text-gray-400">1. Select Template</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {layoutConfigs.map((config) => (
+                <button 
+                  key={config.name}
+                  onClick={() => handleLayoutSelect(config.name)}
+                  className={`p-3 border-2 rounded-lg text-left transition-all ${selectedLayout === config.name ? 'border-yellow-500 bg-yellow-500/5' : 'border-gray-800 hover:border-gray-700'}`}
+                >
+                  <span className="block text-[10px] font-bold mb-3 uppercase tracking-tight">{config.label}</span>
+                  <div className={`grid h-10 gap-1 p-1 bg-black/50 rounded-sm ${config.miniMapGrid}`}>
+                    {config.miniMapSlots.map((cls, i) => <div key={i} className={`bg-gray-700 rounded-[1px] ${cls}`} />)}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
 
-          <h3 className="text-xl font-bold mb-6 text-white mt-12">2. Arrange Exhibits</h3>
-
-          <div className="bg-black/30 p-8 rounded-xl border border-white/5">
-            <h4 className="text-sm font-bold text-gray-400 mb-4 uppercase tracking-widest">Layout Preview</h4>
-            <div className={`grid gap-4 w-full aspect-video ${layoutConfigs.find(l => l.name === selectedLayout)?.mainGrid}`}>
-              {layoutConfigs.find(l => l.name === selectedLayout)?.mainSlots.slice(0, featuredExhibits.length).map((cls, idx) => {
-                  const exhibit = featuredExhibits[idx];
-                  return (
-                      <div 
-                        key={exhibit ? exhibit.id : idx} 
-                        draggable
-                        onDragStart={() => (dragItem.current = idx)}
-                        onDragEnter={() => (dragOverItem.current = idx)}
-                        onDragEnd={handleSort}
-                        onDragOver={(e) => e.preventDefault()}
-                        className={`relative rounded-xl overflow-hidden cursor-grab transition-all border-2 border-gray-800 hover:border-yellow-500 ${cls}`}
-                      >
-                        {exhibit ? (
-                            <>
-                              <Image src={exhibit.images[0]} alt={exhibit.name} fill className="object-cover opacity-50" />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                              <span className="absolute bottom-4 left-4 text-sm font-bold">{exhibit.name}</span>
-                            </>
-                        ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-600 text-xs font-bold uppercase tracking-widest">Empty Slot</div>
-                        )}
+          {/* Section 2: Interactive Preview */}
+          <section className="bg-[#111] border border-white/5 rounded-xl p-6">
+            <h3 className="text-sm font-bold mb-6 uppercase tracking-widest text-gray-400">2. Arrange & Preview</h3>
+            <div className={`grid gap-3 md:gap-4 ${currentLayout?.mainGrid}`}>
+              {currentLayout?.mainSlots.slice(0, 3).map((cls, idx) => {
+                const exhibit = featuredExhibits[idx];
+                return (
+                  <div 
+                    key={exhibit?.id || idx} 
+                    draggable
+                    onDragStart={() => (dragItem.current = idx)}
+                    onDragEnter={() => (dragOverItem.current = idx)}
+                    onDragEnd={handleSort}
+                    onDragOver={(e) => e.preventDefault()}
+                    className={`group relative rounded-lg overflow-hidden cursor-grab active:cursor-grabbing transition-all border border-white/10 hover:border-yellow-500/50 ${cls}`}
+                  >
+                    {exhibit ? (
+                      <>
+                        <Image src={exhibit.images[0]} alt={exhibit.name} fill className="object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-4">
+                           <p className="text-[10px] text-yellow-500 font-mono mb-1 uppercase tracking-widest">Slot {idx + 1}</p>
+                           <p className="text-xs md:text-sm font-bold truncate">{exhibit.name}</p>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="w-full h-full min-h-[150px] flex items-center justify-center bg-white/5 text-gray-600 text-[10px] font-bold uppercase tracking-widest">
+                        Empty Slot
                       </div>
-                  )
+                    )}
+                  </div>
+                );
               })}
             </div>
-          </div>
+          </section>
         </div>
       )}
     </div>

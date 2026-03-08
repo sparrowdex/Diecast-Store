@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
 import { ShieldCheck, User, Zap, Camera, Target, MapPin, BadgeCheck } from 'lucide-react';
-import SystemBootLoader from '@/components/SystemBootLoader';
+import SystemBootLoader from '@/components/ProfileBootLoader';
 import GenreBadgeGrid from '@/components/GenreBadgeGrid';
 
 
@@ -19,6 +19,14 @@ export default function ProfileSettingsPage() {
   const { user } = useUser();
   const router = useRouter();
 
+  // Initialize theme from localStorage to prevent loader flicker
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('vault_theme') !== 'light';
+    }
+    return true;
+  });
+
   useEffect(() => {
     Promise.all([
       fetch('/api/user/dashboard-data').then(res => res.json()),
@@ -28,6 +36,10 @@ export default function ProfileSettingsPage() {
         setProfile(dashboardData?.profile || { theme: 'dark', collectorName: '', stamp: 'VERIFIED' });
         setUserCollection(Array.isArray(dashboardData?.collection) ? dashboardData.collection : []);
         setAllProducts(Array.isArray(productsData) ? productsData : []);
+        // Sync UI to saved profile theme on load, but don't touch localStorage yet
+        if (dashboardData?.profile?.theme) {
+          setIsDark(dashboardData.profile.theme === 'dark');
+        }
         setLoading(false);
       })
       .catch(err => console.error("Data fetch failed", err));
@@ -41,15 +53,16 @@ export default function ProfileSettingsPage() {
         method: 'PUT',
         body: JSON.stringify(profile),
       });
-      if (res.ok) router.refresh();
+      if (res.ok) {
+        localStorage.setItem('vault_theme', profile.theme);
+        router.refresh();
+      }
     } catch (error) {
       console.error("Failed to save profile", error);
     } finally {
       setSaving(false);
     }
   };
-
-  const isDark = profile?.theme === 'dark';
 
   if (loading) return <SystemBootLoader isDark={isDark} />;
 
@@ -60,8 +73,8 @@ export default function ProfileSettingsPage() {
       
       <header className="mb-12 relative">
         <div className={`absolute -left-4 top-0 h-full w-1 ${isDark ? 'bg-yellow-500' : 'bg-orange-600'}`} />
-        <h2 className="text-2xl sm:text-4xl font-black italic tracking-tighter uppercase leading-none break-words">
-          Profile_Configuration
+        <h2 className="text-2xl sm:text-4xl font-black italic tracking-tighter uppercase leading-none wrap-break-word">
+          Profile Configuration
         </h2>
         <p className="font-geist-mono text-[9px] sm:text-[10px] opacity-40 mt-2 tracking-[0.2em]">
           {"// CUSTOMIZE_YOUR_DIGITAL_CREDENTIALS"}
@@ -94,7 +107,7 @@ export default function ProfileSettingsPage() {
                 onClick={() => router.push('/access/settings')}
                 className={`mt-4 px-6 py-2 text-[10px] font-black uppercase italic border-2 transition-all ${isDark ? 'border-white/10 hover:bg-yellow-500 hover:text-black' : 'border-black/10 hover:bg-orange-600 hover:text-white'}`}
               >
-                Modify_Cloud_Identity
+                Modify Cloud Identity
               </button>
             </div>
           </div>
@@ -180,7 +193,7 @@ export default function ProfileSettingsPage() {
         {/* THEME TOGGLE */}
         <div className="pt-6 border-t border-current/10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-1">
-            <label className="font-geist-mono text-[10px] font-black uppercase opacity-40 tracking-widest block">Interface_Livery</label>
+            <label className="font-geist-mono text-[10px] font-black uppercase opacity-40 tracking-widest block">Interface Livery</label>
             <p className="text-[10px] opacity-60 uppercase font-bold">Select vault visual profile</p>
           </div>
           <div className="flex gap-1 bg-current/5 p-1">
@@ -188,7 +201,11 @@ export default function ProfileSettingsPage() {
               <button
                 key={t}
                 type="button"
-                onClick={() => setProfile(prev => ({ ...prev, theme: t }))}
+                // Only update local state for immediate feedback
+                onClick={() => {
+                  setProfile(prev => ({ ...prev, theme: t }));
+                  setIsDark(t === 'dark');
+                }}
                 className={`px-8 py-2 font-black text-[10px] uppercase italic transition-all ${profile?.theme === t ? (isDark ? 'bg-yellow-500 text-black' : 'bg-orange-600 text-white') : 'opacity-40'}`}
               >
                 {t}

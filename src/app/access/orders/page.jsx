@@ -45,9 +45,9 @@ export default async function OrdersHistoryPage({ searchParams }) {
     <div className={`p-6 md:p-12 transition-colors duration-500 ${isDark ? 'bg-[#0a0a0a] text-white' : 'bg-[#f4f4f4] text-black'}`}>
       <header className={`mb-12 border-b pb-4 transition-colors duration-500 ${isDark ? 'border-white/10' : 'border-black'}`}>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2">
-          <h2 className="text-3xl md:text-4xl font-black italic tracking-tighter uppercase">Order_History</h2>
+          <h2 className="text-3xl md:text-4xl font-black italic tracking-tighter uppercase">Order History</h2>
           <Link href="/access" className="font-mono text-[10px] hover:underline mb-1 opacity-50">
-            [ RETURN_TO_DASHBOARD ]
+            [ RETURN TO DASHBOARD ]
           </Link>
         </div>
       </header>
@@ -73,7 +73,7 @@ export default async function OrdersHistoryPage({ searchParams }) {
 
       {orders.length === 0 ? (
         <div className={`p-8 border border-dashed text-center font-mono text-xs opacity-50 ${isDark ? 'border-white/10' : 'border-black/10'}`}>
-          [ NO_ORDERS_MATCHING_CRITERIA ]
+          [ NO ORDERS MATCHING CRITERIA ]
         </div>
       ) : (
         <div>
@@ -89,14 +89,14 @@ export default async function OrdersHistoryPage({ searchParams }) {
               href={`?page=${currentPage - 1}&status=${currentStatus}`} 
               className={`transition-opacity ${currentPage <= 1 ? 'pointer-events-none opacity-10' : 'hover:underline'}`}
             >
-              [ PREV_SECTOR ]
+              [ PREV SECTOR ]
             </Link>
             <span className="tracking-[0.3em]">LAP {currentPage} / {totalPages || 1}</span>
             <Link 
               href={`?page=${currentPage + 1}&status=${currentStatus}`} 
               className={`transition-opacity ${currentPage >= totalPages ? 'pointer-events-none opacity-10' : 'hover:underline'}`}
             >
-              [ NEXT_SECTOR ]
+              [ NEXT SECTOR ]
             </Link>
           </div>
         </div>

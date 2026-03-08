@@ -67,7 +67,7 @@ export default async function AccessLayout({ children }) {
         <div className={`hidden lg:flex justify-between items-end mb-12 border-b-4 pb-6 ${isDark ? 'border-white/10' : 'border-black'}`}>
           <div className="w-full">
             <Link href="/" className="font-geist-mono text-[9px] uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity flex items-center gap-2 mb-4">
-              <span className="text-xs">←</span> [ RETURN_TO_MAIN ]
+              <span className="text-xs">←</span> [ RETURN TO MAIN ]
             </Link>
             <h1 className="text-6xl font-black uppercase italic tracking-tighter leading-none">THE VAULT</h1>
             <p className="font-geist-mono text-[9px] uppercase tracking-[0.3em] opacity-40 mt-2">{"// Authorized_Collector_Access"}</p>

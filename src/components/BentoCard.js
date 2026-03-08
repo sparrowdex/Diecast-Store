@@ -17,7 +17,7 @@ const OutOfStockStamp = () => (
         backdropFilter: 'blur(2px)'
       }}
     >
-      OUT_OF_STOCK
+      OUT OF STOCK
     </motion.div>
   </div>
 );
