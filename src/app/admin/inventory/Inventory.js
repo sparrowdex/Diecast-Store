@@ -5,11 +5,11 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
-function VariantDisplay({ variants, fallbackScale, fallbackPrice, show = 'both' }) {
+function VariantDisplay({ variants, fallbackScale, fallbackPrice, fallbackStock, show = 'both' }) {
   const [index, setIndex] = useState(0);
   const displayVariants = variants && variants.length > 0 
     ? variants 
-    : [{ scale: fallbackScale, price: fallbackPrice }];
+    : [{ scale: fallbackScale, price: fallbackPrice, stock: fallbackStock }];
 
   useEffect(() => {
     if (displayVariants.length <= 1) return;
@@ -33,11 +33,16 @@ function VariantDisplay({ variants, fallbackScale, fallbackPrice, show = 'both' 
       >
         {show === 'scale' && <span>{current.scale}</span>}
         {show === 'price' && <span>₹{current.price}</span>}
+        {show === 'stock' && (
+          current.stock > 0 ? <span>{current.stock}</span> : <span className="text-red-500 font-bold">0</span>
+        )}
         {show === 'both' && (
           <div className="flex items-center gap-1.5">
             <span className="text-[10px] font-mono text-gray-400">{current.scale}</span>
             <span className="text-[10px] font-mono text-gray-600">@</span>
             <span className="text-[10px] font-bold text-white">₹{current.price}</span>
+            <span className="text-[10px] font-mono text-gray-600">|</span>
+            <span className={`text-[10px] font-bold ${current.stock > 0 ? 'text-emerald-500' : 'text-red-500'}`}>S:{current.stock}</span>
           </div>
         )}
       </motion.div>
@@ -167,16 +172,16 @@ export default function Inventory({ initialCars = [] }) {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-xs font-mono">
-                    <VariantDisplay variants={car.variants} fallbackScale={car.scale} show="scale" />
+                    <VariantDisplay variants={car.variants} fallbackScale={car.scale} fallbackStock={car.stock} show="scale" />
                   </td>
                   <td className="px-6 py-4 text-xs font-mono">
-                    <VariantDisplay variants={car.variants} fallbackScale={car.scale} fallbackPrice={car.price} show="price" />
+                    <VariantDisplay variants={car.variants} fallbackScale={car.scale} fallbackPrice={car.price} fallbackStock={car.stock} show="price" />
                   </td>
                   <td className="px-6 py-4">
                     <StatusBadge car={car} />
                   </td>
                   <td className="px-6 py-4 text-xs font-mono">
-                    {car.stock > 0 ? <span>{car.stock}</span> : <span className="text-red-500 font-bold">{car.stock}</span>}
+                    <VariantDisplay variants={car.variants} fallbackStock={car.stock} show="stock" />
                   </td>
                   <td className="px-6 py-4 text-right">
                     <Link href={`/admin/inventory/edit/${car.id}`} className="text-[10px] font-bold uppercase hover:text-white text-gray-500 mr-4">Edit</Link>
@@ -211,7 +216,7 @@ export default function Inventory({ initialCars = [] }) {
                 <div className="min-w-0 flex-1">
                   <h3 className="text-[11px] font-bold uppercase tracking-tight truncate">{car.name}</h3>
                   <div className="flex items-center gap-2 mt-1">
-                    <VariantDisplay variants={car.variants} fallbackScale={car.scale} fallbackPrice={car.price} />
+                    <VariantDisplay variants={car.variants} fallbackScale={car.scale} fallbackPrice={car.price} fallbackStock={car.stock} />
                     <span className="text-[10px] font-mono text-gray-600">|</span>
                     <span className="text-[10px] font-mono text-gray-600">#{car.id?.slice(-4)}</span>
                   </div>

@@ -14,12 +14,22 @@ export default function AdminDashboard({ initialCars = [], initialOrders = [], d
 
   const featuredCount = cars.filter(c => c.featured || c.collectionStatus === 'FEATURED_EXHIBIT').length;
   
-  // Refined Stock Logic
-  const outOfStockCars = cars.filter(c => c.stock === 0);
-  const lowStockCars = cars.filter(c => c.stock < 3 && c.stock > 0);
-  
-  // Combine them for the Red Box display (Out of stock first, then low stock)
-  const criticalItems = [...outOfStockCars, ...lowStockCars];
+  // Multi-Variant Aware Stock Logic
+  const criticalItems = useMemo(() => {
+    return cars.flatMap(car => {
+      const variants = car.variants && car.variants.length > 0 
+        ? car.variants 
+        : [{ scale: car.scale, stock: car.stock }];
+      
+      return variants
+        .filter(v => v.stock < 3)
+        .map(v => ({
+          ...car,
+          displayStock: v.stock,
+          displayScale: v.scale
+        }));
+    }).sort((a, b) => a.displayStock - b.displayStock);
+  }, [cars]);
 
   const genreStats = useMemo(() => {
     const stats = {};
@@ -124,17 +134,20 @@ export default function AdminDashboard({ initialCars = [], initialOrders = [], d
             
             {criticalItems.length > 0 ? (
               <div className="space-y-4">
-                {criticalItems.slice(0, 5).map(car => (
-                  <div key={car.id} className="space-y-1">
+                {criticalItems.slice(0, 5).map((item, idx) => (
+                  <div key={`${item.id}-${idx}`} className="space-y-1">
                     <div className="flex justify-between items-center gap-4">
-                      <span className="text-[10px] font-mono text-gray-400 uppercase truncate">{car.name}</span>
-                      <span className={`text-[10px] font-black px-2 py-0.5 rounded shrink-0 ${
-                        car.stock === 0 ? 'bg-red-600 text-white animate-pulse' : 'bg-red-500/20 text-red-500'
-                      }`}>
-                        {car.stock === 0 ? 'SOLD OUT' : `${car.stock} LEFT`}
-                      </span>
+                      <span className="text-[10px] font-mono text-gray-400 uppercase truncate">{item.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[8px] font-mono text-gray-600 uppercase">{item.displayScale}</span>
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded shrink-0 ${
+                          item.displayStock === 0 ? 'bg-red-600 text-white animate-pulse' : 'bg-red-500/20 text-red-500'
+                        }`}>
+                          {item.displayStock === 0 ? 'SOLD OUT' : `${item.displayStock} LEFT`}
+                        </span>
+                      </div>
                     </div>
-                    {car.stock === 0 && (
+                    {item.displayStock === 0 && (
                       <p className="text-[8px] font-mono text-gray-600 lowercase italic">
                         Not restocking? You may delete this exhibit from inventory.
                       </p>

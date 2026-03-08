@@ -30,6 +30,8 @@ export default async function AdminDashboardPage() {
         featured: true,
         genre: true,
         stock: true,
+        collectionStatus: true,
+        variants: true,
       },
       orderBy: {
         createdAt: 'desc',

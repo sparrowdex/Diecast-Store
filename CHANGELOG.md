@@ -6,7 +6,7 @@
 - **Multi-Variant System**: Transitioned the core data architecture from a flat structure to a dynamic "One Model = Multiple Variants" system. Each exhibit can now support multiple scales (1:64, 1:43, 1:18, etc.), each with independent pricing and stock levels.
 - **Interactive Size Selector**: Implemented a technical "Available Sizes" toggle on the Product Details page that dynamically updates the exhibit's valuation and acquisition status in real-time.
 - **Dynamic Variant Manager**: Integrated a robust variant management interface into the Admin New/Edit forms and the Live Preview sidebar, allowing curators to stage multiple configurations per model.
-- **Inventory Telemetry Carousel**: Added an automated variant carousel to the Admin Inventory table that cycles through available scale/price configurations, maintaining a clean layout while displaying complex stock data.
+- **Inventory Telemetry Carousel**: Added an automated variant carousel to the Admin Inventory table that cycles through available Scale, Price, and Stock configurations in perfect sync, maintaining a clean layout while displaying complex telemetry.
 - **Expandable Collection Stream**: Implemented a responsive "Initialize Full Stream" logic for New Arrivals, defaulting to 6 units on mobile and 10 on desktop to maintain vertical rhythm.
 
 ### Changed
@@ -16,11 +16,16 @@
 - **Animation Pacing**: Refined the `StandardCard` hover carousel interval to 3 seconds and increased crossfade durations to 1.2 seconds for a more deliberate, high-end gallery experience.
 - **Cart Uniqueness Logic**: Updated the Vault protocol to identify items by a composite key (`id` + `scale`), enabling collectors to acquire different configurations of the same model in a single session.
 - **Typography Cleanup**: Stripped underscores from all UI headings and labels (e.g., `Featured_Exhibits` -> `Featured Exhibits`) to align with a more professional, polished aesthetic.
+- **Compact UI Labeling**: Refined technical info bubbles to use `Multi-Scale` and raw `Year` values, optimizing horizontal space for mobile devices.
+- **Dynamic Quantity Logic**: Hardened the quantity selector to respect variant-specific stock limits, automatically resetting and capping the value when a user toggles between different sizes.
 
 ### Fixed
-- **Pole Position Detection**: Resolved a logic error in the Admin Dashboard where featured exhibits were not being detected; the telemetry now correctly monitors both the legacy `featured` flag and the `FEATURED_EXHIBIT` status.
+- **Dashboard Data Integrity**: Resolved a critical data fetching issue where `collectionStatus` and `variants` were missing from the Prisma query, ensuring all KPIs and alerts reflect real-time fleet data.
+- **Granular Stock Alerts**: Upgraded the Critical Stock Alert to monitor individual variant stock levels, providing specific telemetry for each scale configuration (e.g., "1:18 SOLD OUT").
 - **Curator Note Visibility**: Hardened the Editor's Note logic to ensure the section remains hidden if no content is provided, preventing empty data plates.
 - **Preview Synchronization**: Updated all Admin simulation cards (Catalog, Standard, Bento) to accurately reflect live variant data and the new 4:3 scaling convention.
+- **Journal Layout Hardening**: Resolved an issue where long titles would dominate the single journal entry page; implemented `line-clamp-2` and reduced font scales to preserve hero media visibility.
+- **RichTextEditor Integrity**: Fixed a bug where reading time and character counts would reset during edits by implementing an `onCreate` telemetry sync. Resolved bullet point alignment issues by stripping redundant paragraph margins in lists.
 
 ### What We Learnt
 - **Composite Identity**: When moving to a variant-based system, the "Primary Key" for client-side state (like the cart) must evolve from a simple ID to a composite identifier to prevent data collisions.

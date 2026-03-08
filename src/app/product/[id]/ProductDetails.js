@@ -53,6 +53,11 @@ export default function ProductDetailClient({ car, preview = false }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [nextMedia, prevMedia]);
 
+  // Reset quantity when variant changes to respect new stock limits
+  useEffect(() => {
+    setQuantity(selectedVariant.stock > 0 ? 1 : 0);
+  }, [selectedVariant]);
+
   // Reset error on change
   useEffect(() => {
     setMediaError(false);
@@ -258,18 +263,38 @@ export default function ProductDetailClient({ car, preview = false }) {
                   <p className="text-[10px] uppercase text-gray-400 tracking-widest mb-1">Valuation</p>
                   <p className="text-4xl font-black italic tracking-tighter text-black leading-none">₹{selectedVariant.price}</p>
                 </div>
-                <div className="flex items-center border border-black/10 rounded-sm h-12">
-                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 h-full hover:bg-gray-50 border-r border-black/10">-</button>
-                  <span className="px-6 font-mono text-sm">{quantity}</span>
-                  <button onClick={() => setQuantity(Math.min(selectedVariant.stock || 0, quantity + 1))} className="px-4 h-full hover:bg-gray-50 border-l border-black/10">+</button>
-                </div>
+                {selectedVariant.stock > 0 && (
+                  <div className="flex items-center border border-black/10 rounded-sm h-12">
+                    <button 
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))} 
+                      disabled={quantity <= 1}
+                      className="px-4 h-full hover:bg-gray-50 border-r border-black/10 disabled:opacity-30"
+                    >
+                      -
+                    </button>
+                    <span className="px-6 font-mono text-sm">{quantity}</span>
+                    <button 
+                      onClick={() => setQuantity(Math.min(selectedVariant.stock, quantity + 1))} 
+                      disabled={quantity >= selectedVariant.stock}
+                      className="px-4 h-full hover:bg-gray-50 border-l border-black/10 disabled:opacity-30"
+                    >
+                      +
+                    </button>
+                  </div>
+                )}
               </div>
               <button
                 onClick={() => addToCart({ ...car, ...selectedVariant }, quantity)}
                 disabled={selectedVariant.stock === 0}
                 className="w-full group relative overflow-hidden bg-black text-white py-5 font-black text-xs uppercase tracking-[0.3em] disabled:bg-gray-300"
               >
-                 <span className="relative z-10">{selectedVariant.stock === 0 ? 'Sold Out' : `Acquire ${selectedVariant.scale} Exhibit`}</span>
+                 <span className="relative z-10">
+                   {selectedVariant.stock === 0 ? 'Sold Out' : (
+                     <>
+                       Acquire <span className="hidden md:inline">{selectedVariant.scale}</span> Exhibit
+                     </>
+                   )}
+                 </span>
                  {selectedVariant.stock > 0 && <div className="absolute inset-0 -translate-x-full group-hover:animate-shine bg-gradient-to-r from-transparent via-white/30 to-transparent" />}
               </button>
             </div>
