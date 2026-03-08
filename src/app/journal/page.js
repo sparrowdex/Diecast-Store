@@ -158,8 +158,8 @@ function JournalCard({ story, index }) {
                 className={`flex flex-col ${isFeature ? 'border-b border-black/5 pb-16 mb-8' : ''}`}
             >
                 {/* Image Container */}
-                <div className="overflow-hidden mb-6 relative w-full border border-black/5">
-                    <div className={`w-full bg-[#f9f9f9] relative overflow-hidden transition-all duration-700 ${isFeature ? 'aspect-video' : 'aspect-[3/2]'}`}>
+                <div className="overflow-hidden mb-4 relative w-full border border-black/5">
+                    <div className={`w-full bg-[#f9f9f9] relative overflow-hidden transition-all duration-700 ${isFeature ? 'aspect-video' : 'aspect-[4/3]'}`}>
                         {(story.images?.[0] || story.video) ? (
                             <JournalMediaDisplay 
                                 imageUrl={story.images?.[0]} 
@@ -172,16 +172,16 @@ function JournalCard({ story, index }) {
                 </div>
 
                 {/* Content Container */}
-                <div className={`flex flex-col items-start ${isFeature ? 'max-w-4xl' : ''}`}>
+                <div className={`flex flex-col items-start ${isFeature ? 'max-w-4xl' : 'max-w-full'}`}>
                     {/* Headline */}
-                    <h2 className={`font-black italic uppercase tracking-tighter mb-4 leading-[0.9] group-hover:text-red-600 transition-colors
-                        ${isFeature ? 'text-4xl md:text-6xl' : 'text-2xl md:text-3xl'}
+                    <h2 className={`font-black italic uppercase tracking-tighter mb-3 leading-[1.1] group-hover:text-red-600 transition-colors line-clamp-2
+                        ${isFeature ? 'text-3xl md:text-5xl lg:text-6xl' : 'text-xl md:text-2xl'}
                     `}>
                         {story.title}
                     </h2>
 
                     {/* Meta Data - Moved below title and added Read Time */}
-                    <div className="flex items-center gap-3 mb-6">
+                    <div className="flex items-center gap-3 mb-4">
                         <span className="text-[9px] font-mono text-gray-400 uppercase tracking-widest">
                             {new Date(story.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                         </span>

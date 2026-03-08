@@ -99,7 +99,7 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
              />
            ) : (
              <motion.div key="vid" className="w-full h-full flex items-start justify-start text-gray-300 font-mono text-xs">
-               {car.video ? <video src={car.video} autoPlay muted loop playsInline className="w-full h-full object-cover opacity-80" /> : <span>[VIDEO_PREVIEW]</span>}
+               {car.video ? <video src={car.video} autoPlay muted loop playsInline className="w-full h-full object-cover opacity-80" /> : <span>[VIDEO PREVIEW]</span>}
              </motion.div>
            )}
         </AnimatePresence>
@@ -121,7 +121,10 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
         />
 
         <div>
-          <span className={`${metaSize} text-gray-400 font-mono tracking-widest uppercase`}>{car.brand} / {car.scale} {car.modelYear && `/ ${car.modelYear}`}</span>
+          <span className={`${metaSize} text-gray-400 font-mono tracking-widest uppercase`}>
+            {car.brand} / {car.variants?.length > 1 ? "Multiple Scales" : (car.variants?.[0]?.scale || car.scale)} 
+            {car.modelYear && ` / ${car.modelYear}`}
+          </span>
           {car.genre && <div className={`${isSmall ? 'text-[6px]' : 'text-[7px] sm:text-[9px]'} text-red-600 font-bold uppercase mt-1 tracking-tighter`}>{car.genre.replace(/_/g, ' ')}</div>}
           <h3 className={`${titleSize} font-black italic uppercase tracking-tighter leading-none mt-1 sm:mt-2 text-black line-clamp-2`}>{car.name}</h3>
           <p className={`${descSize} text-gray-500 font-light mt-2 sm:mt-4 md:mt-6 leading-tight sm:leading-relaxed line-clamp-2 sm:line-clamp-3 md:line-clamp-4`}>{car.description}</p>
@@ -133,7 +136,11 @@ export default function BentoCard({ car, layout = 'side', setHoverState, setCurs
                <span className={`absolute ${isSmall ? '-top-2.5' : '-top-3 sm:-top-4'} left-0 ${isSmall ? 'text-[6px]' : 'text-[7px] sm:text-[8px]'} font-bold text-green-600 uppercase`}>In Vault: {quantityInVault}</span>
              )}
              <p className={`${isSmall ? 'text-[6px]' : 'text-[7px] sm:text-[8px]'} uppercase text-gray-400 tracking-widest mb-0.5 sm:mb-1`}>Acquisition</p>
-             <p className={`${priceSize} font-black italic text-black`}>₹{car.price}</p>
+             <p className={`${priceSize} font-black italic text-black`}>
+               {car.variants?.length > 0 
+                 ? `₹${car.variants[0].price}${car.variants.length > 1 ? '+' : ''}`
+                 : `₹${car.price || 0}`}
+             </p>
            </div>
            
            <motion.button 

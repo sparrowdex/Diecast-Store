@@ -131,7 +131,9 @@ export default function StandardCard({ car, isPreview = false }) {
 
           {/* Top Left: Scale */}
           <div className="absolute top-2 left-2 z-10">
-            <span className="text-[8px] font-mono border border-black/10 bg-white/50 backdrop-blur-sm px-1.5 py-0.5 rounded text-gray-500">{car.scale}</span>
+            <span className="text-[8px] font-mono border border-black/10 bg-white/50 backdrop-blur-sm px-1.5 py-0.5 rounded text-gray-500">
+              {car.variants?.length > 1 ? "Multiple Scales" : (car.variants?.[0]?.scale || car.scale)}
+            </span>
           </div>
 
           {/* Top Right: Status */}
@@ -188,7 +190,11 @@ export default function StandardCard({ car, isPreview = false }) {
           <h4 className="text-xs font-bold uppercase tracking-tight truncate">{car.name}</h4>
           <div className="flex justify-between items-center mt-1 text-[10px]">
             <span className="text-gray-400">{car.brand}</span>
-            <span className="font-bold">₹{car.price}</span>
+            <span className="font-bold">
+              {car.variants?.length > 0 
+                ? `₹${car.variants[0].price}${car.variants.length > 1 ? '+' : ''}`
+                : `₹${car.price || 0}`}
+            </span>
           </div>
         </div>
       </motion.div>

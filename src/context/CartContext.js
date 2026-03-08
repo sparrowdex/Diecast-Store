@@ -37,17 +37,19 @@ export function CartProvider({ children }) {
   // Add item to cart
   const addToCart = (product, quantity = 1) => {
     setCart((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
+      const cartItemId = `${product.id}-${product.scale}`;
+      const existing = prev.find((item) => item.cartItemId === cartItemId);
       const stockLimit = product.stock ?? 999;
 
       if (existing) {
         const newQuantity = Math.min(existing.quantity + quantity, stockLimit);
         return prev.map((item) =>
-          item.id === product.id ? { ...item, quantity: newQuantity } : item
+          item.cartItemId === cartItemId ? { ...item, quantity: newQuantity } : item
         );
       }
       // Create a standardized cart item
       const cartItem = {
+        cartItemId,
         id: product.id,
         name: product.name,
         price: typeof product.price === 'string' 
@@ -68,16 +70,16 @@ export function CartProvider({ children }) {
   };
 
   // Remove item
-  const removeFromCart = (id) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
+  const removeFromCart = (cartItemId) => {
+    setCart((prev) => prev.filter((item) => item.cartItemId !== cartItemId));
   };
 
   // Update quantity for an existing item
-  const updateQuantity = (id, newQuantity) => {
+  const updateQuantity = (cartItemId, newQuantity) => {
     const qty = Number(newQuantity);
     setCart((prev) => 
       prev.map((item) => 
-        item.id === id 
+        item.cartItemId === cartItemId 
           ? { ...item, quantity: Math.max(1, Math.min(qty, item.stock ?? 999)) } 
           : item
       )

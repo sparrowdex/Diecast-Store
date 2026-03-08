@@ -27,9 +27,9 @@ export default function CatalogCard({ car, isPreview = false }) {
           
           {/* Top Left Badges */}
           <div className="absolute top-3 left-3 flex flex-col items-start gap-1 z-20">
-            {car.scale && (
+            {(car.scale || car.variants?.length > 0) && (
               <span className="inline-block bg-[#FAFAFA]/80 backdrop-blur-sm border border-[#E5E5E5] rounded px-1.5 py-0.5 text-[8px] font-mono font-bold uppercase tracking-widest text-[#666666]">
-                {car.scale}
+                {car.variants?.length > 1 ? "Multiple Scales" : (car.variants?.[0]?.scale || car.scale)}
               </span>
             )}
             {car.modelYear && (
@@ -118,7 +118,9 @@ export default function CatalogCard({ car, isPreview = false }) {
               {isOutOfStock ? 'Out of Stock' : 'In Stock'}
             </span>
             <p className="text-base md:text-lg font-black italic tracking-tighter text-[#0A0A0A]">
-              ₹{car.price?.toLocaleString()}
+              {car.variants?.length > 0 
+                ? `₹${Number(car.variants[0].price).toLocaleString()}${car.variants.length > 1 ? '+' : ''}`
+                : `₹${Number(car.price || 0).toLocaleString()}`}
             </p>
           </div>
         </div>

@@ -13,6 +13,12 @@ export default function ProductDetailClient({ car, preview = false }) {
   const { isSignedIn, isLoaded } = useUser();
   const { addToCart, setIsCartOpen, cart } = useCart();
   const [quantity, setQuantity] = useState(1);
+  
+  // Initialize with the first available variant
+  const [selectedVariant, setSelectedVariant] = useState(
+    car?.variants?.length > 0 ? car.variants[0] : { scale: car?.scale, price: car?.price, stock: car?.stock }
+  );
+
   const [mediaError, setMediaError] = useState(false);
 
   // 1. Media Setup
@@ -71,7 +77,7 @@ export default function ProductDetailClient({ car, preview = false }) {
         <div className="absolute top-8 left-8 right-8 flex justify-between items-center z-50">
           {!preview && (
             <Link href="/" className="text-[10px] font-black tracking-widest uppercase hover:underline text-black">
-              ← Gallery_Index
+              ← Gallery Index
             </Link>
           )}
 
@@ -197,13 +203,17 @@ export default function ProductDetailClient({ car, preview = false }) {
             <div className="flex-1 overflow-y-auto p-8 md:p-16">
               <div className="flex items-center gap-4 mb-6">
                 <span className="px-3 py-1 border border-black/10 rounded-full text-[9px] font-mono uppercase text-gray-500">{car.brand}</span>
-                <span className="px-3 py-1 border border-black/10 rounded-full text-[9px] font-mono uppercase text-gray-500">Scale {car.scale}</span>
+                <span className="px-3 py-1 border border-black/10 rounded-full text-[9px] font-mono uppercase text-gray-500">
+                  {car.variants?.length > 1 ? "Multi-Scale" : `Scale ${car.variants?.[0]?.scale || car.scale || "N/A"}`}
+                </span>
+                <span className="px-3 py-1 border border-black/10 rounded-full text-[9px] font-mono uppercase text-gray-500">{car.modelYear}</span>
               </div>
               <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter uppercase leading-[0.9] mb-8 text-black">{car.name}</h1>
+              
               <div className="h-[1px] w-full bg-black/5 my-8" />
               <div className="space-y-8">
                 <div>
-                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Exhibit_Description</h3>
+                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Exhibit Description</h3>
                   <p className="text-sm font-light leading-relaxed text-gray-600">{car.description}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -216,6 +226,29 @@ export default function ProductDetailClient({ car, preview = false }) {
                     <p className="text-xs font-bold text-black">{car.condition || 'N/A'}</p>
                   </div>
                 </div>
+
+                {car.editorsNote?.trim() && (
+                  <div>
+                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Curator Note</h3>
+                    <p className="text-sm font-light italic leading-relaxed text-gray-500 border-l-2 border-black/10 pl-4">{car.editorsNote}</p>
+                  </div>
+                )}
+
+                {/* SCALE SELECTOR */}
+                <div>
+                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-4">Available Sizes:</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {(car.variants || [{ scale: car.scale, price: car.price, stock: car.stock }]).map((v) => (
+                      <button
+                        key={v.scale}
+                        onClick={() => setSelectedVariant(v)}
+                        className={`px-6 py-3 border-2 font-black italic text-xs transition-all ${selectedVariant.scale === v.scale ? 'border-black bg-black text-white' : 'border-black/5 hover:border-black/20 text-gray-400'}`}
+                      >
+                        Scale {v.scale}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -223,21 +256,21 @@ export default function ProductDetailClient({ car, preview = false }) {
               <div className="flex justify-between items-end mb-4">
                 <div>
                   <p className="text-[10px] uppercase text-gray-400 tracking-widest mb-1">Valuation</p>
-                  <p className="text-4xl font-black italic tracking-tighter text-black leading-none">₹{car.price}</p>
+                  <p className="text-4xl font-black italic tracking-tighter text-black leading-none">₹{selectedVariant.price}</p>
                 </div>
                 <div className="flex items-center border border-black/10 rounded-sm h-12">
                   <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 h-full hover:bg-gray-50 border-r border-black/10">-</button>
                   <span className="px-6 font-mono text-sm">{quantity}</span>
-                  <button onClick={() => setQuantity(Math.min(car.stock || 99, quantity + 1))} className="px-4 h-full hover:bg-gray-50 border-l border-black/10">+</button>
+                  <button onClick={() => setQuantity(Math.min(selectedVariant.stock || 0, quantity + 1))} className="px-4 h-full hover:bg-gray-50 border-l border-black/10">+</button>
                 </div>
               </div>
               <button
-                onClick={() => addToCart(car, quantity)}
-                disabled={car.stock === 0}
+                onClick={() => addToCart({ ...car, ...selectedVariant }, quantity)}
+                disabled={selectedVariant.stock === 0}
                 className="w-full group relative overflow-hidden bg-black text-white py-5 font-black text-xs uppercase tracking-[0.3em] disabled:bg-gray-300"
               >
-                 <span className="relative z-10">{car.stock === 0 ? 'Sold Out' : 'Acquire Exhibit'}</span>
-                 {car.stock > 0 && <div className="absolute inset-0 -translate-x-full group-hover:animate-shine bg-gradient-to-r from-transparent via-white/30 to-transparent" />}
+                 <span className="relative z-10">{selectedVariant.stock === 0 ? 'Sold Out' : `Acquire ${selectedVariant.scale} Exhibit`}</span>
+                 {selectedVariant.stock > 0 && <div className="absolute inset-0 -translate-x-full group-hover:animate-shine bg-gradient-to-r from-transparent via-white/30 to-transparent" />}
               </button>
             </div>
           </motion.section>

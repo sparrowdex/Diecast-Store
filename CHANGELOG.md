@@ -1,5 +1,33 @@
 # Changelog - Diecast Store Refactor
 
+## [2026-03-08] - Multi-Variant Architecture & Bento Precision
+
+### Added
+- **Multi-Variant System**: Transitioned the core data architecture from a flat structure to a dynamic "One Model = Multiple Variants" system. Each exhibit can now support multiple scales (1:64, 1:43, 1:18, etc.), each with independent pricing and stock levels.
+- **Interactive Size Selector**: Implemented a technical "Available Sizes" toggle on the Product Details page that dynamically updates the exhibit's valuation and acquisition status in real-time.
+- **Dynamic Variant Manager**: Integrated a robust variant management interface into the Admin New/Edit forms and the Live Preview sidebar, allowing curators to stage multiple configurations per model.
+- **Inventory Telemetry Carousel**: Added an automated variant carousel to the Admin Inventory table that cycles through available scale/price configurations, maintaining a clean layout while displaying complex stock data.
+- **Expandable Collection Stream**: Implemented a responsive "Initialize Full Stream" logic for New Arrivals, defaulting to 6 units on mobile and 10 on desktop to maintain vertical rhythm.
+
+### Changed
+- **Mathematical Bento Alignment**: Enforced a strict `aspect-[4/3]` constraint on all Bento cards. By deriving height from width, the grid now maintains perfect mathematical alignment across all column spans without manual pixel offsets.
+- **Adaptive UI Scaling**: Implemented an `isSmall` detection system for Bento cards that automatically scales typography, padding, and button dimensions based on the container's grid footprint.
+- **Cinematic Hover Preservation**: Locked the Bento hover sidebar to exactly 50% width, ensuring the technical telemetry never obscures the cinematic video feed.
+- **Animation Pacing**: Refined the `StandardCard` hover carousel interval to 3 seconds and increased crossfade durations to 1.2 seconds for a more deliberate, high-end gallery experience.
+- **Cart Uniqueness Logic**: Updated the Vault protocol to identify items by a composite key (`id` + `scale`), enabling collectors to acquire different configurations of the same model in a single session.
+- **Typography Cleanup**: Stripped underscores from all UI headings and labels (e.g., `Featured_Exhibits` -> `Featured Exhibits`) to align with a more professional, polished aesthetic.
+
+### Fixed
+- **Pole Position Detection**: Resolved a logic error in the Admin Dashboard where featured exhibits were not being detected; the telemetry now correctly monitors both the legacy `featured` flag and the `FEATURED_EXHIBIT` status.
+- **Curator Note Visibility**: Hardened the Editor's Note logic to ensure the section remains hidden if no content is provided, preventing empty data plates.
+- **Preview Synchronization**: Updated all Admin simulation cards (Catalog, Standard, Bento) to accurately reflect live variant data and the new 4:3 scaling convention.
+
+### What We Learnt
+- **Composite Identity**: When moving to a variant-based system, the "Primary Key" for client-side state (like the cart) must evolve from a simple ID to a composite identifier to prevent data collisions.
+- **Aspect-Ratio Driven Layouts**: Using CSS aspect ratios instead of fixed heights is the most reliable way to maintain Bento grid integrity when dealing with uniform photography.
+
+---
+
 ## [2026-03-07] - Footer Stability & Layout Polish
 
 ### Fixed

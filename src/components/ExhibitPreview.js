@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -54,9 +54,20 @@ function TextareaField({ name, label, value, onChange, placeholder, rows = 4 }) 
     );
 }
 
-
-export default function ExhibitPreview({ formData, orderedMedia, handleChange, carId }) {
+export default function ExhibitPreview({ formData, orderedMedia, handleChange, handleVariantChange, addVariant, removeVariant }) {
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
+  
+  // Local state to drive the interactive "Product Page" preview
+  const [selectedVariant, setSelectedVariant] = useState(
+    formData?.variants?.length > 0 ? formData.variants[0] : { scale: formData?.scale, price: formData?.price, stock: formData?.stock }
+  );
+
+  // Sync selected variant if the form data variants change
+  useEffect(() => {
+    if (formData?.variants?.length > 0) {
+      setSelectedVariant(formData.variants[0]);
+    }
+  }, [formData?.variants]);
 
   // The component now expects `orderedMedia` to be an array of {url, type} objects.
   // The fallback to formData is kept for robustness, though it contains only URLs.
@@ -68,6 +79,7 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
     images: formData.images,
     image: (formData.images && formData.images.length > 0) ? formData.images[0] : '/cars/maybach.jpg',
     video: formData.video,
+    variants: formData.variants,
   };
 
   const activeMedia = media[activeMediaIndex] || null;
@@ -75,8 +87,6 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
 
   const placeholderCars = [
     { id: 'p1', name: 'Placeholder', brand: 'Brand', price: '₹–––', image: '/cars/maybach.jpg', scale: '1:64' },
-    { id: 'p2', name: 'Placeholder', brand: 'Brand', price: '₹–––', image: '/cars/maybach.jpg', scale: '1:32' },
-    { id: 'p3', name: 'Placeholder', brand: 'Brand', price: '₹–––', image: '/cars/maybach.jpg', scale: '1:24' },
   ];
 
   return (
@@ -266,19 +276,40 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
                     <div className="flex-1 space-y-4">
                         <div className="flex flex-wrap items-center gap-2 mb-3">
                             <span className="px-2 py-0.5 border border-black/10 rounded-full text-[8px] font-mono uppercase text-gray-500">{formData.brand || "Brand"}</span>
-                            <span className="px-2 py-0.5 border border-black/10 rounded-full text-[8px] font-mono uppercase text-gray-500">Scale {formData.scale || "1:--"}</span>
+                            <span className="px-2 py-0.5 border border-black/10 rounded-full text-[8px] font-mono uppercase text-gray-500">
+                                {formData.variants?.length > 1 ? "Multi-Scale" : `Scale ${formData.variants?.[0]?.scale || formData.scale || "1:--"}`}
+                            </span>
                             <span className="px-2 py-0.5 border border-black/10 rounded-full text-[8px] font-mono uppercase text-gray-500">{formData.modelYear || "Year"}</span>
                         </div>
                         <h1 className="text-xl md:text-2xl font-black italic tracking-tighter uppercase leading-[0.9] mb-4">{formData.name || "Exhibit Name"}</h1>
                         <div className="h-px w-full bg-black/5 my-4" />
                         <div className="space-y-4">
-                            <div><h3 className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-2">Description</h3><p className="text-xs font-light leading-relaxed text-gray-600 line-clamp-3">{formData.description || "Description preview..."}</p></div>
+                            <div><h3 className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-2">Exhibit Description</h3><p className="text-xs font-light leading-relaxed text-gray-600 line-clamp-3">{formData.description || "Description preview..."}</p></div>
                             <div className="grid grid-cols-2 gap-2"><div className="p-2 bg-gray-50 rounded-sm"><p className="text-[8px] uppercase text-gray-400 tracking-widest mb-1">Material</p><p className="text-xs font-bold">{formData.material || "N/A"}</p></div><div className="p-2 bg-gray-50 rounded-sm"><p className="text-[8px] uppercase text-gray-400 tracking-widest mb-1">Condition</p><p className="text-xs font-bold">{formData.condition || "N/A"}</p></div></div>
-                            <div><h3 className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-2">Editor&apos;s Note</h3><p className="text-xs font-light leading-relaxed text-gray-600 line-clamp-2">{formData.editorsNote || "Editor's Note preview..."}</p></div>
+                            
+                            {formData.editorsNote?.trim() && (
+                              <div><h3 className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-2">Curator Note</h3><p className="text-xs font-light leading-relaxed text-gray-600 line-clamp-2 italic border-l-2 border-black/5 pl-3">{formData.editorsNote}</p></div>
+                            )}
+
+                            {/* INTERACTIVE SIZE TOGGLE IN PREVIEW */}
+                            <div>
+                              <h3 className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-2">Available Sizes</h3>
+                              <div className="flex flex-wrap gap-1.5">
+                                {(formData.variants || [{ scale: formData.scale, price: formData.price, stock: formData.stock }]).map((v) => (
+                                  <button
+                                    key={v.scale}
+                                    onClick={() => setSelectedVariant(v)}
+                                    className={`px-3 py-1.5 border font-black italic text-[9px] transition-all ${selectedVariant.scale === v.scale ? 'border-black bg-black text-white' : 'border-black/5 text-gray-400'}`}
+                                  >
+                                    {v.scale}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
                         </div>
                     </div>
                     <div className="mt-4 pt-4 border-t border-black/5 sticky bottom-0 bg-white/95 backdrop-blur">
-                        <div className="flex justify-between items-end mb-2"><span className="text-[10px] uppercase text-gray-400 tracking-widest">Valuation</span><span className="text-2xl font-black italic tracking-tighter">₹{formData.price || "0"}</span></div>
+                        <div className="flex justify-between items-end mb-2"><span className="text-[10px] uppercase text-gray-400 tracking-widest">Valuation</span><span className="text-2xl font-black italic tracking-tighter">₹{selectedVariant.price || "0"}</span></div>
                         <div className="flex gap-2">
                           <div className="flex items-center border border-black/10 rounded-md px-3 bg-gray-50">
                             <span className="text-[10px] font-mono text-gray-400 mr-2">QTY</span>
@@ -299,11 +330,11 @@ export default function ExhibitPreview({ formData, orderedMedia, handleChange, c
                 <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
                         <p className="text-sm text-center text-gray-400 mb-4 font-mono uppercase tracking-widest">Default State</p>
-                        <BentoCard car={previewCar} layout="aspect-video" isPreview={true} />
+                        <BentoCard car={previewCar} layout="col-span-8" isPreview={true} />
                     </div>
                     <div>
                         <p className="text-sm text-center text-yellow-500 mb-4 font-mono uppercase tracking-widest">Hover State</p>
-                        <BentoCard car={previewCar} layout="aspect-video" isPreview={true} forceHover={true} />
+                        <BentoCard car={previewCar} layout="col-span-8" isPreview={true} forceHover={true} />
                     </div>
                 </div>
             </div>

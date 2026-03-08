@@ -45,7 +45,7 @@ export default function CartDrawer() {
                 cart.map((item) => {
                   const currentQty = Number(item.quantity || 1);
                   return (
-                  <div key={item.id} className="flex gap-4 group">
+                  <div key={item.cartItemId} className="flex gap-4 group">
                     <div className="w-16 h-16 bg-gray-100 rounded-sm p-2 flex-shrink-0 border border-black/5">
                       <Image 
                         src={item.image || (item.images && item.images[0]) || "/placeholder-car.png"} 
@@ -71,7 +71,7 @@ export default function CartDrawer() {
                           <div className="flex items-center border border-black/10 rounded-sm overflow-hidden">
                             <button 
                               type="button"
-                              onClick={() => updateQuantity(item.id, currentQty - 1)}
+                              onClick={() => updateQuantity(item.cartItemId, currentQty - 1)}
                               disabled={currentQty <= 1}
                               className="px-2 py-1 text-[10px] hover:bg-gray-100 transition-colors border-r border-black/10 disabled:opacity-30 disabled:cursor-not-allowed"
                             >
@@ -82,7 +82,7 @@ export default function CartDrawer() {
                             </span>
                             <button 
                               type="button"
-                              onClick={() => updateQuantity(item.id, currentQty + 1)}
+                              onClick={() => updateQuantity(item.cartItemId, currentQty + 1)}
                               disabled={currentQty >= (item.stock || 999)}
                               className="px-2 py-1 text-[10px] hover:bg-gray-100 transition-colors border-l border-black/10 disabled:opacity-30 disabled:cursor-not-allowed"
                             >
@@ -94,7 +94,7 @@ export default function CartDrawer() {
                           )}
                         </div>
                         <button 
-                          onClick={() => removeFromCart(item.id)}
+                          onClick={() => removeFromCart(item.cartItemId)}
                           className="text-[9px] text-red-500 underline hover:no-underline uppercase tracking-wider"
                         >
                           Remove

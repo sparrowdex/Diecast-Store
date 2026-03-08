@@ -25,8 +25,6 @@ export default function NewExhibitPage() {
   const [formData, setFormData] = useState({
     name: "",
     brand: "",
-    price: "",
-    scale: "1:64",
     material: "",
     condition: "",
     description: "",
@@ -35,7 +33,7 @@ export default function NewExhibitPage() {
     collectionStatus: "CATALOG",
     genre: "CITY_LIFE",
     modelYear: new Date().getFullYear(),
-    stock: 1,
+    variants: [{ scale: "1:64", price: "", stock: 1 }],
   });
 
   const [reorderedImages, setReorderedImages] = useState([]);
@@ -52,6 +50,27 @@ export default function NewExhibitPage() {
     }
 
     setFormData(prev => ({ ...prev, [name]: val }));
+  };
+
+  const handleVariantChange = (index, field, value) => {
+    const newVariants = [...formData.variants];
+    newVariants[index][field] = field === 'price' ? parseFloat(value) || 0 : field === 'stock' ? parseInt(value) || 0 : value;
+    setFormData(prev => ({ ...prev, variants: newVariants }));
+  };
+
+  const addVariant = () => {
+    setFormData(prev => ({
+      ...prev,
+      variants: [...prev.variants, { scale: "1:43", price: "", stock: 1 }]
+    }));
+  };
+
+  const removeVariant = (index) => {
+    if (formData.variants.length <= 1) return;
+    setFormData(prev => ({
+      ...prev,
+      variants: prev.variants.filter((_, i) => i !== index)
+    }));
   };
 
   const handleMediaUpload = (res) => {
@@ -103,8 +122,6 @@ export default function NewExhibitPage() {
       ...formData,
       images,
       video,
-      price: parseFloat(formData.price) || 0,
-      stock: parseInt(formData.stock, 10) || 0
     };
     
     try {
@@ -190,18 +207,38 @@ export default function NewExhibitPage() {
             <div className="space-y-6 w-full min-w-0">
               <InputField name="name" label="Exhibit Name" value={formData.name} onChange={handleChange} required />
               <InputField name="brand" label="Brand" value={formData.brand} onChange={handleChange} required />
-              <div className="grid grid-cols-2 gap-4 w-full min-w-0">
-                <InputField name="price" label="Price" value={formData.price} onChange={handleChange} type="number" required />
-                <div className="space-y-2 font-geist-mono w-full min-w-0">
-                  <label className="text-[10px] font-black uppercase tracking-widest opacity-40 block truncate">Scale</label>
-                  <select name="scale" value={formData.scale} onChange={handleChange} className="w-full bg-white/5 border border-white/10 p-4 text-xs outline-none uppercase italic text-white appearance-none">
-                    {['1:64', '1:43', '1:24', '1:18'].map(s => <option key={s} value={s} className="bg-zinc-900">{s}</option>)}
-                  </select>
+              
+              {/* VARIANT MANAGER */}
+              <div className="space-y-4 border-t border-white/10 pt-6">
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-black uppercase tracking-widest opacity-40">Scale Configurations</label>
+                  <button type="button" onClick={addVariant} className="text-[10px] font-bold text-yellow-500 hover:underline">+ ADD SCALE</button>
                 </div>
+                {formData.variants.map((v, idx) => (
+                  <div key={idx} className="grid grid-cols-3 gap-2 items-end bg-white/5 p-3 rounded-sm relative group">
+                    <div className="space-y-1">
+                      <label className="text-[8px] uppercase opacity-30">Scale</label>
+                      <select value={v.scale} onChange={(e) => handleVariantChange(idx, 'scale', e.target.value)} className="w-full bg-transparent border-b border-white/10 text-xs py-1 outline-none">
+                        {['1:64', '1:43', '1:24', '1:18'].map(s => <option key={s} value={s} className="bg-zinc-900">{s}</option>)}
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[8px] uppercase opacity-30">Price</label>
+                      <input type="number" value={v.price} onChange={(e) => handleVariantChange(idx, 'price', e.target.value)} className="w-full bg-transparent border-b border-white/10 text-xs py-1 outline-none" placeholder="0" />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[8px] uppercase opacity-30">Stock</label>
+                      <input type="number" value={v.stock} onChange={(e) => handleVariantChange(idx, 'stock', e.target.value)} className="w-full bg-transparent border-b border-white/10 text-xs py-1 outline-none" placeholder="0" />
+                    </div>
+                    {formData.variants.length > 1 && (
+                      <button type="button" onClick={() => removeVariant(idx)} className="absolute -right-2 -top-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
+                    )}
+                  </div>
+                ))}
               </div>
+
               <div className="grid grid-cols-2 gap-4 w-full min-w-0">
                 <InputField name="modelYear" label="Model Year" value={formData.modelYear} onChange={handleChange} type="number" />
-                <InputField name="stock" label="Stock" value={formData.stock} onChange={handleChange} type="number" />
               </div>
             </div>
           </div>
@@ -288,6 +325,9 @@ export default function NewExhibitPage() {
               }} 
               orderedMedia={reorderedImages}
               handleChange={handleChange}
+              handleVariantChange={handleVariantChange}
+              addVariant={addVariant}
+              removeVariant={removeVariant}
             />
           </div>
 

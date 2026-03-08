@@ -47,12 +47,12 @@ export default async function SingleJournalEntryPage({ params }) {
             </Link>
           </div>
 
-          <div className="absolute bottom-0 left-0 w-full p-12 md:p-20">
+          <div className="absolute bottom-0 left-0 w-full p-8 md:p-16">
             <div className="max-w-5xl mx-auto">
               <p className="font-geist-mono text-[10px] uppercase text-[#FF8700] tracking-[0.5em] mb-4">
                 {entry.genre?.replace(/_/g, ' ') || 'EDITORIAL'}
               </p>
-              <h1 className="text-5xl md:text-9xl font-black italic uppercase tracking-tighter leading-[0.8] text-white drop-shadow-2xl">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-black italic uppercase tracking-tighter leading-[1.1] text-white drop-shadow-2xl max-w-4xl">
                 {entry.title}
               </h1>
               

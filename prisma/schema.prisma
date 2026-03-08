@@ -12,8 +12,9 @@ model Product {
   id          String   @id @default(cuid())
   name        String
   brand       String
-  scale       String
-  price       Float
+  scale       String?
+  price       Float?
+  variants    Json?
   sku         String?
 
   // THE KEY CHANGE: We store a list of URLs, not just one
@@ -30,7 +31,7 @@ model Product {
   genre       Genre?
   modelYear   Int?
   isRare      Boolean  @default(false)
-  stock       Int      @default(1)
+  stock       Int?     @default(1)
   orderItems  OrderItem[]
   wishlist    WishlistItem[]
   createdAt   DateTime @default(now())
