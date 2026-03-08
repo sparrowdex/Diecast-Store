@@ -10,11 +10,11 @@ const layoutConfigs = [
     miniMapGrid: "grid-cols-3 grid-rows-2",
     miniMapSlots: ["col-span-2 row-span-2", "col-span-1 row-span-1", "col-span-1 row-span-1"],
     // Mobile: Stacked | Desktop: 12-col grid
-    mainGrid: "grid-cols-1 md:grid-cols-12 md:grid-rows-2",
+    mainGrid: "grid-cols-1 md:grid-cols-12",
     mainSlots: [
-      "col-span-1 md:col-span-8 md:row-span-2 min-h-[300px]", 
-      "col-span-1 md:col-span-4 md:row-span-1 min-h-[150px]", 
-      "col-span-1 md:col-span-4 md:row-span-1 min-h-[150px]"
+      "col-span-1 md:col-span-8 md:row-span-2", 
+      "col-span-1 md:col-span-4 md:row-span-1", 
+      "col-span-1 md:col-span-4 md:row-span-1"
     ],
   },
   {
@@ -22,11 +22,11 @@ const layoutConfigs = [
     label: "Panorama Layout",
     miniMapGrid: "grid-cols-2 grid-rows-2",
     miniMapSlots: ["col-span-2 row-span-1", "col-span-1 row-span-1", "col-span-1 row-span-1"],
-    mainGrid: "grid-cols-1 md:grid-cols-12 md:grid-rows-2",
+    mainGrid: "grid-cols-1 md:grid-cols-12",
     mainSlots: [
-      "col-span-1 md:col-span-12 md:row-span-1 min-h-[200px]", 
-      "col-span-1 md:col-span-6 md:row-span-1 min-h-[150px]", 
-      "col-span-1 md:col-span-6 md:row-span-1 min-h-[150px]"
+      "col-span-1 md:col-span-12 md:row-span-1", 
+      "col-span-1 md:col-span-6 md:row-span-1", 
+      "col-span-1 md:col-span-6 md:row-span-1"
     ],
   },
   {
@@ -34,11 +34,11 @@ const layoutConfigs = [
     label: "Columns Layout",
     miniMapGrid: "grid-cols-3 grid-rows-1",
     miniMapSlots: ["col-span-1 row-span-1", "col-span-1 row-span-1", "col-span-1 row-span-1"],
-    mainGrid: "grid-cols-1 md:grid-cols-12 md:grid-rows-2",
+    mainGrid: "grid-cols-1 md:grid-cols-12",
     mainSlots: [
-      "col-span-1 md:col-span-4 md:row-span-2 min-h-[250px]", 
-      "col-span-1 md:col-span-4 md:row-span-2 min-h-[250px]", 
-      "col-span-1 md:col-span-4 md:row-span-2 min-h-[250px]"
+      "col-span-1 md:col-span-4 md:row-span-2", 
+      "col-span-1 md:col-span-4 md:row-span-2", 
+      "col-span-1 md:col-span-4 md:row-span-2"
     ],
   },
   {
@@ -46,11 +46,11 @@ const layoutConfigs = [
     label: "Mosaic Layout",
     miniMapGrid: "grid-cols-2 grid-rows-2",
     miniMapSlots: ["col-span-1 row-span-2", "col-span-1 row-span-1", "col-span-1 row-span-1"],
-    mainGrid: "grid-cols-1 md:grid-cols-12 md:grid-rows-2",
+    mainGrid: "grid-cols-1 md:grid-cols-12",
     mainSlots: [
-      "col-span-1 md:col-span-6 md:row-span-2 min-h-[300px]", 
-      "col-span-1 md:col-span-6 md:row-span-1 min-h-[150px]", 
-      "col-span-1 md:col-span-6 md:row-span-1 min-h-[150px]"
+      "col-span-1 md:col-span-6 md:row-span-2", 
+      "col-span-1 md:col-span-6 md:row-span-1", 
+      "col-span-1 md:col-span-6 md:row-span-1"
     ],
   },
 ];
@@ -75,9 +75,11 @@ export default function FeaturedManagerPage() {
           fetch(`/api/products/${id}`).then(res => res.json())
         );
         const products = await Promise.all(productPromises);
-        setFeaturedExhibits(products.filter(p => p));
+        // Filter to ensure only models with FEATURED_EXHIBIT status are manageable here
+        setFeaturedExhibits(products.filter(p => p && p.collectionStatus === 'FEATURED_EXHIBIT'));
       } else {
-        const response = await fetch('/api/products?featured=true');
+        // Fetch only models explicitly marked as FEATURED_EXHIBIT
+        const response = await fetch('/api/products?status=FEATURED_EXHIBIT');
         const featuredProducts = await response.json();
         setFeaturedExhibits(featuredProducts);
       }
@@ -188,7 +190,7 @@ export default function FeaturedManagerPage() {
                     onDragEnter={() => (dragOverItem.current = idx)}
                     onDragEnd={handleSort}
                     onDragOver={(e) => e.preventDefault()}
-                    className={`group relative rounded-lg overflow-hidden cursor-grab active:cursor-grabbing transition-all border border-white/10 hover:border-yellow-500/50 ${cls}`}
+                    className={`group relative aspect-[4/3] rounded-lg overflow-hidden cursor-grab active:cursor-grabbing transition-all border border-white/10 hover:border-yellow-500/50 ${cls}`}
                   >
                     {exhibit ? (
                       <>
@@ -200,7 +202,7 @@ export default function FeaturedManagerPage() {
                         </div>
                       </>
                     ) : (
-                      <div className="w-full h-full min-h-[150px] flex items-center justify-center bg-white/5 text-gray-600 text-[10px] font-bold uppercase tracking-widest">
+                      <div className="w-full h-full flex items-center justify-center bg-white/5 text-gray-600 text-[10px] font-bold uppercase tracking-widest">
                         Empty Slot
                       </div>
                     )}

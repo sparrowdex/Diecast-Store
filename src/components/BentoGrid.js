@@ -60,7 +60,7 @@ export default function BentoGrid({ cars, layout = 'hero', setCursorBlocked, set
   const carsToRender = cars.slice(0, bentoLayout.length);
 
   return (
-    <div className={`grid grid-cols-1 md:grid-cols-12 gap-4 auto-rows-[200px]`}>
+    <div className={`grid grid-cols-1 md:grid-cols-12 gap-4`}>
       {carsToRender.map((car, index) => (
         <BentoCard 
           key={`${car.id}-${index}`}
