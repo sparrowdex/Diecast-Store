@@ -70,6 +70,17 @@ const RichTextEditor = ({ content, onUpdate }) => {
     ],
     content: content || '',
     immediatelyRender: false, // - Fixes SSR hydration error
+    onCreate: ({ editor }) => {
+      const text = editor.getText();
+      const initialStats = {
+        chars: text.length,
+        words: text.trim().split(/\s+/).filter(Boolean).length,
+        readTime: Math.ceil(text.trim().split(/\s+/).filter(Boolean).length / 200) || 1
+      };
+      setStats(initialStats);
+      // Sync parent state with initial telemetry on load
+      if (onUpdate) onUpdate(editor.getHTML(), initialStats);
+    },
     onUpdate: ({ editor }) => {
       const text = editor.getText();
       const newStats = {
@@ -82,7 +93,7 @@ const RichTextEditor = ({ content, onUpdate }) => {
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-base md:prose-lg prose-invert max-w-none min-h-[400px] p-6 md:p-16 focus:outline-none bg-[#0a0a0a] text-white/90 font-geist selection:bg-[#FF8700]/40 leading-relaxed md:leading-loose',
+        class: 'prose prose-base md:prose-lg prose-invert max-w-none min-h-[400px] p-6 md:p-16 focus:outline-none bg-[#0a0a0a] text-white/90 font-geist selection:bg-[#FF8700]/40 leading-relaxed md:leading-loose [&_li_p]:m-0 prose-ul:list-disc prose-ol:list-decimal prose-li:marker:text-[#FF8700]',
       },
     }
   });
