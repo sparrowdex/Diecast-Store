@@ -1,7 +1,7 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUser, SignInButton, SignOutButton, UserButton } from "@clerk/nextjs";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from 'next/link';
 import { useCart } from "@/context/CartContext";
 import CartDrawer from "@/components/CartDrawer";
@@ -65,6 +65,18 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
     // Filtering State
     const [selectedGenre, setSelectedGenre] = useState("All");
     const [selectedScale, setSelectedScale] = useState("All");
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [initialLimit, setInitialLimit] = useState(6);
+
+    // Responsive limit detection
+    useEffect(() => {
+        const handleResize = () => {
+            setInitialLimit(window.innerWidth < 768 ? 6 : 10);
+        };
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const filteredCollection = useMemo(() => {
         return newArrivals.filter(car => {
@@ -74,6 +86,8 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
         });
     }, [newArrivals, selectedGenre, selectedScale]);
 
+    const displayCollection = isExpanded ? filteredCollection : filteredCollection.slice(0, initialLimit);
+
     return (
       <main className="min-h-screen bg-[#fafafa] text-black font-sans relative selection:bg-black selection:text-white">
         <CartDrawer />
@@ -81,7 +95,7 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
             <header className="mb-12 md:mb-20 flex flex-col md:flex-row justify-between items-center md:items-baseline border-b border-black/10 pb-8 gap-8 md:gap-0">
               <div className="text-center md:text-left">
                 <h1 className="text-xl sm:text-5xl md:text-6xl font-black tracking-tighter italic">THE DIECAST STORE</h1>
-                <p className="text-gray-400 text-[10px] tracking-[0.4em] font-mono uppercase mt-3 ml-1">Curated_Diecast_Exhibition</p>
+                <p className="text-gray-400 text-[10px] tracking-[0.4em] font-mono uppercase mt-3 ml-1">Curated Diecast Exhibition</p>
               </div>
               <nav className="flex w-full md:w-auto items-center justify-between md:justify-end gap-2 sm:gap-6 md:gap-8 lg:gap-12 text-[10px] font-bold tracking-widest uppercase">
                 
@@ -107,7 +121,7 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
                         
                         <div className="h-px bg-black/5 my-2" />
                         <SignOutButton>
-                          <button className="w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-600 hover:bg-red-50 transition-colors">Logout_Session</button>
+                          <button className="w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-600 hover:bg-red-50 transition-colors">Logout Session</button>
                         </SignOutButton>
                       </div>
                     </div>
@@ -139,7 +153,7 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
       
             <section className="mb-32">
               <div className="flex items-center gap-6 mb-10">
-                <h2 className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.3em]">Featured_Exhibits</h2>
+                <h2 className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.3em]">Featured Exhibits</h2>
                 <div className="h-px flex-1 bg-linear-to-r from-black/10 to-transparent" />
               </div>
               <BentoGrid
@@ -174,11 +188,28 @@ export default function Gallery({ featuredExhibits, newArrivals, featuredLayout 
       
                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-12">
                  <AnimatePresence mode="popLayout">
-                   {filteredCollection.map((car) => (
+                   {displayCollection.map((car) => (
                      <StandardCard key={car.id} car={car} />
                    ))}
                  </AnimatePresence>
                </div>
+
+               {filteredCollection.length > initialLimit && (
+                 <div className="mt-20 flex justify-center">
+                   <button 
+                     onClick={() => setIsExpanded(!isExpanded)}
+                     className="group relative px-12 py-5 border border-black/10 hover:border-black transition-all duration-500"
+                   >
+                     {/* Technical Corner Accents */}
+                     <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-black opacity-0 group-hover:opacity-100 transition-all duration-500 -translate-x-1 -translate-y-1 group-hover:translate-x-0 group-hover:translate-y-0" />
+                     <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-black opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-1 translate-y-1 group-hover:translate-x-0 group-hover:translate-y-0" />
+
+                     <span className="relative z-10 font-mono text-[10px] font-black uppercase tracking-[0.4em] text-black">
+                       {isExpanded ? 'STOW ARCHIVE' : `INITIALIZE FULL STREAM (${filteredCollection.length} UNITS)`}
+                     </span>
+                   </button>
+                 </div>
+               )}
             </section>
 
             <CustomCursor active={hoverState && !isCursorBlocked} />

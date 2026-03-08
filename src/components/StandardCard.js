@@ -25,7 +25,7 @@ const OutOfStockStamp = () => (
         backdropFilter: 'blur(2px)'
       }}
     >
-      OUT_OF_STOCK
+      OUT OF STOCK
     </motion.div>
   </div>
 );
@@ -50,8 +50,8 @@ export default function StandardCard({ car, isPreview = false }) {
             timeout = setTimeout(() => {
                 interval = setInterval(() => {
                     setCurrentImage(prev => (prev + 1) % images.length);
-                }, 2000); // Change image every 2 seconds
-            }, 500); // Wait 500ms before starting carousel
+                }, 3000); // Slower carousel: 3 seconds
+            }, 600); // Slightly longer delay to confirm intent
         }
 
         return () => {
@@ -107,16 +107,16 @@ export default function StandardCard({ car, isPreview = false }) {
                         initial={{ opacity: 0 }}
                         animate={{ 
                             opacity: 1, 
-                            transition: { duration: 0.7, ease: "easeInOut" } 
+                            transition: { duration: 1.2, ease: "easeInOut" } 
                         }}
                         exit={{ 
                             opacity: 0, 
-                            transition: { duration: 0.7, ease: "easeInOut" } 
+                            transition: { duration: 1.2, ease: "easeInOut" } 
                         }}
                         style={{
                             filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
                             transform: isHovered ? 'scale(1.1)' : 'scale(1)',
-                            transition: 'filter 0.5s ease-in-out, transform 0.5s ease-in-out',
+                            transition: 'filter 1s ease-in-out, transform 1s ease-in-out',
                         }}
                     >
                         <Image 

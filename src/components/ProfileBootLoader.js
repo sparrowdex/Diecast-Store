@@ -9,12 +9,12 @@ import { Terminal } from "lucide-react";
  */
 export default function SystemBootLoader({ isDark = true }) {
   const lines = [
-    "INITIALIZING_CORE_SYSTEMS",
-    "MOUNTING_VAULT_DRIVES",
-    "ESTABLISHING_TELEMETRY_LINK",
-    "LOADING_COLLECTOR_IDENTITY",
-    "AUTHENTICATING_EXHIBITS",
-    "SYSTEM_READY"
+    "INITIALIZING CORE SYSTEMS",
+    "MOUNTING VAULT DRIVES",
+    "ESTABLISHING TELEMETRY LINK",
+    "LOADING COLLECTOR IDENTITY",
+    "AUTHENTICATING EXHIBITS",
+    "SYSTEM READY"
   ];
 
   return (
@@ -24,7 +24,7 @@ export default function SystemBootLoader({ isDark = true }) {
       <div className="w-full max-w-xs space-y-4">
         <div className="flex items-center gap-2 mb-2 opacity-40">
            <Terminal size={14} />
-           <span className="text-[10px] uppercase tracking-[0.3em]">System_Boot</span>
+           <span className="text-[10px] uppercase tracking-[0.3em]">System Boot</span>
         </div>
         {lines.map((line, i) => (
           <motion.div

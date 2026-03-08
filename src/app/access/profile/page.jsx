@@ -77,7 +77,7 @@ export default function ProfileSettingsPage() {
           Profile Configuration
         </h2>
         <p className="font-geist-mono text-[9px] sm:text-[10px] opacity-40 mt-2 tracking-[0.2em]">
-          {"// CUSTOMIZE_YOUR_DIGITAL_CREDENTIALS"}
+          {"// CUSTOMIZE YOUR DIGITAL CREDENTIALS"}
         </p>
       </header>
 
@@ -100,7 +100,7 @@ export default function ProfileSettingsPage() {
             </div>
 
             <div className="flex-1 text-center md:text-left space-y-2">
-              <label className="block font-geist-mono text-[10px] font-black uppercase tracking-widest opacity-40 italic">System_Identity_Image</label>
+              <label className="block font-geist-mono text-[10px] font-black uppercase tracking-widest opacity-40 italic">System Identity Image</label>
               <p className="text-xs opacity-60 max-w-sm">Your biometric visual is synced with your primary secure account.</p>
               <button 
                 type="button"
@@ -124,7 +124,7 @@ export default function ProfileSettingsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-3">
             <label className="flex items-center gap-2 font-geist-mono text-[10px] font-black uppercase opacity-40 tracking-widest">
-                <User size={12} className={accentColor} /> Collector_Alias
+                <User size={12} className={accentColor} /> Collector Alias
             </label>
             <input 
               value={profile?.collectorName || ''}
@@ -136,7 +136,7 @@ export default function ProfileSettingsPage() {
 
           <div className="space-y-3">
             <label className="flex items-center gap-2 font-geist-mono text-[10px] font-black uppercase opacity-40 tracking-widest">
-                <ShieldCheck size={12} className={accentColor} /> Verified_Stamp
+                <ShieldCheck size={12} className={accentColor} /> Verified Stamp
             </label>
             <div className="relative">
                 <select 
@@ -145,9 +145,9 @@ export default function ProfileSettingsPage() {
                 className={`w-full bg-transparent border-b-2 p-3 font-black italic text-sm focus:outline-none appearance-none cursor-pointer uppercase ${isDark ? 'border-white/10 bg-zinc-900' : 'border-black/10 bg-white'}`}
                 >
                 <option value="VERIFIED">VERIFIED</option>
-                <option value="ELITE">ELITE_ARCHIVE</option>
-                <option value="PROTOTYPE">PROTOTYPE_UNIT</option>
-                <option value="LEGACY">LEGACY_HOLDER</option>
+                <option value="ELITE">ELITE ARCHIVE</option>
+                <option value="PROTOTYPE">PROTOTYPE UNIT</option>
+                <option value="LEGACY">LEGACY HOLDER</option>
                 </select>
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-30">▼</div>
             </div>
@@ -158,7 +158,7 @@ export default function ProfileSettingsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-3">
             <label className="flex items-center gap-2 font-geist-mono text-[10px] font-black uppercase opacity-40 tracking-widest">
-                <Target size={12} className={accentColor} /> Collector_Specialization
+                <Target size={12} className={accentColor} /> Collector Specialization
             </label>
             <div className="relative">
                 <select 
@@ -166,12 +166,12 @@ export default function ProfileSettingsPage() {
                 onChange={e => setProfile(prev => ({ ...prev, specialization: e.target.value }))}
                 className={`w-full bg-transparent border-b-2 p-3 font-black italic text-sm focus:outline-none appearance-none cursor-pointer uppercase ${isDark ? 'border-white/10 bg-zinc-900' : 'border-black/10 bg-white'}`}
                 >
-                <option value="GENERALIST">GENERAL_COLLECTOR</option>
-                <option value="OPEN_WHEEL">OPEN_WHEEL_SPECIALIST</option>
-                <option value="ENDURANCE">ENDURANCE_COLLECTOR</option>
-                <option value="GT_SPECIALIST">GT_SPECIALIST</option>
-                <option value="VINTAGE">VINTAGE_HUNTER</option>
-                <option value="PROTOTYPE">PROTOTYPE_ARCHIVIST</option>
+                <option value="GENERALIST">GENERAL COLLECTOR</option>
+                <option value="OPEN_WHEEL">OPEN WHEEL SPECIALIST</option>
+                <option value="ENDURANCE">ENDURANCE COLLECTOR</option>
+                <option value="GT_SPECIALIST">GT SPECIALIST</option>
+                <option value="VINTAGE">VINTAGE HUNTER</option>
+                <option value="PROTOTYPE">PROTOTYPE ARCHIVIST</option>
                 </select>
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-30">▼</div>
             </div>
@@ -179,7 +179,7 @@ export default function ProfileSettingsPage() {
 
           <div className="space-y-3">
             <label className="flex items-center gap-2 font-geist-mono text-[10px] font-black uppercase opacity-40 tracking-widest">
-                <MapPin size={12} className={accentColor} /> Deployment_Sector
+                <MapPin size={12} className={accentColor} /> Deployment Sector
             </label>
             <input 
               value={profile?.sector || ''}
@@ -222,7 +222,7 @@ export default function ProfileSettingsPage() {
           className={`w-full py-4 sm:py-5 font-black italic uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[10px] sm:text-xs transition-all relative overflow-hidden group ${isDark ? 'bg-white text-black' : 'bg-black text-white'}`}
         >
           <div className={`absolute left-0 top-0 h-full w-1 transition-all group-hover:w-full group-hover:opacity-10 ${isDark ? 'bg-yellow-500' : 'bg-orange-600'}`} />
-          <span className="relative z-10">{saving ? 'SYNCING...' : 'COMMIT_CHANGES_TO_VAULT'}</span>
+          <span className="relative z-10">{saving ? 'SYNCING...' : 'COMMIT CHANGES TO VAULT'}</span>
         </motion.button>
       </form>
     </div>
